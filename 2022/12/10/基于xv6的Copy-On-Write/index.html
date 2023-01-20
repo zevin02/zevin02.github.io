@@ -20,7 +20,7 @@
 <meta property="og:type" content="article">
 <meta property="og:title" content="基于xv6的Copy-On-Write">
 <meta property="og:url" content="http://example.com/2022/12/10/%E5%9F%BA%E4%BA%8Exv6%E7%9A%84Copy-On-Write/index.html">
-<meta property="og:site_name" content="Zevin-Blog">
+<meta property="og:site_name" content="Zlespark">
 <meta property="og:description" content="文章目录 为什么需要写时拷贝呢？ page fault的执行流程 Copy-On-Write处理方法  PTE 引用计数 虚拟地址空间   核心代码  为什么需要写时拷贝呢？当 shell执行指令的时候会 fork()，而这个 fork()出来的进程首先会调用的就是 exec来执行对应的命令，如果我们将 fork()创建的进程对地址空间进行了完整的拷贝,那将是一个巨大的消耗 因为在实际应用中，">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/3f5070a60f4c48b99b920f7738889b96.png">
@@ -37,7 +37,7 @@
   
   
   
-  <title>基于xv6的Copy-On-Write - Zevin-Blog</title>
+  <title>基于xv6的Copy-On-Write - Zlespark</title>
 
   <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
 
@@ -118,7 +118,7 @@
   <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
   <div class="container">
     <a class="navbar-brand" href="/">
-      <strong>Zevin-Blog</strong>
+      <strong>Zlespark</strong>
     </a>
 
     <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
