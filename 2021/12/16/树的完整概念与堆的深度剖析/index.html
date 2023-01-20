@@ -1,0 +1,772 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zevin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="tree.c heap.h heap.c 堆的应用 1.topk问题 2.堆排序     这篇博客会完整的对于树，堆的概念，堆的应用（topk问题，堆排序）进行深度的剖析   tree.c123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525">
+<meta property="og:type" content="article">
+<meta property="og:title" content="树的完整概念与堆的深度剖析">
+<meta property="og:url" content="http://example.com/2021/12/16/%E6%A0%91%E7%9A%84%E5%AE%8C%E6%95%B4%E6%A6%82%E5%BF%B5%E4%B8%8E%E5%A0%86%E7%9A%84%E6%B7%B1%E5%BA%A6%E5%89%96%E6%9E%90/index.html">
+<meta property="og:site_name" content="Zevin-Blog">
+<meta property="og:description" content="tree.c heap.h heap.c 堆的应用 1.topk问题 2.堆排序     这篇博客会完整的对于树，堆的概念，堆的应用（topk问题，堆排序）进行深度的剖析   tree.c123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/08fe1b95ba6a44c29881850254512ce1.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/0366a43f003149a49b8c873dc09c0833.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center">
+<meta property="article:published_time" content="2021-12-16T09:05:57.000Z">
+<meta property="article:modified_time" content="2023-01-20T12:55:15.358Z">
+<meta property="article:author" content="Zevin">
+<meta property="article:tag" content="b树 数据结构 排序算法 算法 c语言">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/08fe1b95ba6a44c29881850254512ce1.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center">
+  
+  
+  
+  <title>树的完整概念与堆的深度剖析 - Zevin-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","app_key":"javf3F1xk56WiY222ZrCxGt1","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zevin-Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="树的完整概念与堆的深度剖析"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-12-16 17:05" pubdate>
+          2021年12月16日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          53 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">树的完整概念与堆的深度剖析</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+
+<ul>
+<li><a href="#_1"></a></li>
+<li><ul>
+<li><a href="#_2"></a></li>
+<li><ul>
+<li><a href="#_3"></a></li>
+</ul>
+</li>
+<li><a href="#treec_10">tree.c</a></li>
+<li><a href="#heaph_78">heap.h</a></li>
+<li><a href="#heapc_146">heap.c</a></li>
+<li><a href="#_327">堆的应用</a></li>
+<li><a href="#1topk_329">1.topk问题</a></li>
+<li><a href="#2_398">2.堆排序</a></li>
+</ul>
+</li>
+</ul>
+<blockquote>
+<p>这篇博客会完整的对于树，堆的概念，堆的应用（topk问题，堆排序）进行深度的剖析</p>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/08fe1b95ba6a44c29881850254512ce1.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h2 id="tree-c"><a href="#tree-c" class="headerlink" title="tree.c"></a>tree.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br></pre></td><td class="code"><pre><code class="hljs c">`<span class="hljs-meta">#<span class="hljs-keyword">define</span> _CRT_SECURE_NO_WARNINGS 1</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdio.h&gt;</span></span><br><br><br><br><br><br><span class="hljs-comment">//如何表示一个树呢（代码实现如何定义结构）</span><br><span class="hljs-comment">//法1.假设说明了树的度是N（最大是这么多）</span><br> <br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">treenode</span></span><br><span class="hljs-class">&#123;</span><br>	<span class="hljs-type">int</span> data;<br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">treenode</span>*<span class="hljs-title">subs</span>[<span class="hljs-title">N</span>];</span><span class="hljs-comment">//这个数组是一个指针数组，里面存的都是指针，但是有缺陷，问题在于</span><br>	<span class="hljs-comment">//1.可能会存在不少空间的浪费，如假设只有一个树的度是8，其余的都是0，1，2……浪费了很多空间</span><br>	<span class="hljs-comment">//万一没有给我们树的度为多少呢，</span><br><br>&#125;;<br><br><br><span class="hljs-comment">//法2；</span><br><span class="hljs-comment">//假设我们已经定义了一个顺序表seqlist出来了，数据类型是</span><br><span class="hljs-comment">//typedef struct treenode* seqdata</span><br><span class="hljs-comment">//这个顺序表里面存的是节点的指针</span><br><br><span class="hljs-comment">//struct treenode</span><br><span class="hljs-comment">//&#123;</span><br><span class="hljs-comment">//	int data;</span><br><span class="hljs-comment">//	seqlist s;//</span><br><span class="hljs-comment">//&#125;;</span><br><br><br><span class="hljs-comment">//法3.结构数组村粗</span><br><br><span class="hljs-comment">//struct treenode</span><br><span class="hljs-comment">//&#123;</span><br><span class="hljs-comment">//	int parenti;</span><br><span class="hljs-comment">//	int data;</span><br><span class="hljs-comment">//</span><br><span class="hljs-comment">//&#125;;</span><br><br><br><span class="hljs-comment">//上面的方式各有优缺点，表示树结构的最优方法，  使用左孩子右兄弟表示法</span><br><br><span class="hljs-keyword">typedef</span> <span class="hljs-type">int</span> datatype;<br><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">node</span></span><br><span class="hljs-class">&#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">node</span>*<span class="hljs-title">firstchild</span>;</span><span class="hljs-comment">//第一个孩子节点，    永远指向第一个孩子</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">node</span>*<span class="hljs-title">pnextbrother</span>;</span><span class="hljs-comment">//指向下一个兄弟节点  指向孩子右边的兄弟</span><br>	datatype data;   <span class="hljs-comment">//节点中的数据域</span><br>&#125;;<br><br><br><span class="hljs-comment">//二叉树</span><br><span class="hljs-comment">//不学习他的增删查改，没有意义</span><br><span class="hljs-comment">//而是去控制一下他的结构（高度，深度）</span><br><span class="hljs-comment">//作用是搜索二叉树：用来进行查找，-》平衡搜索二叉树，（avl树和红黑树，b树）（这些结构才会去学习他的增删查改）</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/0366a43f003149a49b8c873dc09c0833.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h2 id="heap-h"><a href="#heap-h" class="headerlink" title="heap.h"></a>heap.h</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> _CRT_SECURE_NO_WARNINGS 1</span><br><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> once</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;assert.h&gt;</span></span><br><br><br><br><span class="hljs-comment">//堆是一个完全二叉树</span><br><span class="hljs-comment">//我们已经推导了公式，已知父亲，左为父*2+1，右为父*2+2</span><br><span class="hljs-comment">//已知孩子，父亲为（子-1）/2</span><br><br><br><br><br><span class="hljs-keyword">typedef</span> <span class="hljs-type">int</span> hpdata;<br><span class="hljs-keyword">typedef</span> <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">heap</span></span><br><span class="hljs-class">&#123;</span><br>	<span class="hljs-comment">//物理结构就是一个顺序表</span><br>	hpdata *a;<br>	<span class="hljs-type">int</span> size;<br>	<span class="hljs-type">int</span> capacity;<br>&#125;heap;<br><br><br><span class="hljs-comment">//初始化</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">heapinit</span><span class="hljs-params">(heap* hp)</span>;<br><br><br><span class="hljs-comment">// 销毁</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">heapdestroy</span><span class="hljs-params">(heap* hp)</span>;<br><br><span class="hljs-comment">//插入</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">heappush</span><span class="hljs-params">(heap *hp, hpdata x)</span>;<br><br><span class="hljs-comment">//删除</span><br><br><span class="hljs-type">void</span> <span class="hljs-title function_">heappop</span><span class="hljs-params">(heap*hp)</span>;<br><br><br><span class="hljs-type">void</span> <span class="hljs-title function_">adjustup</span><span class="hljs-params">(hpdata *a, <span class="hljs-type">int</span> n, <span class="hljs-type">int</span> child)</span>;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">heapprint</span><span class="hljs-params">(heap*hp)</span>;<br><br><br><span class="hljs-comment">//判空</span><br><span class="hljs-type">bool</span> <span class="hljs-title function_">heapempty</span><span class="hljs-params">(heap*hp)</span>;<br><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">heapsize</span><span class="hljs-params">(heap*hp)</span>;<br><br><span class="hljs-comment">//</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">swap</span><span class="hljs-params">(hpdata*x, hpdata*y)</span>;<br><br><span class="hljs-comment">//向下调</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">adjustdown</span><span class="hljs-params">(<span class="hljs-type">int</span> *a, <span class="hljs-type">int</span> size, <span class="hljs-type">int</span> parent)</span>;<br></code></pre></td></tr></table></figure>
+
+<h2 id="heap-c"><a href="#heap-c" class="headerlink" title="heap.c"></a>heap.c</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> _CRT_SECURE_NO_WARNINGS 1</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&quot;heap.h&quot;</span></span><br><br><br><span class="hljs-comment">//初始化</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">heapinit</span><span class="hljs-params">(heap* hp)</span><br>&#123;<br>	assert(hp);<br>	hp-&gt;capacity =hp-&gt;size= <span class="hljs-number">0</span>;<br>	hp-&gt;a = <span class="hljs-literal">NULL</span>;<br>&#125;<br><br><br><span class="hljs-comment">// 销毁</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">heapdestroy</span><span class="hljs-params">(heap* hp)</span><br>&#123;<br>	assert(hp);<br>	<span class="hljs-built_in">free</span>(hp-&gt;a);<br>	hp-&gt;a = <span class="hljs-literal">NULL</span>;<br>	hp-&gt;capacity = hp-&gt;size = <span class="hljs-number">0</span>;<br>&#125;<br><br><span class="hljs-comment">//向上调整</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">adjustup</span><span class="hljs-params">(hpdata *a, <span class="hljs-type">int</span> n, <span class="hljs-type">int</span> child)</span><span class="hljs-comment">//a就是这数组，n就这个数组右多大</span><br>&#123;<br>	assert(a);<br>	<span class="hljs-type">int</span> parent = (child - <span class="hljs-number">1</span>) / <span class="hljs-number">2</span>;<br>	<span class="hljs-comment">//while(parent&gt;=0)</span><br>	<span class="hljs-keyword">while</span> (child &gt;<span class="hljs-number">0</span>)<span class="hljs-comment">//调到根</span><br>	&#123;<br>		<span class="hljs-keyword">if</span> (a[child] &gt; a[parent])<span class="hljs-comment">//大于就交换</span><br>		&#123;<br>			<span class="hljs-comment">//交换</span><br>			hpdata tmp = a[child];<br>			a[child] = a[parent];<br>			a[parent] = tmp;<br>			child = parent;<br>			parent = (child - <span class="hljs-number">1</span>) / <span class="hljs-number">2</span>;<br>		&#125;<br>		<span class="hljs-keyword">else</span><br>		&#123;<br>			<span class="hljs-keyword">break</span>;<span class="hljs-comment">//小于就停止</span><br>		&#125;<br>	&#125;<br><br>&#125;<br><br><br><br><br><br><br><br><span class="hljs-comment">//插入</span><br><span class="hljs-comment">//假设是大堆</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">heappush</span><span class="hljs-params">(heap *hp, hpdata x)</span><br>&#123;<br>	assert(hp);<br>	<span class="hljs-comment">//满了就要先增容</span><br>	<span class="hljs-keyword">if</span> (hp-&gt;size == hp-&gt;capacity)<br>	&#123;<br>		<span class="hljs-type">size_t</span> newcapcity = hp-&gt;capacity == <span class="hljs-number">0</span> ? <span class="hljs-number">4</span> : hp-&gt;capacity * <span class="hljs-number">2</span>;<br>		hpdata *tmp = (hpdata*)<span class="hljs-built_in">realloc</span>(hp-&gt;a, <span class="hljs-keyword">sizeof</span>(hpdata)*newcapcity);<br>		<span class="hljs-keyword">if</span> (tmp != <span class="hljs-literal">NULL</span>)<br>		&#123;<br>			hp-&gt;a = tmp;<br>			hp-&gt;capacity = newcapcity;<br>		&#125;<br>		<span class="hljs-keyword">else</span><br>		&#123;<br>			perror(<span class="hljs-string">&quot;realloc&quot;</span>);<br>			<span class="hljs-keyword">return</span>;<br>		&#125;<br>	&#125;<br>	hp-&gt;a[hp-&gt;size] = x;<br>	hp-&gt;size++;<br>	adjustup(hp-&gt;a, hp-&gt;size, hp-&gt;size<span class="hljs-number">-1</span>);<br><br><br><br>&#125;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">heapprint</span><span class="hljs-params">(heap*hp)</span><br>&#123;<br>	<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>;<br>	<span class="hljs-keyword">for</span> (i = <span class="hljs-number">0</span>; i &lt; hp-&gt;size; i++)<br>	&#123;<br>		<span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%d &quot;</span>, hp-&gt;a[i]);<br>	&#125;<br>&#125;<br><br><br>```c<br><br><span class="hljs-type">bool</span> <span class="hljs-title function_">heapempty</span><span class="hljs-params">(heap*hp)</span><br>&#123;<br>	assert(hp);<br>	<span class="hljs-keyword">return</span> hp-&gt;size == <span class="hljs-number">0</span>;<span class="hljs-comment">//为0就是空的，不为0就不是空的</span><br><br><br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">heapsize</span><span class="hljs-params">(heap*hp)</span><br>&#123;<br>	assert(hp);<br>	<span class="hljs-keyword">return</span> hp-&gt;size;<br>&#125;<br><span class="hljs-comment">//向上调的时间复杂度是</span><br><span class="hljs-comment">//</span><br><span class="hljs-comment">//向上调高度次</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">adjustdown</span><span class="hljs-params">(<span class="hljs-type">int</span> *a, <span class="hljs-type">int</span> n, <span class="hljs-type">int</span> parent)</span><br>&#123;<br>	<span class="hljs-type">int</span> child = parent * <span class="hljs-number">2</span> + <span class="hljs-number">1</span>;<br>	<span class="hljs-keyword">while</span> (child &lt; n)<span class="hljs-comment">//越界就停止了</span><br>	&#123;<br>		<span class="hljs-keyword">if</span> (child + <span class="hljs-number">1</span> &lt; n&amp;&amp;a[child + <span class="hljs-number">1</span>] &gt; a[child])<span class="hljs-comment">//右孩子也不越界，右孩子大于左孩子，在这里之后，不用管谁的下标的大，统一放到左孩子</span><br>		&#123;<br>			++child;<span class="hljs-comment">//找大的交换</span><br>		&#125;<br>		<span class="hljs-keyword">if</span> (a[child] &gt; a[parent])<span class="hljs-comment">//孩子大于父亲，就交换</span><br>		&#123;<br>			swap(&amp;a[child], &amp;a[parent]);<br>			parent = child;<br>			child = parent * <span class="hljs-number">2</span> + <span class="hljs-number">1</span>;<br>		&#125;<br>		<span class="hljs-keyword">else</span><br>		&#123;<br>			<span class="hljs-keyword">break</span>;<br>		&#125;<br>	&#125;<br>&#125;<br><br><span class="hljs-comment">//删除</span><br><span class="hljs-comment">//再堆里面删除不是随便任意删除什么位置都可以</span><br><span class="hljs-comment">//而是删除堆顶的数据（根），意义是调整堆，找到次小的值（小堆）</span><br><span class="hljs-comment">//向下调整，把他调整成堆，跟左右孩子中小的那个交换</span><br><span class="hljs-comment">//结束条件</span><br><span class="hljs-comment">//1.父亲&lt;=小的那个孩子，则停止</span><br><span class="hljs-comment">//2.调整到叶子（当父亲走到叶子就停止，叶子是没有左孩子，左孩子下标超出数组范围就不存在）</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">heappop</span><span class="hljs-params">(heap*hp)</span><br>&#123;<br>	assert(hp);<br>	assert(!heapempty(hp));<span class="hljs-comment">//空了就别删除了</span><br>	<span class="hljs-comment">//先把堆顶和底部删掉</span><br>	swap(&amp;hp-&gt;a[<span class="hljs-number">0</span>], &amp;hp-&gt;a[hp-&gt;size - <span class="hljs-number">1</span>]);<br>	hp-&gt;size--;<span class="hljs-comment">//删掉了</span><br>	<span class="hljs-comment">//交换之后，向下调整，保证不破坏堆,从0开始向下调</span><br>	adjustdown(hp-&gt;a, hp-&gt;size, <span class="hljs-number">0</span>);<br>&#125;<br><br><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>test.c</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">define</span> _CRT_SECURE_NO_WARNINGS 1</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&quot;heap.h&quot;</span></span><br><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span><br>&#123;<br>	<span class="hljs-type">int</span> a[] = &#123; <span class="hljs-number">70</span>,<span class="hljs-number">56</span>,<span class="hljs-number">30</span>,<span class="hljs-number">25</span>,<span class="hljs-number">15</span>,<span class="hljs-number">10</span>,<span class="hljs-number">75</span> &#125;;<span class="hljs-comment">//用数组去给hp值</span><br>	heap HP;<span class="hljs-comment">//定义一个堆</span><br>	heapinit(&amp;HP);<br>	<span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; <span class="hljs-keyword">sizeof</span>(a) / <span class="hljs-keyword">sizeof</span>(a[<span class="hljs-number">0</span>]); i++)<br>	&#123;<br>		heappush(&amp;HP, a[i]);<br>&#125;<br>	heapprint(&amp;HP);<br><br>	<span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br><br><br></code></pre></td></tr></table></figure>
+
+<h2 id="堆的应用"><a href="#堆的应用" class="headerlink" title="堆的应用"></a>堆的应用</h2><h2 id="1-topk问题"><a href="#1-topk问题" class="headerlink" title="1.topk问题"></a>1.topk问题</h2><blockquote>
+<p>topk问题<br>（就是再n个数里面找到最大的前k个，或者最小的前k个）<br>1.排序：我们最常见的想法就是把所有数据排一遍，然后找到其中最大的k个，但是这样假如说n非常非常大，而k却远小于n，那么就相当于杀鸡用牛刀，这种方法的最有的时间复杂度是O（n*logn）<br>2.我们最优的方法是是先取前k个建立一个小堆，建立小堆之后，顶部的一定是最小的，随后，n-k个入堆，与顶比较，如果比顶部的大，就交换，到最后剩下的 那k个一定就是符合要求的</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// 在N个数找出最大的前K个  or  在N个数找出最小的前K个</span><br><span class="hljs-type">void</span> <span class="hljs-title function_">PrintTopK</span><span class="hljs-params">(<span class="hljs-type">int</span>* a, <span class="hljs-type">int</span> n, <span class="hljs-type">int</span> k)</span><br>&#123;<br>	heap hp;<br>	heapinit(&amp;hp);<br>	<span class="hljs-comment">// 创建一个K个数的小堆</span><br>	<span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; k; ++i)<br>	&#123;<br>		heappush(&amp;hp, a[i]);<span class="hljs-comment">//一个一个入堆</span><br>	&#125;<br><br>	<span class="hljs-comment">// 剩下的N-K个数跟堆顶的数据比较，比他大，就替换他进堆</span><br>	<span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = k; i &lt; n; ++i)<br>	&#123;<br>		<span class="hljs-keyword">if</span> (a[i] &gt; heaptop(&amp;hp))<span class="hljs-comment">//比较，大的就入堆</span><br>		&#123;<br>			heappop(&amp;hp);<span class="hljs-comment">//把顶补的删掉，</span><br>			heappush(&amp;hp, a[i]);<span class="hljs-comment">//大的入堆</span><br>			<span class="hljs-comment">//hp.a[0] = a[i];//把顶部的换成现在大的</span><br>			<span class="hljs-comment">//adjustdown(hp.a, hp.size, 0);//向下调整</span><br>		&#125;<br>	&#125;<br><br>	heapprint(&amp;hp);<br><br>	heapdestroy(&amp;hp);<br>&#125;<br><br><span class="hljs-type">void</span> <span class="hljs-title function_">TestTopk</span><span class="hljs-params">()</span><br>&#123;<br>	<span class="hljs-type">int</span> n = <span class="hljs-number">1000000</span>;<br>	<span class="hljs-type">int</span>* a = (<span class="hljs-type">int</span>*)<span class="hljs-built_in">malloc</span>(<span class="hljs-keyword">sizeof</span>(<span class="hljs-type">int</span>)*n);<br>	srand(time(<span class="hljs-number">0</span>));<br>	<span class="hljs-keyword">for</span> (<span class="hljs-type">size_t</span> i = <span class="hljs-number">0</span>; i &lt; n; ++i)<br>	&#123;<br>		a[i] = rand() % <span class="hljs-number">1000000</span>;<br>	&#125;<br>	<span class="hljs-comment">// 再去设置10个比100w大的数</span><br>	a[<span class="hljs-number">5</span>] = <span class="hljs-number">1000000</span> + <span class="hljs-number">1</span>;<br>	a[<span class="hljs-number">1231</span>] = <span class="hljs-number">1000000</span> + <span class="hljs-number">2</span>;<br>	a[<span class="hljs-number">5355</span>] = <span class="hljs-number">1000000</span> + <span class="hljs-number">3</span>;<br>	a[<span class="hljs-number">51</span>] = <span class="hljs-number">1000000</span> + <span class="hljs-number">4</span>;<br>	a[<span class="hljs-number">15</span>] = <span class="hljs-number">1000000</span> + <span class="hljs-number">5</span>;<br>	a[<span class="hljs-number">2335</span>] = <span class="hljs-number">1000000</span> + <span class="hljs-number">6</span>;<br>	a[<span class="hljs-number">9999</span>] = <span class="hljs-number">1000000</span> + <span class="hljs-number">7</span>;<br>	a[<span class="hljs-number">76</span>] = <span class="hljs-number">1000000</span> + <span class="hljs-number">8</span>;<br>	a[<span class="hljs-number">423</span>] = <span class="hljs-number">1000000</span> + <span class="hljs-number">9</span>;<br>	a[<span class="hljs-number">3144</span>] = <span class="hljs-number">1000000</span> + <span class="hljs-number">10</span>;<br>	PrintTopK(a, n, <span class="hljs-number">10</span>);<br>&#125;<br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span><br>&#123;<br>TestTopk();<br><span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="2-堆排序"><a href="#2-堆排序" class="headerlink" title="2.堆排序"></a>2.堆排序</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">//堆排序</span><br><span class="hljs-comment">//首先先建堆，再应用堆进行排序</span><br><span class="hljs-comment">//升序就建大堆，降序就建小堆</span><br><br><span class="hljs-type">void</span> <span class="hljs-title function_">HeapSort</span><span class="hljs-params">(<span class="hljs-type">int</span>* a, <span class="hljs-type">int</span> n)</span><br>&#123;<br><br>	<span class="hljs-comment">//法1.</span><br>	<span class="hljs-comment">// 直接把a构建成堆，直接控制a数组，升序，吧</span><br>	<span class="hljs-comment">//把a构建成小堆</span><br>	<span class="hljs-comment">//第一个数先看做堆，后面的数据依次加入堆，然后向上调整，构建堆,调到根就结束了，保证他还是堆</span><br><span class="hljs-comment">//	if (n &lt;= 1)//第一个就看成堆</span><br><span class="hljs-comment">//	&#123;</span><br><span class="hljs-comment">//		return;</span><br><span class="hljs-comment">//&#125;</span><br>	<span class="hljs-comment">//for (int i = 1; i &lt; n; i++)//后面的数加入进去</span><br>	<span class="hljs-comment">//&#123;</span><br>	<span class="hljs-comment">//	AdjustUp(a,i);</span><br>	<span class="hljs-comment">//&#125;</span><br><br>	<span class="hljs-comment">//法2；</span><br>	<span class="hljs-comment">//向下调整也可以，保证左子树和右子树都小堆，倒着走最后一个子树进行调整</span><br>	<span class="hljs-comment">//叶子所在的子树不需要调，所以倒着走的第一个非子节点的子树，就是最后一个节点的父亲，调完之后--，直到根 </span><br>	<span class="hljs-comment">//前面的调整为后面做了铺垫，前面调整完之后一定是一个堆</span><br>	<span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = (n - <span class="hljs-number">1</span><span class="hljs-number">-1</span>) / <span class="hljs-number">2</span>; i &gt;= <span class="hljs-number">0</span>; i--)<span class="hljs-comment">//最后一个位置是n-1，</span><br>	&#123;<br>		AdjustDown(a, n, i);<br>	&#125;<br><br>	<span class="hljs-comment">//排升序建小堆的分析：</span><br>	<span class="hljs-comment">//1.选出了最小的数放到第一个位置，如何选出次小的位置，只能从第二个位置开始，剩下的数看成一个堆，但是这样的话所有的关系都乱了，只能重新建堆才可以选出次小的堆</span><br><br>	<span class="hljs-comment">//我们建大堆，最大的数选出来，</span><br>	<span class="hljs-comment">//最大的数放最后一个位置，交换</span><br>	<span class="hljs-comment">//如何选出此校的 数，1.把最后一个数不看做堆里面的了，向下调整就可以选出次小的数，依次内推在重复上面过程，，原本有n个数，现在传n-1个数，就不把他当做堆里面的了</span><br>	<br>	<span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> end = n - <span class="hljs-number">1</span>; end &gt; <span class="hljs-number">0</span>; end--)<br>	&#123;<br>		Swap(&amp;a[end], &amp;a[<span class="hljs-number">0</span>]);<br>		AdjustDown(a, end, <span class="hljs-number">0</span>);<span class="hljs-comment">//向下调整，到根部</span><br>	&#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" class="category-chain-item">数据结构</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/b%E6%A0%91-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95-%E7%AE%97%E6%B3%95-c%E8%AF%AD%E8%A8%80/">#b树 数据结构 排序算法 算法 c语言</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>树的完整概念与堆的深度剖析</div>
+      <div>http://example.com/2021/12/16/树的完整概念与堆的深度剖析/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zevin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年12月16日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/12/16/%E8%B4%AA%E5%BF%83%E7%AE%97%E6%B3%95%E5%88%9D%E6%AD%A5%E5%AD%A6%E4%B9%A0/" title="贪心算法初步学习">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">贪心算法初步学习</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/12/06/%E8%B6%85%E5%AE%8C%E6%95%B4%E7%B4%A0%E6%95%B0%E7%AE%97%E6%B3%95%E6%80%BB%E7%BB%93%E5%BD%92%E7%BA%B3/" title="超完整素数算法总结归纳">
+                        <span class="hidden-mobile">超完整素数算法总结归纳</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","appKey":"javf3F1xk56WiY222ZrCxGt1","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

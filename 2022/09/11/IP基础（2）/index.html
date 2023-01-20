@@ -1,0 +1,930 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zevin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="文章目录 网段划分  初步认识 IP地址分类 特殊IP   IP地址的数量限制 私有IP地址和公网IP地址 路由 路由表生成算法  网段划分IP地址分为两部分，网络号和主机号   网络号：保证相互两个网段之间有不同的标识 主机号: 在同一网段内，主机之间具有相同的网络号，但是必须有不同的主机号      不同的子网就是把网络号相同的主机放在一起 如果在子网里面增加一台主机，则这台主机的网络号和">
+<meta property="og:type" content="article">
+<meta property="og:title" content="IP基础（2）">
+<meta property="og:url" content="http://example.com/2022/09/11/IP%E5%9F%BA%E7%A1%80%EF%BC%882%EF%BC%89/index.html">
+<meta property="og:site_name" content="Zevin-Blog">
+<meta property="og:description" content="文章目录 网段划分  初步认识 IP地址分类 特殊IP   IP地址的数量限制 私有IP地址和公网IP地址 路由 路由表生成算法  网段划分IP地址分为两部分，网络号和主机号   网络号：保证相互两个网段之间有不同的标识 主机号: 在同一网段内，主机之间具有相同的网络号，但是必须有不同的主机号      不同的子网就是把网络号相同的主机放在一起 如果在子网里面增加一台主机，则这台主机的网络号和">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/8a5be5d6f0a3471496e71d4688878ef9.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/de4947ad3bbc45579f0fd6e875e1fb4e.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/89c0c938cca447c48dd4663e8b9b93ae.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/16822689dc5048d2b1e29bb11476357c.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/be2a122b5885445aa45ae15e7280c4b4.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/d2e26b85d30c41fea2f58f634874d22f.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/26911cee33a0403ea88cf22827626d5a.png">
+<meta property="article:published_time" content="2022-09-11T15:11:35.000Z">
+<meta property="article:modified_time" content="2023-01-20T12:55:15.358Z">
+<meta property="article:author" content="Zevin">
+<meta property="article:tag" content="tcp&#x2F;ip 网络 服务器">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/8a5be5d6f0a3471496e71d4688878ef9.png">
+  
+  
+  
+  <title>IP基础（2） - Zevin-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","app_key":"javf3F1xk56WiY222ZrCxGt1","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zevin-Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="IP基础（2）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-09-11 23:11" pubdate>
+          2022年9月11日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.7k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          23 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">IP基础（2）</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+
+<h3 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h3><ul>
+<li><a href="#_1">网段划分</a></li>
+<li><ul>
+<li><a href="#_15">初步认识</a></li>
+<li><a href="#IP_30">IP地址分类</a></li>
+<li><a href="#IP_72">特殊IP</a></li>
+</ul>
+</li>
+<li><a href="#IP_77">IP地址的数量限制</a></li>
+<li><a href="#IPIP_83">私有IP地址和公网IP地址</a></li>
+<li><a href="#_104">路由</a></li>
+<li><a href="#_126">路由表生成算法</a></li>
+</ul>
+<h1 id="网段划分"><a href="#网段划分" class="headerlink" title="网段划分"></a>网段划分</h1><p>IP地址分为两部分，网络号和主机号</p>
+<blockquote>
+<ul>
+<li><code>网络号</code>：保证相互两个网段之间有不同的标识</li>
+<li><code>主机号</code>: 在同一网段内，主机之间具有相同的网络号，但是必须有不同的主机号</li>
+</ul>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/8a5be5d6f0a3471496e71d4688878ef9.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<blockquote>
+<ul>
+<li>不同的子网就是把网络号相同的主机放在一起</li>
+<li>如果在子网里面增加一台主机，则这台主机的网络号和这个子网的网络号一致，但是主机号必须不能和子网中其他的主机重复</li>
+</ul>
+</blockquote>
+<p>IP地址不用的时候就要回收回来<br>但是，手动管理子网内的IP，是一个相当麻烦的事情</p>
+<blockquote>
+<ul>
+<li>有一种技术叫做DHCP，可以自动给子网内新增主机节点分配IP地址，避免了手动管理IP的不变</li>
+<li>一般路由器都有带DHCP的功能，因此路由器可以看作一个DHCP服务器</li>
+</ul>
+</blockquote>
+<h2 id="初步认识"><a href="#初步认识" class="headerlink" title="初步认识"></a>初步认识</h2><p><img src="https://img-blog.csdnimg.cn/de4947ad3bbc45579f0fd6e875e1fb4e.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<blockquote>
+<p>如，</p>
+<ul>
+<li>一个计算机学院1班2号的学生，捡到了一个学生证，里面有它的学院和专业代码,要把学生证还给对方</li>
+<li>它首先现在自己这个学院专业这个群里面，找到负责人</li>
+<li>负责人，收到了消息，把这个消息发在全校所有学院专业的群里面,每个人都来查看是谁的，不是就扔掉这个（公网）</li>
+<li>校学生负责人收到了消息，知道了她是经管的，并@经管学生负责人</li>
+<li>经管学生负责人收到了，看到了班级和个人，就把消息发给了那个人</li>
+</ul>
+</blockquote>
+<blockquote>
+<ul>
+<li>在路上的人只关心学号的前半部分，通过划分不同的群，来进行查找的，这样就能一次排除一个或者多个群</li>
+<li>到达目标群（经管院），就不关心前半部分了，只关心后半部分</li>
+</ul>
+</blockquote>
+<p>网络划分本质：提高查找效率，减少查找的难度，便于组网</p>
+<h2 id="IP地址分类"><a href="#IP地址分类" class="headerlink" title="IP地址分类"></a>IP地址分类</h2><p><img src="https://img-blog.csdnimg.cn/89c0c938cca447c48dd4663e8b9b93ae.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<ul>
+<li>A类：0.0.0.0到127.255.255.255。</li>
+<li>B类：128.0.0.0到191.255.255.255。</li>
+<li>C类：192.0.0.0到223.255.255.255。</li>
+<li>D类：224.0.0.0到239.255.255.255。</li>
+<li>E类：240.0.0.0到247.255.255.255。</li>
+</ul>
+<blockquote>
+<p>分类划分之后，可以让不同国家组织根据自己的体量选择适合自己的网段<br><img src="https://img-blog.csdnimg.cn/16822689dc5048d2b1e29bb11476357c.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+</blockquote>
+<p>弊端</p>
+<blockquote>
+<p>大多数的组织都申请B类网络地址，这样也很浪费空间，理论上，申请b类地址，一个子网内可以允许6万5千多太主机，A类就更多了，<br>在实际网络中，不可能有这么多主机，就造成很大浪费</p>
+</blockquote>
+<p>针对这种浪费IP的情况，又引入了CIDR（Classless interdomain Routing），不进行划分</p>
+<blockquote>
+<ul>
+<li>引入一个额外的子网掩码（subnet mask）来区分网络号</li>
+<li>子网掩码是一个32位的正整数，前面全1，后面全0</li>
+<li>将IP地址和子网掩码来进行按位与，得到的就是网络号</li>
+<li>网络号和主机号的划分和这个IP地址是A类，B类，C类是无关的</li>
+<li>子网后面有多少个0，就代表这个网络里面允许有多少个主机号</li>
+</ul>
+</blockquote>
+<p>例1.</p>
+<table>
+<thead>
+<tr>
+<th>IP地址</th>
+<th>140.252.20.68</th>
+<th>8C FC 14 44</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>子网掩码</td>
+<td>255.255.255.0</td>
+<td>FF FF FF 00</td>
+</tr>
+<tr>
+<td>网络号</td>
+<td>140.252.20</td>
+<td></td>
+</tr>
+<tr>
+<td>子网地址范围</td>
+<td>140.252.20.0~140.252.20.255</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>子网掩码为FF FF FF 00</p>
+<p>例2.</p>
+<table>
+<thead>
+<tr>
+<th>IP地址</th>
+<th>140.252.20.68</th>
+<th>8C FC 14 44</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>子网掩码</td>
+<td>255.255.255.240</td>
+<td>FF FF FF F0</td>
+</tr>
+<tr>
+<td>网络号</td>
+<td>140.252.20.64</td>
+<td>8C FC 14 40</td>
+</tr>
+<tr>
+<td>子网地址范围</td>
+<td>140.252.20.64</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>子网掩码FF FF FF F0</p>
+<h2 id="特殊IP"><a href="#特殊IP" class="headerlink" title="特殊IP"></a>特殊IP</h2><blockquote>
+<ul>
+<li>将IP地址中的主机地址全部设置为全0，就是网络号，代表了这个局域网</li>
+<li>将这个IP地址中的主机地址全部设置成全1，就是广播地址，用于给一个链路中的所有主机发送数据包</li>
+<li>127.* 的IP地址用于本地环回，</li>
+</ul>
+</blockquote>
+<h1 id="IP地址的数量限制"><a href="#IP地址的数量限制" class="headerlink" title="IP地址的数量限制"></a>IP地址的数量限制</h1><p>现在IP地址不够了</p>
+<blockquote>
+<ul>
+<li><code>动态分配IP地址</code>：接入网络的时候，设备分配IP地址，走了之后，IP地址回收</li>
+<li><code>NAT技术</code>（后面介绍）</li>
+<li><code>IPV6</code>:IPV6并非ipv4的简单升级，IPV6用16个字节128位来标识一个IP地址，但是IPV6没有普及</li>
+</ul>
+</blockquote>
+<h1 id="私有IP地址和公网IP地址"><a href="#私有IP地址和公网IP地址" class="headerlink" title="私有IP地址和公网IP地址"></a>私有IP地址和公网IP地址</h1><p>如果一个组织内部组建局域网，IP地址只用于局域网内部的通信，而不连接到Internet上，理论上任意IP都是可以，但是RFC1918规定了用于组建居于网内的私有IP地址</p>
+<blockquote>
+<ul>
+<li>10.* ,前8位是网络号，共又16777216个地址</li>
+<li>172.16.到172.31。，前12位是网络号，共1048576个地址</li>
+<li>192.168.* ，前16位是网络号，共65535个地址<br>包含在这个范围内的，都是私有IP，其余的被称为公网IP（全局IP）</li>
+</ul>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/be2a122b5885445aa45ae15e7280c4b4.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>路由器最大的功能是可以用来组件局域网的</p>
+<ul>
+<li>路由器有两个IP，LAN口，子网IP，对内部的，WAN口，公网IP，对外的</li>
+<li>我们自己的请求在对外发送的时候，我们的源IP地址可能一直在被中间路由器替换，（NAT技术）</li>
+<li>替换成路由器的WAN口IP</li>
+<li>不同子网的人，想要直接通信还是得去公网通信，无法跳过公网</li>
+<li>墙，就是信息屏障，把报文直接丢弃掉</li>
+<li>路由器LAN口连接的主机，都从属于这个路由器的子网中</li>
+<li>不同的路由器，子网IP都是一样的（通常都是192.168.1.1），子网内的主机IP不能重复，但是子网间的IP地址可以重复</li>
+<li>每一个家用路由器，又作为运营商路由器的子网中的一个节点，这样的运营商路由器可能有很多级，最外层的运营商路由器，WAN口IP就是一个公网IP</li>
+</ul>
+<h1 id="路由"><a href="#路由" class="headerlink" title="路由"></a>路由</h1><p>在复杂的网络结构中，找到一条通往终点的路线</p>
+<p>在网络中只看目标网络<br><img src="https://img-blog.csdnimg.cn/d2e26b85d30c41fea2f58f634874d22f.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>IP数据包的传输过程也和问路一样</p>
+<blockquote>
+<ul>
+<li>当IP数据包，到啊的路由器的时候，路由器回先查看目的IP</li>
+<li>路由器决定这个数据包是能直接发送给目标主机，还是需要发送给下一个路由器</li>
+<li>依次反复，一直到达目标IP地址</li>
+</ul>
+</blockquote>
+<p>每个节点都会维护一个路由表</p>
+<p>路由表如下<br><img src="https://img-blog.csdnimg.cn/26911cee33a0403ea88cf22827626d5a.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<blockquote>
+<ul>
+<li>这台主机有两个网络接口，一个网络接口连接到10.0.24.0，另一个网络接口连接到link-local网络</li>
+<li>路由表的<code>Destination</code>是目的网络地址，<code>Genmask</code>是子网掩码，<code>Gateway</code>是下一跳的地址，<code>Iface</code>是发送接口，<code>Flags</code>的U标志表示次条目有效，G标志表示此条目的吓一跳地址是某个路由器的地址，没有G标志的条目表示目的网络地址是与本主机接口直接相连的，不必经过路由转发</li>
+</ul>
+</blockquote>
+<ul>
+<li>当数据到达路由器的时候，该路由器会用目的IP地址用<code>子网掩码</code>进行按位与，同<code>destination</code>进行对比，如果匹配就到这个子网去，就从这个对应的<code>Iface</code>发出</li>
+<li>如果没有找到的话，就从<code>默认路由default</code>发出，</li>
+<li>数据包经过不断路由后，最终就能到达目标主机所在的目标网络，此时就不用根据目标IP中的网络号进行路由，而是用主机号进行路由，最终就能发送给目标主机了</li>
+</ul>
+<h1 id="路由表生成算法"><a href="#路由表生成算法" class="headerlink" title="路由表生成算法"></a>路由表生成算法</h1><p>路由可分为静态路由和动态路由：</p>
+<ul>
+<li>静态路由：是指由网络管理员手工配置路由信息。</li>
+<li>动态路由：是指路由器能够通过算法自动建立自己的路由表，并且能够根据实际情况进行调整。<br>路由表相关生成算法：距离向量算法、LS算法、Dijkstra算法等。</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" class="category-chain-item">网络编程</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/tcp-ip-%E7%BD%91%E7%BB%9C-%E6%9C%8D%E5%8A%A1%E5%99%A8/">#tcp/ip 网络 服务器</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>IP基础（2）</div>
+      <div>http://example.com/2022/09/11/IP基础（2）/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zevin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年9月11日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/09/16/%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82/" title="数据链路层">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">数据链路层</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/09/07/IP%E5%9F%BA%E7%A1%80%EF%BC%881%EF%BC%89/" title="IP基础（1）">
+                        <span class="hidden-mobile">IP基础（1）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","appKey":"javf3F1xk56WiY222ZrCxGt1","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

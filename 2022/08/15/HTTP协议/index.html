@@ -1,0 +1,1173 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zevin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="文章目录 HTTP协议  URL，URI,URN  urlencode(转码)，urdecode（解码）     HTTP协议格式  sendfile   HTTP详解  HTTP 的方法  GET和POST   HTTP状态码 HTTP常见的报头属性 Cookie与Session   HTTPS  基本概念 加密方式 HTTPS 的通信方式    HTTP协议虽然说，应用层协议是我们程序员自">
+<meta property="og:type" content="article">
+<meta property="og:title" content="HTTP协议">
+<meta property="og:url" content="http://example.com/2022/08/15/HTTP%E5%8D%8F%E8%AE%AE/index.html">
+<meta property="og:site_name" content="Zevin-Blog">
+<meta property="og:description" content="文章目录 HTTP协议  URL，URI,URN  urlencode(转码)，urdecode（解码）     HTTP协议格式  sendfile   HTTP详解  HTTP 的方法  GET和POST   HTTP状态码 HTTP常见的报头属性 Cookie与Session   HTTPS  基本概念 加密方式 HTTPS 的通信方式    HTTP协议虽然说，应用层协议是我们程序员自">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/86d89b1401de4633865826bf7564cbd7.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/4575e7862d8b44038138e89ad1d47b80.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/666aa5e989d94606a6792918118c5a29.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/d084ccc0a2af45499eb290051ed346b8.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/9f0d1517637e4f5e89bd4f8b67d13294.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/7f78cff2c2064bdaa99ae21a3686c658.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/8e524cb5123847a091a8ef916ac18b93.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/0da3ae9d326e4b91addc31c2f3071cfa.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/a899b8f7a6de4734815b3cd1df30316e.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/08a3932d729b4e1ba04f0e7a9bf52497.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/55ba6424276e4ac7bd96f9d4d5125239.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/dba77f761d274719855b1eba7b0ead8c.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/e984dd10091a4ab09b533fdc0af9cc2b.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/a8fc8ed912d04d16ac848b0e125631b9.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/013975a917a34e5f87a303e15a3729c3.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/25fb7348d5844834996f495097e26fb0.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/302ab6fdeac049d88d948b2bcef6369a.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/4216e8d943ec4807a3e9160196400db6.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/5d8505ba86324f84978fe0e2222867f4.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/b61e6b667ce44a788bc1d1c24aaebe83.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/7f838ecb66e444fabc8df87c022de193.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/84c170afbdd64d44b1bc8262755d4978.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/56c2019dc8bf46fc949d482cfb1da82c.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/bed06e7bd19e43a9bce18e081491a406.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/bf06ea9e055f481ba6310c3e181d1d0a.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/278f9a6124874c9b8c1889c76b42e819.png">
+<meta property="article:published_time" content="2022-08-14T16:31:19.000Z">
+<meta property="article:modified_time" content="2023-01-20T12:55:15.358Z">
+<meta property="article:author" content="Zevin">
+<meta property="article:tag" content="http 服务器 网络协议">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/86d89b1401de4633865826bf7564cbd7.png">
+  
+  
+  
+  <title>HTTP协议 - Zevin-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","app_key":"javf3F1xk56WiY222ZrCxGt1","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zevin-Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="HTTP协议"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-08-15 00:31" pubdate>
+          2022年8月15日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          10k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          85 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">HTTP协议</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+
+<h3 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h3><ul>
+<li><a href="#HTTP_1">HTTP协议</a></li>
+<li><ul>
+<li><a href="#URLURIURN_6">URL，URI,URN</a></li>
+<li><ul>
+<li><a href="#urlencodeurdecode_33">urlencode(转码)，urdecode（解码）</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#HTTP_44">HTTP协议格式</a></li>
+<li><ul>
+<li><a href="#sendfile_134">sendfile</a></li>
+</ul>
+</li>
+<li><a href="#HTTP_174">HTTP详解</a></li>
+<li><ul>
+<li><a href="#HTTP__193">HTTP 的方法</a></li>
+<li><ul>
+<li><a href="#GETPOST_236">GET和POST</a></li>
+</ul>
+</li>
+<li><a href="#HTTP_294">HTTP状态码</a></li>
+<li><a href="#HTTP_329">HTTP常见的报头属性</a></li>
+<li><a href="#CookieSession_346">Cookie与Session</a></li>
+</ul>
+</li>
+<li><a href="#HTTPS_404">HTTPS</a></li>
+<li><ul>
+<li><a href="#_405">基本概念</a></li>
+<li><a href="#_415">加密方式</a></li>
+<li><a href="#HTTPS__449">HTTPS 的通信方式</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="HTTP协议"><a href="#HTTP协议" class="headerlink" title="HTTP协议"></a>HTTP协议</h1><p>虽然说，应用层协议是我们程序员自己定制的，但是实际上，已经有很多大佬定制了一些现成的，又很好用的应用层协议，可以让我们直接进行参考使用，HTTP（超文本传输协议）就是其中之一</p>
+<p>HTTP协议支持cs模式（客户端服务器模式，也就是请求和响应模式）并且客户端需要以浏览器的方式访问服务器，</p>
+<h2 id="URL，URI-URN"><a href="#URL，URI-URN" class="headerlink" title="URL，URI,URN"></a>URL，URI,URN</h2><p>Uniform Resource Locator<br>就是去确认哪一个资源在哪一个服务器上</p>
+<ul>
+<li>URN：统一资源名称：用民资标识资源</li>
+<li>URI：统一资源标识符，用来标识资源的唯一性</li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/86d89b1401de4633865826bf7564cbd7.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<blockquote>
+<p>我们请求的图片，html，css，js，视频等这些都称为“资源”<br>服务器后台都是Linux做的<br>但是我们无法唯一的确认一个资源，公网IP地址是唯一确认一台主机的，而我们所谓的网络“资源”，都一定是存在于网络中的一台Linux机器上的，Linux或者传统的操作系统，保存资源的方式，都是以文件的方式来保存的，单Linux系统，标识一个唯一资源的方式，通过路径！</p>
+<p>所以IP+Linux路径，就可以唯一确认一个网络资源<br>ip通常都是以域名的方式来呈现的，路径可以通过目录+&#x2F;来确认</p>
+</blockquote>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.nba.com/summer-league/2022/vegas/schedule">https://www.nba.com/summer-league/2022/vegas/schedule</a><br>.com是ip后面跟的是linux服务器上的路径<br>http就是请求该资源的方法（使用的协议）<br>协议名和端口好是绑定在一起的，指明了协议名字就等于知道了端口号，如http端口号一定是80</p>
+</blockquote>
+<blockquote>
+<p>URL:协议，ip 路径，？后面还可能有片段标识符</p>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/4575e7862d8b44038138e89ad1d47b80.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<ul>
+<li>#片段标识符，前面的内容不变，#后面发生改变，标识访问的页面的一个小分支</li>
+</ul>
+<h3 id="urlencode-转码-，urdecode（解码）"><a href="#urlencode-转码-，urdecode（解码）" class="headerlink" title="urlencode(转码)，urdecode（解码）"></a>urlencode(转码)，urdecode（解码）</h3><p>有些特殊符号需要特殊处理？&#x2F;+，中文字符和特殊字符会做编码，而数字字母连字符都不会做处理</p>
+<blockquote>
+<p>C++&#x3D;&#x3D;&#x3D;&gt;C%2B%2B，不想让这些特殊字符出现在URL里面</p>
+</blockquote>
+<p>转码规则<br>服务器接收的时候要进行转码</p>
+<blockquote>
+<p>将需要转码的字符转为16进制（ascill值），然后从右向左，取4位（不足4位的直接处理），没2位做1位，前面加上%，编码成为%XY的格式<br>两位做一位，前面加一个%做一位就可以了</p>
+</blockquote>
+<h1 id="HTTP协议格式"><a href="#HTTP协议格式" class="headerlink" title="HTTP协议格式"></a>HTTP协议格式</h1><ol>
+<li>无论是请求还是响应，基本上http都是按照行（\n）为单位来构建请求或者响应的！</li>
+</ol>
+<blockquote>
+<p>无论是请求还是响应，几乎都是由3或者4部分组成</p>
+</blockquote>
+<blockquote>
+<p>如何理解一个普通用户的上网行为—-&gt;主要是为了简单</p>
+<ol>
+<li>从目标服务器拿到你要的资源（读取数据库）</li>
+<li>向目标服务器上传你的数据（上传文件）<br>这就是IO的行为，</li>
+</ol>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/666aa5e989d94606a6792918118c5a29.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>如果请求正文里面的请求方法是post的话，请求报头会有<strong>Content-Length</strong>属性字段来标识请求正文的长度</p>
+<p>http操作（http的底层实际上是TCP协议 ）</p>
+<ol>
+<li><p>我想看看报头</p>
+</li>
+<li><p>我想发送一个响应<br>我们可以直接在浏览器上面输入公网ip+端口号</p>
+</li>
+</ol>
+<p>h t t p . c c http.cc http.cc</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&quot;Sock.hpp&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;pthread.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> NUM 1024*10</span><br><span class="hljs-function"><span class="hljs-type">void</span>* <span class="hljs-title">handler</span><span class="hljs-params">(<span class="hljs-type">void</span>* args)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">int</span> sockfd=*(<span class="hljs-type">int</span>*)args;<br>    <span class="hljs-keyword">delete</span> args;<br>    <span class="hljs-built_in">pthread_detach</span>(<span class="hljs-built_in">pthread_self</span>());<br>    <span class="hljs-comment">//服务器就从sockfd里面读取</span><br>    <span class="hljs-comment">//我们读取http请求</span><br>    <span class="hljs-type">char</span> buf[NUM];<br>    <span class="hljs-built_in">memset</span>(buf,<span class="hljs-number">0</span>,<span class="hljs-built_in">sizeof</span>(buf));<br>    <span class="hljs-comment">//http当中面向字节流读取的就是recv,专门用来网络读取的</span><br>    <span class="hljs-type">ssize_t</span> s=<span class="hljs-built_in">recv</span>(sockfd,buf,<span class="hljs-built_in">sizeof</span>(buf),<span class="hljs-number">0</span>);<span class="hljs-comment">//</span><br>    <span class="hljs-keyword">if</span>(s&gt;<span class="hljs-number">0</span>)<br>    &#123;<br>        buf[s]=<span class="hljs-number">0</span>;<br>        <span class="hljs-comment">//原封不动的把http打印出来，这个就是http的请求格式! 看看请求的样子</span><br>        cout&lt;&lt;buf;<br>        <span class="hljs-comment">//读到了报头</span><br>        <span class="hljs-comment">//我们要返回响应</span><br>        <br>        string response=<span class="hljs-string">&quot;http/1.0 200 OK\n&quot;</span>;<span class="hljs-comment">//响应行，版本http/1.0 状态码200 状态码解释 OK</span><br>        response+=<span class="hljs-string">&quot;Content-Type: text/plain\n&quot;</span>;<span class="hljs-comment">//text/plain代表正文是普通文本，这个说明了后续的一些正文都是一些普通的文本文件</span><br>        response+=<span class="hljs-string">&quot;\n&quot;</span>;<span class="hljs-comment">//这个是报头结束的标志，空行，区分报头有效载荷</span><br>        response+=<span class="hljs-string">&quot;what are you doing \n&quot;</span>;<span class="hljs-comment">//这个就是正文的内容</span><br><br>        <span class="hljs-comment">//send也是针对TCP设计的接口</span><br>        <span class="hljs-built_in">send</span>(sockfd,response.<span class="hljs-built_in">c_str</span>(),response.<span class="hljs-built_in">size</span>(),<span class="hljs-number">0</span>);<span class="hljs-comment">//因为我们要写的是http响应,所以这里发送的完整的响应发送回去</span><br>    &#125;<br><br>    <span class="hljs-built_in">close</span>(sockfd);<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">nullptr</span>;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc,<span class="hljs-type">char</span>* argv[])</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">if</span>(argc!=<span class="hljs-number">2</span>)<br>    &#123;<br>        cout&lt;&lt;<span class="hljs-string">&quot;port&quot;</span>&lt;&lt;endl;<br>        <span class="hljs-built_in">exit</span>(<span class="hljs-number">1</span>);<br>    &#125;<br>    <span class="hljs-type">uint16_t</span> port=<span class="hljs-built_in">atoi</span>(argv[<span class="hljs-number">1</span>]);<br>    <span class="hljs-type">int</span> sockfd=Sock::<span class="hljs-built_in">Socket</span>();<br>    Sock::<span class="hljs-built_in">Setoptsocket</span>(sockfd);<span class="hljs-comment">//设置端口复用</span><br>    Sock::<span class="hljs-built_in">Bind</span>(sockfd,port);<br>    Sock::<span class="hljs-built_in">Listen</span>(sockfd);<br>    <span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>)<br>    &#123;<br>        <span class="hljs-type">int</span> newsock=Sock::<span class="hljs-built_in">Accept</span>(sockfd);<br>        <span class="hljs-keyword">if</span>(newsock&lt;<span class="hljs-number">0</span>)<br>        &#123;<br>            <span class="hljs-keyword">continue</span>;<br>        &#125;<br>        <span class="hljs-type">pthread_t</span> tid;<br>        <span class="hljs-type">int</span>* parm=<span class="hljs-keyword">new</span> <span class="hljs-built_in">int</span>(newsock);<br>        <span class="hljs-built_in">pthread_create</span>(&amp;tid,<span class="hljs-literal">nullptr</span>,handler,(<span class="hljs-type">void</span>*)parm);<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/d084ccc0a2af45499eb290051ed346b8.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>Content-Type（响应正文的类型）属于响应报头的属性之一</p>
+<h2 id="sendfile"><a href="#sendfile" class="headerlink" title="sendfile"></a>sendfile</h2><p>我们可以使用sendfile接口来发送文本，该接口可以直接把一个文件的内容拷贝给另外一个文件，它是在内核里面完成的，效率都很高<br><strong>sendfile</strong></p>
+<blockquote>
+<p><strong>功能</strong>：把一个文件描述符里面的内容，拷贝给另外一个文件描述符，且都是在内核里面实现的，不会经过用户层，所以它的效率比read和write都要高</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-number">1.</span> <span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/sendfile.h&gt;</span></span><br><span class="hljs-number">2.</span> <span class="hljs-type">ssize_t</span> <span class="hljs-title function_">sendfile</span><span class="hljs-params">(<span class="hljs-type">int</span> out_fd, <span class="hljs-type">int</span> in_fd, <span class="hljs-type">off_t</span> *offset, <span class="hljs-type">size_t</span> count)</span>;<br></code></pre></td></tr></table></figure>
+
+<p>参数：</p>
+<ul>
+<li>outfd:要写到哪个文件描述符里面</li>
+<li>infd：从哪个文件描述符里面写</li>
+<li>offset：偏移量，可以记录读取文件的位置，如果为nullptr，则数据要从当前文件的偏移量取读取</li>
+<li>count：要拷贝的文件的大小</li>
+</ul>
+<p>返回值：<br>成功返回成功读取到的大小，失败返回-1</p>
+</blockquote>
+<p><strong>stat</strong><br>获取文件的属性信息</p>
+<blockquote>
+<p>功能：获取文件的属性</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/types.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/stat.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span> int stat(const char *pathname, struct stat *buf); </span><br></code></pre></td></tr></table></figure>
+
+<p>参数：</p>
+<ul>
+<li>pathname：文件的路径名</li>
+<li>buf：获取到的结构体</li>
+</ul>
+<p>返回值：<br>成功返回0，失败返回-1</p>
+</blockquote>
+<p>我们可以通过stat获取到文件的大小，填充Content-Length字段，然后使用sendfile接口来发送html格式的文件到套接字里面</p>
+<p>回答几个问题</p>
+<ol>
+<li>如何讲报头读取完毕</li>
+</ol>
+<blockquote>
+<p>在读取报头时，将Content-Length属性字段读取下来（知道文件的大小），正文就读取Content-Length大小的内容，就代表将正文读取完毕</p>
+</blockquote>
+<h1 id="HTTP详解"><a href="#HTTP详解" class="headerlink" title="HTTP详解"></a>HTTP详解</h1><p>我们上面的代码服务端直接recv，缓冲区设置的1024*10是不合理的</p>
+<ul>
+<li>1.http它的请求可能不是一个一个发送的，可能是一次发送多个请求的</li>
+<li>2.因为TCP是字节流的，我们上面缓冲区定义的10240，假如说发送过来的请求大小是1024，我们就可以读完，那么如果我们定义的缓冲区是1025，那么就会第一个请求读完之后，第二个请求还会读取1个字节</li>
+</ul>
+<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs livecodeserver">所以<br><span class="hljs-number">1.</span>保证每次读取都是一个完整的<span class="hljs-keyword">http</span> request<br><span class="hljs-number">2.</span>保证每次读取都不要将下一个<span class="hljs-keyword">http</span> request的一部分读到（残缺的报文）<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/9f0d1517637e4f5e89bd4f8b67d13294.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<ol>
+<li>我们如何判定我们将报头部分读完呢？</li>
+</ol>
+<blockquote>
+<p>我们读取http响应都是按行读取的，读取到空行，说明报头读取完成</p>
+</blockquote>
+<ol start="2">
+<li>决定后面还有没有正文呢？</li>
+</ol>
+<blockquote>
+<p>如果有正文，如何保证把正文全部读取完成呢？而且不要把下一个http的部分数据给读取到<br>我确实不知道要读取到，但是我们上面已近把报头读取完成了，这样我们就能够提取报头中的各种属性，请求的方法，URL,主机，以及Content-Length,正文长度，正文部分有多少个字节，这样就允许我们读取多少个len字节</p>
+</blockquote>
+<p>Content-Length:自描述字段,没有正文的时候，就不存在</p>
+<h2 id="HTTP-的方法"><a href="#HTTP-的方法" class="headerlink" title="HTTP 的方法"></a>HTTP 的方法</h2><p>1.首行：[方法]+[url]+[http版本]<br>2. Header:请求的属性，冒号分割的简直对，每组属性之间用\n进行分割，遇到空行说明Header部分结束<br>3. Body：为正文，可以是空字符串，如果body存在，header里面就有一个content-length来标识字符串的长度</p>
+<p>现在我们讲http1.0 1.0和1.1的主要区别是：是否支持长链接</p>
+<table>
+<thead>
+<tr>
+<th>方法</th>
+<th>说明</th>
+<th>支持的HTTP协议版本</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>Get</td>
+<td>获取资源内容</td>
+<td>1.0&#x2F;1.1</td>
+</tr>
+<tr>
+<td>POST</td>
+<td>创输实体主体</td>
+<td>1.0&#x2F;1.1</td>
+</tr>
+<tr>
+<td>PUT</td>
+<td>传输文件</td>
+<td>1.0&#x2F;1.1</td>
+</tr>
+<tr>
+<td>HEAD</td>
+<td>获得报文首部</td>
+<td>1.0&#x2F;1.1</td>
+</tr>
+<tr>
+<td>DELETE</td>
+<td>删除文件</td>
+<td>1.0&#x2F;1.1</td>
+</tr>
+<tr>
+<td>OPTION</td>
+<td>询问支持的方法</td>
+<td>1.1</td>
+</tr>
+<tr>
+<td>TRACE</td>
+<td>追踪路径</td>
+<td>1.1</td>
+</tr>
+</tbody></table>
+<p><strong>说明：</strong></p>
+<blockquote>
+<p>HTTP&#x2F;1.1在HTTP&#x2F;1.0基础上增加了<strong>长连接</strong>和<strong>缓存处理</strong>等内容，</p>
+<ol>
+<li>HTTP&#x2F;1.0是基于请求和响应的，每次发送请求都需要重新建立连接，获得响应之后再关闭连接，当然这样频繁的申请套接字释放套接字，对于效率来说，太低了，</li>
+</ol>
+<blockquote>
+<p>短链接：一个请求，一个响应，close socket,<br>一个请求就是请求一个资源，链接就自动关闭<br>原因</p>
+<ol>
+<li>网络不好，2.需求小 3.上网的人少，短链接就足够了</li>
+</ol>
+</blockquote>
+<ol start="2">
+<li>而HTTP&#x2F;1.1是支持长连接的，客户端可以通过一个连接向服务器发起多个http请求，上层依次读取请求之后，还会继续保持连接，这样就不会因为建立连接而消耗时间了，在所有的数据全部发送完之后，在关闭连接</li>
+</ol>
+</blockquote>
+<blockquote>
+<p>长连接多使用在操作频繁，点对点的通信，连接数不能太多的情况，<br>而像一些WEB网站一般都是使用短链接，因为长连接对于服务器来说会消费一定的资源，向WEB服务器由成千上万的客户端连接，每个用户不是频繁的操作，所以使用短链接就可以了</p>
+</blockquote>
+<p>HEAD方法，可以获得响应的报头,只有报头，没有正文<br><img src="https://img-blog.csdnimg.cn/7f78cff2c2064bdaa99ae21a3686c658.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>GET就是除了获取报头，还有正文也会获得出来<br><img src="https://img-blog.csdnimg.cn/8e524cb5123847a091a8ef916ac18b93.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>OPTIONS:询问支持的方法，有可能用协议的人把它给关掉了</p>
+<h3 id="GET和POST"><a href="#GET和POST" class="headerlink" title="GET和POST"></a>GET和POST</h3><p>我们要知道http请求的&#x2F;并不是根目录，而是叫做web根目录<br>如果我们访问一个web，后面不带路劲，默认访问的就是web的根目录，而这里我们显示的带了我们要访问的路径，这里就是我们要访问的路径</p>
+<blockquote>
+<p>&#x2F;：我们一般要请求的一定是一个具体的资源<br>如下面我们使用的，但是如果是&#x2F;，意味着，我们要请求该网站的首页<br>一般就是index.html or index.htm<br>所以我们所有的网站都要有首页信息</p>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/0da3ae9d326e4b91addc31c2f3071cfa.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/a899b8f7a6de4734815b3cd1df30316e.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>这里我们介绍两个方法：GET和POST</p>
+<ol>
+<li>GET可以直接获取资源，还可以上传数据，通过URL进行参数的传递（？a&#x3D;10&amp;b&#x3D;20）</li>
+<li>POST上传数据，通过正文进行传参，包头中还会有携带Content-Length字段，说明正文内容大小，<br>用get的方法之后，路径后面就会夹带参数</li>
+</ol>
+<p><img src="https://img-blog.csdnimg.cn/08a3932d729b4e1ba04f0e7a9bf52497.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>?后面就是参数</p>
+<p>GET方法：如果提交参数就是通过url方式进行提交的,拼接到路径的后面，让http服务器拿到这样的数据,这样前面的数据就被后端的代码拿到了,这样就能通过字符串分割获取到姓名和密码</p>
+<p>POST方法<br><img src="https://img-blog.csdnimg.cn/55ba6424276e4ac7bd96f9d4d5125239.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/dba77f761d274719855b1eba7b0ead8c.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>POST：参数会跟到正文后面,通过正文进行提交参数的，</p>
+<p>GET和POST方法</p>
+<ol>
+<li>第一批结论</li>
+</ol>
+<p>GET</p>
+<blockquote>
+<p>GET：方法叫做：获取，是最常用的方法，默认一般是获取所有的网页，都是GET方法，都是如果GET 要提交参数（）是通过URL进行参数拼接从而提交给server端</p>
+</blockquote>
+<p>POST</p>
+<blockquote>
+<p>POST：是提交参数比较常用的方法，但是如果提交参数，一般是通过正文部分进行提交的，但是不要忘记，Content-Length,表示参数的长度</p>
+</blockquote>
+<ol start="2">
+<li>第二批结论：区别</li>
+</ol>
+<p>安全就是要加密</p>
+<p>参数提交的位置不同</p>
+<blockquote>
+<ol>
+<li>post方法比较私密（！&#x3D;安全），因为不会回显到浏览器的url输入框里面，而get方法不私秘，会讲主要数据回显到url的输入框里面,增加了被盗取的风险</li>
+<li>get是通过url进行传参的，而url是有大小限制的，和具体的浏览器有关,post是通过正文传参的，没有大小限制</li>
+</ol>
+</blockquote>
+<ol start="3">
+<li>第三批结论：如何选择</li>
+</ol>
+<blockquote>
+<ol>
+<li>GET：如果提交的参数，不敏感，数量少，就可以使用GET</li>
+<li>POST: 否则就用POST</li>
+</ol>
+</blockquote>
+<p>HTTP协议处理，本质就是文本分析<br>所谓的文本分析：<br>1.http协议本身的字段<br>2.第一行拿出来，请求方法，<br>里面 kv值，<br>3.提取参数，get，post就是前后端交互的重要方式</p>
+<h2 id="HTTP状态码"><a href="#HTTP状态码" class="headerlink" title="HTTP状态码"></a>HTTP状态码</h2><blockquote>
+<p>应用层是人参与的，人水平参差不齐，http的状态码很多的人根本就不清楚如何去使用,又因为浏览器种类太多了，有的浏览器也不会对这个状态码有处理，对浏览器没有正常的指导意义，就正常的显示你的网页（not found也是服务器给我们操作的），</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th></th>
+<th></th>
+</tr>
+</thead>
+<tbody><tr>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>1XX Informational（信息性状态码） 接收的请求正在处理，服务器担心客户端因为太久没有接收到回应而关闭掉，就发送这个状态码，表示没有出错，只是需要时间执行（少见）</td>
+<td></td>
+</tr>
+<tr>
+<td>2XX Success（成功状态码） 请求正常处理完毕</td>
+<td></td>
+</tr>
+<tr>
+<td>3XX Redirection（重定向状态码） 需要进行附加操作完成请求</td>
+<td></td>
+</tr>
+<tr>
+<td>4XX Client Error（客户端错误状态码） 服务器无法处理器，客户端发送的服务器没找到</td>
+<td></td>
+</tr>
+<tr>
+<td>5XX Server Error（服务端错误状态码） 服务器处理请求出错，服务器出现问题了</td>
+<td></td>
+</tr>
+</tbody></table>
+<p>常见的状态码</p>
+<ul>
+<li><strong>200</strong>（OK）</li>
+<li>301(临时重定向)</li>
+<li>302</li>
+<li>307（永久重定向）</li>
+<li>403（Forbiden）：表示没有权限，如果不是vip登录一个需要回会员的视频，就会提示forbiden</li>
+<li><strong>404</strong>(Not Found)：没有这份资源（如果是404，不能靠浏览器帮我们做什么，而是要我们自己对于404有所操作，构建一个响应告诉别人我这个资源不存在），这个属于客户端问题</li>
+<li><strong>504,500,503</strong>(Bad Gateway)：服务器错误，如，创建线程错误,做字符串分析，程序崩溃，算法有问题，构建任务，与服务器逻辑出错了，就是服务器错误,等等</li>
+</ul>
+<p>3xx:重定向必须需要浏览器给我们提供支持的，浏览器必须要识别301，302，307这些状态码，server要告诉浏览器，我应该要去哪里Location：就是我们的新的地址</p>
+<blockquote>
+<p>这个状态码是有特殊含义的，主要是重定向，</p>
+<ol>
+<li>永久重定向：<strong>301</strong>，通常用来网站域名的更换，域名的替换</li>
+<li>临时重定向：<strong>302 or 307</strong><br>重定向</li>
+</ol>
+<blockquote>
+<p>：当我们在访问一个网站的时候，可能会跳转到另一个网址，—–》永久重定向<br>当我访问某种资源的时候，提示我登录，跳转到了登录页面，输入完毕密码，登录的时候，会自动跳转回来（登录，下单）—-》临时重定向</p>
+</blockquote>
+<ul>
+<li>永久重定向—-》例如：一个网站已近被废弃了，但是老用户不知道，还去访问，那么就会跳转到新网站，新用户登录新网站不受影响，这个网站就是被永久重定向（一个客户端，访问的时候，服务器不提供服务，告诉新网站，重新发起请求，如果有收藏的话，这个网站也会被更新，直接就访问新的网站，）————-》通常用来网站域名的更换，域名的替换</li>
+<li>临时重定向—-》</li>
+</ul>
+</blockquote>
+<h2 id="HTTP常见的报头属性"><a href="#HTTP常见的报头属性" class="headerlink" title="HTTP常见的报头属性"></a>HTTP常见的报头属性</h2><ul>
+<li><strong>Content-Type</strong>：数据的类型（常见的有text&#x2F;plain《普通的文本文件》，text&#x2F;html《html文件》）</li>
+<li><strong>Content-Length</strong>：正文的长度，大小，我们可以使用stat来获得</li>
+<li><strong>Host</strong>：客户端请求的资源再哪一台主机上的哪一个端口号</li>
+<li><strong>User-Agent</strong>：声明用户的操作系统和浏览器版本信息</li>
+<li><strong>Referer</strong>：当前页面是从哪一个页面跳转来的，例如我们要从a页面跳转到b页面，那这个referer就是a页面</li>
+<li><strong>Location</strong>：告诉客户端接下来要访问哪里，搭配3xx状态进行使用</li>
+<li><strong>Cookie</strong>：用于在客户端存储少量信息，通常用于实现会话（session）的功能</li>
+<li><strong>Connection</strong>：keepalive表示长连接，表示请求网页的时候不会关闭套接字，只到我们关闭浏览器才关闭套接字，如果没有这个字段，或者是close就是短链接</li>
+<li><strong>Accept</strong>：字段表示客户端所能解析的文件格式</li>
+<li><strong>Set-Cookie</strong>:服务器向浏览器设置一个cookie，把后面的内容写到cookie文件里面，此后，每次访问都把这个信息带上</li>
+</ul>
+<p>长短连接</p>
+<blockquote>
+<p>一个大型的网页，是由非常多个资源组成的，每个资源访问都要发起一个http请求，就需要多次http请求，这个就是短链接的一个策略，每个资源都要请求，所以http&#x2F;1.0&#x3D;短链接,http&#x2F;1.1之后就是长连接，而http协议是基于tcp协议的，再得到一个资源后，里面又包含连接，还会自动取建立连接去获取资源<br>tcp通信（建立链接-传输数据-断开连接），每一次请求都要执行上述过程，很耗时，我们想要一个网页，网页里面有3个图片，就需要建立4次连接获得这个完整的网页，但是浏览器会帮我们自动执行，一个连接干一件事情<br>keep-alive，长连接。先建立一个请求和响应链接，这样每次访问的时候，都是复用原来的资源，通过减少频繁建立tcp连接，来达到提高效率的目的1一个连接干全部事情</p>
+</blockquote>
+<h2 id="Cookie与Session"><a href="#Cookie与Session" class="headerlink" title="Cookie与Session"></a>Cookie与Session</h2><p>我们介绍一下Cookie，我们知道，http的几个特性</p>
+<ul>
+<li>无连接：http发送的请求和响应是不用关心连接的，因为底层的TCP已近做好了连接</li>
+<li>无状态：http不会记录对方的状态的，每次发起的http请求，不关心之前的请求和之后的请求，只关心当前的请求不记录上下文信息</li>
+</ul>
+<blockquote>
+<p>经验中：<br>再网站，网站是认识我的，再各种页面跳转的时候，本质上都是建立各种http请求，网站照样认识我，<br>其实这个不是http本身要解决的问题，主要是用来解决网络资源获取的问题<br>http可以提供一些技术支持，来保证网站具有“会话保持”的功能</p>
+</blockquote>
+<blockquote>
+<p>我们在浏览器登录一些网站的时候，要输入账号密码进行登录，由于HTTP是无状态，所以每次我们再访问这些网站的时候，我们还要重新再进行登录<br>但是如果每次都这样的话，就显得很麻烦，所以浏览器一般都会有一种Cookie和Session机制，它可以记录上一次请求的一些消息，这个机制是独立于HTTP的，用来保存用户的状态信息</p>
+</blockquote>
+<p>Cookie：主要做会话管理<br>登录一个网站，就叫做建立会话的过程</p>
+<ul>
+<li>cookie其实是一个文件，在浏览器中，文件里面保存的是用户的私密信息</li>
+<li>http协议：一旦该网站对应有cookie，后续再发起任何请求的时候，在报头属性里面都会自动携带cookie信息（浏览器），这样服务器就认识了你</li>
+</ul>
+<ol>
+<li><p>在登录一个网站的时候，用户第一次在浏览器输入账号密码并且提交到服务器发起认证请求，服务器就会核实数据库，认证成功之后，会设置Set-Cookie，然后将Set-Cookie响应给浏览器，浏览器会将Set-Cookie的值进行提取，然后保存在一个cookie文件（在登录成功之后生成的Cookie文件）里面，这样浏览器就可以保存了用户的登录认证信息</p>
+</li>
+<li><p>下一次再访问这个网站的时候，浏览器会自动将cookie文件里的内容进行提取，并填充到请求报头的cookie字段里面，这样服务器也就自动完成了认证，也就实现了免账号密码登录的功能.</p>
+</li>
+<li><p>Cookie文件分为内存级别和文件级别，前者是浏览器关闭，cookie就没了，浏览器就不认识我了，后者是保存在本地磁盘，可以永久保存</p>
+</li>
+</ol>
+<p><img src="https://img-blog.csdnimg.cn/e984dd10091a4ab09b533fdc0af9cc2b.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>Set-Cookie<br><img src="https://img-blog.csdnimg.cn/a8fc8ed912d04d16ac848b0e125631b9.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p><img src="https://img-blog.csdnimg.cn/013975a917a34e5f87a303e15a3729c3.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>后续的请求都把cookie信息加进去了,服务端每次都要对身份进行认证的</p>
+<p><strong>Cookie带来的问题</strong><br>如果别人盗取了我的cookie文件，这样，1. 别人就能以我们的身份访问特定的资源，2. 如果保存的是用户名密码，就很糟糕了</p>
+<p>cookie文件容易被任意恶意软件盗取，或者一些非法钓鱼网站获取，这样非法用户就可以拿着我们的Cookie文件登录我们登录过的网站了，这样就会造成信息泄露<br>有安全隐患</p>
+<p><strong>cookie和session共同解决</strong><br>为了解决cookie文件泄露的问题，所以才又引进了一种机制Session,将cookie和session结合起来使用就可以减少信息泄露的可能性</p>
+<p>核心：将用户的私密信息保存在服务端</p>
+<blockquote>
+<p>我们在上面cookie机制的基础上，增加了一个session机制，浏览器第一次想服务端发起的请求，</p>
+<ul>
+<li>服务器会创建一个Session将用户的信息进行保存，形成Session文件(比如叫123，每个人都要有唯一的文件)，保存在服务端的磁盘中，用来确认用户的身份，</li>
+<li>后构建响应，设置Set-cookie: session_id&#x3D;123（文件名）,服务器会将这个Session ID进行返回，给浏览器，</li>
+<li>浏览器会将Session ID保存在Cookie文件里面，</li>
+<li>以后每次认证都是使用Session ID来进行的，之后每一次请求都携带这个session_id,之后的认证就是服务端通过session_id找到对饮的文件，就能找到信息进行认证，后续Server依旧能够认识client</li>
+</ul>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/25fb7348d5844834996f495097e26fb0.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>重新登录，旧的session_id 也就失效了<br>把session_id删除掉，也就下线了</p>
+<blockquote>
+<p>这样，Session通过服务器端记录的信息确认用户的身份，Cookie通过在客户端记录信息确认用户身份，当然Session也是有时间限制的，Cookie的文件大小也限制在4K，这样就可以比单纯的使用Cookie更安全</p>
+</blockquote>
+<h1 id="HTTPS"><a href="#HTTPS" class="headerlink" title="HTTPS"></a>HTTPS</h1><h2 id="基本概念"><a href="#基本概念" class="headerlink" title="基本概念"></a>基本概念</h2><p>现在浏览器默认都是https，安全性强</p>
+<p>HTTPS是http的安全版本：也叫超文本传输协议，HTTPS会对要<strong>传输的数据进行加密</strong>，由SSL软件层来提供加密基础，这样HTTPS就比HTTP更加安全了，可以理解为</p>
+<p>HTTPS&#x3D;http+SSL&#x2F;TSL《数据的加密解密层》,SSL和TSL选择一个，SSL(Secure Socket Layer )安全套接层协议，TLS（Transport Layer Security）安全传输层协议</p>
+<p>在网络中走的时候，http的有效载荷全部都被加密了<br>原本的情况是http后直接经过系统调用就到了下面，现在是又加上了数据加密层，后才经过下面<br><img src="https://img-blog.csdnimg.cn/302ab6fdeac049d88d948b2bcef6369a.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h2 id="加密方式"><a href="#加密方式" class="headerlink" title="加密方式"></a>加密方式</h2><ol>
+<li><pre><code class="hljs">对称加密：密钥（只有一个）X,使用**同一把密钥**进行解密  
+</code></pre>
+用一个X进行加密，也要用一个X进行解密<br>发送端，我们都有一个密钥</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> data=<span class="hljs-number">10</span>;<span class="hljs-comment">//这是我们实际的数据</span><br><span class="hljs-type">int</span> result=data^x;<span class="hljs-comment">//这个是我们加密之后的数据</span><br>send （result）;<br><br></code></pre></td></tr></table></figure>
+
+<p>接收端</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">recv(result)<br><span class="hljs-type">int</span> data=result^x<br><span class="hljs-comment">//这里的data就是解密后的数据</span><br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li>非对称加密:有一对密钥：公钥和私钥,（RSA）</li>
+</ol>
+<blockquote>
+<p>可以用公钥加密，用私钥解密<br>用私钥加密，用公钥解密<br>一般而言，公钥是全世界公开的，而私钥是必须自己进行私有保存的</p>
+</blockquote>
+<ul>
+<li>. 形成数字签名（一个文本唯一的标识符）<br><img src="https://img-blog.csdnimg.cn/4216e8d943ec4807a3e9160196400db6.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></li>
+<li>. 发送，将文本和数字签名作为一个整体进行发送<br><img src="https://img-blog.csdnimg.cn/5d8505ba86324f84978fe0e2222867f4.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></li>
+<li>校验<br>客户端检验：<br>分别将文本和数字签名拎出来<br>对文本采用相同的hash散列，形成一个数字摘要<br>对得到的数字签名进行解密，得到数字摘要<br>如果两者相同，则没有问题<br><img src="https://img-blog.csdnimg.cn/b61e6b667ce44a788bc1d1c24aaebe83.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></li>
+</ul>
+<h2 id="HTTPS-的通信方式"><a href="#HTTPS-的通信方式" class="headerlink" title="HTTPS 的通信方式"></a>HTTPS 的通信方式</h2><p>对称加密的弊端<br><img src="https://img-blog.csdnimg.cn/7f838ecb66e444fabc8df87c022de193.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>非对称加密的用处<br><img src="https://img-blog.csdnimg.cn/84c170afbdd64d44b1bc8262755d4978.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/56c2019dc8bf46fc949d482cfb1da82c.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/bed06e7bd19e43a9bce18e081491a406.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>但是这样在密钥协商阶段也是有安全隐患的<br><img src="https://img-blog.csdnimg.cn/bf06ea9e055f481ba6310c3e181d1d0a.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>本质问题：client不知道发来的密钥报文是不是合法的服务方发来的，这里就有一个证书机构</p>
+<p>CA证书机构:只要一个服务商，经过权威机构认证，该机构就是合法的<br><img src="https://img-blog.csdnimg.cn/278f9a6124874c9b8c1889c76b42e819.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>什么叫做安全：<br>不是让别人拿不到就叫做安全，而是拿到了也无法处理</p>
+<p>HTTP和HTTPS的区别</p>
+<ul>
+<li>HTTP使用明文传输数据，HTTPS使用密文传输数据，中间有一层SSL或TLS进行加密更安全</li>
+<li>HTTP使用的端口号是80，HTTPS使用的端口号是443</li>
+<li>HTTPS需要申请证书</li>
+</ul>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" class="category-chain-item">网络编程</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/http-%E6%9C%8D%E5%8A%A1%E5%99%A8-%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/">#http 服务器 网络协议</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>HTTP协议</div>
+      <div>http://example.com/2022/08/15/HTTP协议/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zevin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年8月15日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/08/18/C++%E5%BC%82%E5%B8%B8/" title="C++异常">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">C++异常</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/07/12/%E7%BD%91%E7%BB%9C%E8%AE%A1%E7%AE%97%E5%99%A8%E2%80%94%E2%80%94%E2%80%94%E2%80%94%E2%80%94%E5%BA%8F%E5%88%97%E5%8C%96%E4%B8%8E%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/" title="网络计算器—————序列化与反序列化">
+                        <span class="hidden-mobile">网络计算器—————序列化与反序列化</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","appKey":"javf3F1xk56WiY222ZrCxGt1","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

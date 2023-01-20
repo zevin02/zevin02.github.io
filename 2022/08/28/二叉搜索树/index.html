@@ -1,0 +1,851 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zevin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="文章目录 二叉搜索树  概念   时间复杂度  应用 实现  key模型  Insert Find Erase InOrder   KV模型      二叉搜索树概念左子树的值小于根，右子树的值大于根根的值大于左子树，小于右子树二叉搜索树就是用来查找的  假如我们要查找7：7比3大，到3的右子树&#x3D;5，7比5大，到5的右子树7，查找到了  二叉搜索树的中序遍历，可以实现从小到大排序的遍">
+<meta property="og:type" content="article">
+<meta property="og:title" content="二叉搜索树">
+<meta property="og:url" content="http://example.com/2022/08/28/%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91/index.html">
+<meta property="og:site_name" content="Zevin-Blog">
+<meta property="og:description" content="文章目录 二叉搜索树  概念   时间复杂度  应用 实现  key模型  Insert Find Erase InOrder   KV模型      二叉搜索树概念左子树的值小于根，右子树的值大于根根的值大于左子树，小于右子树二叉搜索树就是用来查找的  假如我们要查找7：7比3大，到3的右子树&#x3D;5，7比5大，到5的右子树7，查找到了  二叉搜索树的中序遍历，可以实现从小到大排序的遍">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/38e99296e576466183e8283696ce5c23.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/47f732cce20f4145a7704df5355f7879.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/c0b3f80d64df4e379b5e47e5e3a3a393.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/069e74bb1662471d8ee6ae64dc80fb1e.png">
+<meta property="article:published_time" content="2022-08-27T17:23:03.000Z">
+<meta property="article:modified_time" content="2023-01-20T12:55:15.358Z">
+<meta property="article:author" content="Zevin">
+<meta property="article:tag" content="c++ 数据结构 算法">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/38e99296e576466183e8283696ce5c23.png">
+  
+  
+  
+  <title>二叉搜索树 - Zevin-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","app_key":"javf3F1xk56WiY222ZrCxGt1","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zevin-Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="二叉搜索树"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-08-28 01:23" pubdate>
+          2022年8月28日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          9.3k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          78 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">二叉搜索树</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+
+<h3 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h3><ul>
+<li><a href="#_1">二叉搜索树</a></li>
+<li><ul>
+<li><a href="#_2">概念</a></li>
+</ul>
+</li>
+<li><a href="#_10">时间复杂度</a></li>
+<li><ul>
+<li><a href="#_17">应用</a></li>
+<li><a href="#_37">实现</a></li>
+<li><ul>
+<li><a href="#key_38">key模型</a></li>
+<li><ul>
+<li><a href="#Insert_73">Insert</a></li>
+<li><a href="#Find_164">Find</a></li>
+<li><a href="#Erase_224">Erase</a></li>
+<li><a href="#InOrder_392">InOrder</a></li>
+</ul>
+</li>
+<li><a href="#KV_412">KV模型</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="二叉搜索树"><a href="#二叉搜索树" class="headerlink" title="二叉搜索树"></a>二叉搜索树</h1><h2 id="概念"><a href="#概念" class="headerlink" title="概念"></a>概念</h2><p>左子树的值小于根，右子树的值大于根<br>根的值大于左子树，小于右子树<br><img src="https://img-blog.csdnimg.cn/38e99296e576466183e8283696ce5c23.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>二叉搜索树就是用来查找的</p>
+<blockquote>
+<p>假如我们要查找7：7比3大，到3的右子树&#x3D;5，7比5大，到5的右子树7，查找到了</p>
+</blockquote>
+<p>二叉搜索树的中序遍历，可以实现从小到大排序的遍历</p>
+<h1 id="时间复杂度"><a href="#时间复杂度" class="headerlink" title="时间复杂度"></a>时间复杂度</h1><p>最坏情况1：查找：高度次<br>最坏情况2：O（N）:<br>如下图:这个效率就特别差，和单链表没有区别<br><img src="https://img-blog.csdnimg.cn/47f732cce20f4145a7704df5355f7879.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>后续用AVL树，RB树</p>
+<h2 id="应用"><a href="#应用" class="headerlink" title="应用"></a>应用</h2><p>搜索树的应用</p>
+<ol>
+<li>搜索，key搜索模型，key&#x2F;value模型</li>
+<li>排序+去重</li>
+</ol>
+<p><strong>key模型</strong><br>可以用来判断值在不在，效率很搞O(logN)<br>应用场景</p>
+<blockquote>
+<ol>
+<li>搜索树存储小区业主的车牌号，扫描，存在就通过，不存在就不让过</li>
+<li>搜索树存储同学的学号</li>
+<li>给一个英文作文，检查里面的单词拼写是否正确（我们把单词都存放进去，进行搜索存在与否）</li>
+</ol>
+</blockquote>
+<p><strong>key&#x2F;value模型</strong><br>通过一个值查找另外一个值<br>应用场景</p>
+<blockquote>
+<ol>
+<li>高铁站刷身份证进站，用身份证查早是否右买票</li>
+</ol>
+</blockquote>
+<h2 id="实现"><a href="#实现" class="headerlink" title="实现"></a>实现</h2><h3 id="key模型"><a href="#key模型" class="headerlink" title="key模型"></a>key模型</h3><p><strong>树的节点</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">K</span>&gt;<br><br>    <span class="hljs-keyword">struct</span> <span class="hljs-title class_">BSTNode</span><br>    &#123;<br>        K _val;<span class="hljs-comment">//节点的值</span><br>        BSTNode&lt;K&gt; *_left;<span class="hljs-comment">//左子树</span><br>        BSTNode&lt;K&gt; *_right;<span class="hljs-comment">//右子树</span><br>        <span class="hljs-built_in">BSTNode</span>(<span class="hljs-type">const</span> K &amp;val)<span class="hljs-comment">//构造函数</span><br>            : _val(val), _right(<span class="hljs-literal">nullptr</span>), _left(<span class="hljs-literal">nullptr</span>)<br>        &#123;<br>        &#125;<br>    &#125;;<br></code></pre></td></tr></table></figure>
+
+<p><strong>BStree的类</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">K</span>&gt;<br>    <span class="hljs-keyword">struct</span> <span class="hljs-title class_">BSTree</span><br>    &#123;<br>        <span class="hljs-keyword">typedef</span> BSTNode&lt;K&gt; Node;<span class="hljs-comment">//把每个节点进行重命名</span><br><br>    <span class="hljs-keyword">private</span>:<br>        Node *_root;<span class="hljs-comment">//节点</span><br><br>    <span class="hljs-keyword">public</span>:<br>        <span class="hljs-built_in">BSTree</span>()<br>            : _root(<span class="hljs-literal">nullptr</span>)<br>        &#123;<br>        &#125;<br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<h4 id="Insert"><a href="#Insert" class="headerlink" title="Insert"></a>Insert</h4><p><img src="https://img-blog.csdnimg.cn/c0b3f80d64df4e379b5e47e5e3a3a393.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p><strong>非递归版本</strong></p>
+<blockquote>
+<ol>
+<li>插入一个值，从根往下面走，要插入的值比它大，走右边，比它小走左边，如果这个值已近存在了，就不要插入</li>
+<li>直到走到空，就是我们要插入的地方</li>
+<li>我们需要把这个节点链接上去，所以我们需要空节点对应的父节点，父节点连接上新添加的节点</li>
+<li>如果根节点就是空，直接插入在根节点即可<br>例如：我们插入一个10</li>
+</ol>
+<blockquote>
+<p>10&gt;8,先走右边，到9，10&gt;9走右边，走到了空，把它插入到这个地方</p>
+</blockquote>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">Insert</span><span class="hljs-params">(<span class="hljs-type">const</span> K &amp;key)</span> <span class="hljs-comment">//非线性叫做insert</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-comment">//插入重复的值，就返回失败</span><br>    <span class="hljs-keyword">if</span> (_root == <span class="hljs-literal">nullptr</span>)<span class="hljs-comment">//一个节点都没有</span><br>    &#123;<br>        _root = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Node</span>(key);<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>    &#125;<br>    <span class="hljs-keyword">else</span><br>    &#123;<br>        Node *cur = _root;<span class="hljs-comment">//cur用来走到要插入的位置</span><br>        Node *prev;<span class="hljs-comment">//prev用来记录插入位置的父节点</span><br>        <span class="hljs-keyword">while</span> (cur)<br>        &#123;<br>            <span class="hljs-keyword">if</span> (cur-&gt;_val &gt; key)<span class="hljs-comment">//比要插入的值大，往左走</span><br>            &#123;<br>                prev = cur;<br>                cur = cur-&gt;_left;<br>            &#125;<br>            <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (cur-&gt;_val &lt; key)<span class="hljs-comment">//比要插入的值小，往右走</span><br>            &#123;<br>                prev = cur;<br>                cur = cur-&gt;_right;<br>            &#125;<br>            <span class="hljs-keyword">else</span><span class="hljs-comment">//相等就别走了</span><br>            &#123;<br>                <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>            &#125;<br>        &#125;<br>        <span class="hljs-comment">//走到这里cur就是空</span><br>        cur = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Node</span>(key);<br>        <span class="hljs-keyword">if</span> (prev-&gt;_val &lt; key)<span class="hljs-comment">//父节点小于插入节点</span><br>        &#123;<br>            prev-&gt;_right = cur;<span class="hljs-comment">//连接到父节点的右边</span><br>        &#125;<br>        <span class="hljs-keyword">else</span><br>        &#123;<br>            prev-&gt;_left = cur;<br>        &#125;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><strong>递归版本</strong></p>
+<p>我们使用引用就不需要用父节点来连接<br>例如:我们链接上的节点为10，走到9的右，root即是空，也是9右指针的别名</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">bool</span> _InsertR(Node *&amp;root, <span class="hljs-type">const</span> K &amp;key) <span class="hljs-comment">//这里要多一个引用,指针的引用，进行修改才使用引用</span><br>&#123;<br>    <span class="hljs-keyword">if</span> (root == <span class="hljs-literal">nullptr</span>) <span class="hljs-comment">//走到空就插入,引用，root是上面的root-&gt;right别名</span><br>    &#123;<br>        root = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Node</span>(key); <span class="hljs-comment">//直接链接上了 ，都是前面的别名，都连接起来了</span><br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>    &#125;<br>    <span class="hljs-keyword">if</span> (root-&gt;_val &gt; key)<br>    &#123;<br>        <span class="hljs-keyword">return</span> _InsertR(root-&gt;_left, key);<br>    &#125;<br>    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (root-&gt;_val &lt; key)  <br>    &#123;<br>        <span class="hljs-keyword">return</span> _InsertR(root-&gt;_right, key);<br>    &#125;<br>    <span class="hljs-keyword">else</span><br>    &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">InsertR</span><span class="hljs-params">(<span class="hljs-type">const</span> K &amp;key)</span> <span class="hljs-comment">//有序的方式就会变成单边树，栈爆了</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-comment">//递归有根，都要套一个子函数</span><br>    <span class="hljs-keyword">return</span> _InsertR(_root, key);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="Find"><a href="#Find" class="headerlink" title="Find"></a>Find</h4><p><strong>非递归版本</strong></p>
+<blockquote>
+<p>从根节<br>点往下走，比它大，走右边，比它小走左边，相等就找到了，走到空就说明没找到</p>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">Find</span><span class="hljs-params">(<span class="hljs-type">const</span> K &amp;key)</span> <span class="hljs-comment">//查找</span></span><br><span class="hljs-function"></span>&#123;<br>    Node *cur = _root;<br>    <span class="hljs-keyword">while</span> (cur)<br>    &#123;<br>        <span class="hljs-keyword">if</span> (cur-&gt;_val &gt; key)<br>        &#123;<br>            cur = cur-&gt;_left;<br>        &#125;<br>        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (cur-&gt;_val &lt; key)<br>        &#123;<br>            cur = cur-&gt;_right;<br>        &#125;<br>        <span class="hljs-keyword">else</span><br>        &#123;<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<span class="hljs-comment">//在这中间，就说明找到了</span><br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<span class="hljs-comment">//走到空就没找到</span><br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p><strong>递归版本</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function">Node *<span class="hljs-title">FindR</span><span class="hljs-params">(<span class="hljs-type">const</span> K &amp;key)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">return</span> _Find(_root, key);<br>&#125;<br>Node *_FindR(Node *root, <span class="hljs-type">const</span> K &amp;key)<br>&#123;<br>    <span class="hljs-keyword">if</span> (root == <span class="hljs-literal">nullptr</span>)<br>    &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">nullptr</span>;<br>    &#125;<br>    <span class="hljs-keyword">if</span> (root-&gt;_val == key)<br>    &#123;<br>        <span class="hljs-keyword">return</span> root;<br>    &#125;<br>    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (root-&gt;_val &gt; key)<br>    &#123;<br>        <span class="hljs-keyword">return</span> _FindR(root-&gt;_left, key);<br>    &#125;<br>    <span class="hljs-keyword">else</span><br>    &#123;<br>        <span class="hljs-keyword">return</span> _FindR(root-&gt;_right, key);<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="Erase"><a href="#Erase" class="headerlink" title="Erase"></a>Erase</h4><p><img src="https://img-blog.csdnimg.cn/069e74bb1662471d8ee6ae64dc80fb1e.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>非递归版本</p>
+<blockquote>
+<ol>
+<li>先找到要查找到要删除的节点</li>
+<li>如果要删除的节点左子树为空，如果它是它父亲的左节点，它的父亲节点的左节点连接上删除节点的右指针</li>
+</ol>
+<blockquote>
+<p>例如删除3，左为空，3是1的右节点，把1的右节点，连接到3的右节点</p>
+</blockquote>
+<ol start="3">
+<li>如果要删除的节点右子树为空，它为父节点的右节点，把它父节点的右节点连接到删除节点的左节点</li>
+</ol>
+<blockquote>
+<p>例如删除10，右为空，10 是9的右节点，把10的左节点，连接到9的右节点上</p>
+</blockquote>
+<ol start="4">
+<li>如果要删除的节点左右子树都为空，要使用替换法删除，可以把要删除的节点的右子树的最左边或者要删除节点的左子树的最右边，把它和要删除节点进行替换，在把那个替换的节点删除</li>
+</ol>
+<blockquote>
+<p>例如删除5，左右节点都不为空，把5右节点的最左边和5进行替换，</p>
+</blockquote>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">Erase</span><span class="hljs-params">(<span class="hljs-type">const</span> K &amp;key)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-comment">//先查找,删除之后要保持搜索二叉树的状态</span><br>    <span class="hljs-comment">//有两个儿子，用左子树的最右节点，或者右子树的最左节点来进行替换删除</span><br>    <span class="hljs-comment">//先找到要删除的值，还要找到它的父亲</span><br>    Node *cur = _root;<br>    Node *parent = <span class="hljs-literal">nullptr</span>;<br>    <span class="hljs-keyword">while</span> (cur)<br>    &#123;<br>        <span class="hljs-keyword">if</span> (cur-&gt;_val &lt; key)<br>        &#123;<br>            parent = cur;<br>            cur = cur-&gt;_right;<br>        &#125;<br>        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (cur-&gt;_val &gt; key)<br>        &#123;<br>            parent = cur;<br>            cur = cur-&gt;_left;<br>        &#125;<br>        <span class="hljs-keyword">else</span><br>        &#123;<br>            <span class="hljs-comment">//这里面就找到了</span><br>            <span class="hljs-comment">//如果删除的是根节点，左为空，或右为空，没有父亲，我们还要单独处理</span><br><br>            <span class="hljs-keyword">if</span> (cur-&gt;_left == <span class="hljs-literal">nullptr</span>) <span class="hljs-comment">//左为空</span><br>            &#123;<br>                <span class="hljs-keyword">if</span> (parent == <span class="hljs-literal">nullptr</span>)<span class="hljs-comment">//删除的是根节点</span><br>                &#123;<br>                    _root = _root-&gt;_right;<br>                &#125;<br>                <span class="hljs-keyword">else</span><br>                &#123;<br>                    <span class="hljs-keyword">if</span> (parent-&gt;_left == cur)<br>                    &#123;<br>                        <span class="hljs-comment">//我是父亲的左</span><br>                        <span class="hljs-comment">//父亲的左，指向我的右</span><br>                        parent-&gt;_left = cur-&gt;_right;<br>                    &#125;<br>                    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (parent-&gt;_right == cur)<br>                    &#123;<br>                        parent-&gt;_right = cur-&gt;_right;<br>                    &#125;<br>                &#125;<br>                <span class="hljs-keyword">delete</span> cur;<br>                cur = <span class="hljs-literal">nullptr</span>;<br>            &#125;<br>            <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (cur-&gt;_right == <span class="hljs-literal">nullptr</span>) <span class="hljs-comment">//右为空</span><br>            &#123;<br>                <span class="hljs-keyword">if</span> (parent == <span class="hljs-literal">nullptr</span>)<br>                &#123;<br>                    _root = _root-&gt;_left;<br>                &#125;<br>                <span class="hljs-keyword">else</span><br>                &#123;<br>                    <span class="hljs-keyword">if</span> (parent-&gt;_left == cur)<br>                    &#123;<br>                        <span class="hljs-comment">//我是父亲的左</span><br>                        <span class="hljs-comment">//父亲的左，指向我的右</span><br>                        parent-&gt;_left = cur-&gt;_left;<br>                    &#125;<br>                    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (parent-&gt;_right == cur)<br>                    &#123;<br>                        parent-&gt;_right = cur-&gt;_left;<br>                    &#125;<br>                &#125;<br>                <span class="hljs-keyword">delete</span> cur;<br>                cur = <span class="hljs-literal">nullptr</span>;<br>            &#125;<br>            <span class="hljs-keyword">else</span><br>            &#123;<br>                <span class="hljs-comment">//都不为空</span><br>                <span class="hljs-comment">//我们用右子树的最左节点,替换法删除</span><br>                Node *node = cur-&gt;_right;<br>                Node *parent = cur;<br>                <span class="hljs-keyword">if</span> (node-&gt;_left != <span class="hljs-literal">nullptr</span>)<span class="hljs-comment">//右子树右左节点</span><br>                &#123;<br><br>                    <span class="hljs-keyword">while</span> (node-&gt;_left)<br>                    &#123;<br>                        parent = node;<br>                        node = node-&gt;_left;<br>                    &#125;<br>                    <span class="hljs-built_in">swap</span>(cur-&gt;_val, node-&gt;_val);<br>                    parent-&gt;_left = node-&gt;_right;<br>                    <span class="hljs-keyword">delete</span> node;<br>                    node = <span class="hljs-literal">nullptr</span>;<br>                &#125;<br>                <span class="hljs-keyword">else</span><span class="hljs-comment">//右子树没有左节点，直接把父和它的右节点连接起来即可</span><br>                &#123;<br>                    <span class="hljs-built_in">swap</span>(cur-&gt;_val, node-&gt;_val);<br>                    parent-&gt;_right = node-&gt;_right;<br>                    <span class="hljs-keyword">delete</span> node;<br>                    node = <span class="hljs-literal">nullptr</span>;<br>                &#125;<br>            &#125;<br><br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p><strong>递归版本</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function">Node *<span class="hljs-title">EraseR</span><span class="hljs-params">(<span class="hljs-type">const</span> K &amp;key)</span></span><br><span class="hljs-function"></span>&#123;<br>    _EraseR(key, _root);<br>&#125;<br><span class="hljs-type">bool</span> _EraseR(<span class="hljs-type">const</span> K &amp;key, Node *&amp;root)<br>&#123;<br>    <span class="hljs-keyword">if</span> (root == <span class="hljs-literal">nullptr</span>)<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    <span class="hljs-keyword">if</span> (root-&gt;_val &gt; key)<br>    &#123;<br>        <span class="hljs-keyword">return</span> _EraseR(key, root-&gt;_left);<br>    &#125;<br>    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (root-&gt;_val &lt; key)<br>    &#123;<br>        <span class="hljs-keyword">return</span> _EraseR(key, root-&gt;_right);<br>    &#125;<br>    <span class="hljs-keyword">else</span><br>    &#123;<br>        Node *del = root;<br>        <span class="hljs-keyword">if</span> (root-&gt;_left == <span class="hljs-literal">nullptr</span>)<br>        &#123;<br><br>            root = root-&gt;_right;<br>        &#125;<br><br>        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (root-&gt;_right == <span class="hljs-literal">nullptr</span>)<br>        &#123;<br>            root = root-&gt;_left;<br>        &#125;<br>        <span class="hljs-keyword">else</span><br>        &#123;<br>            <span class="hljs-comment">//左右都不为空</span><br>            <span class="hljs-comment">//找到右子树的最左边，找替代节点</span><br><br>            Node *min = root-&gt;_right;<br>            <span class="hljs-keyword">while</span> (min-&gt;_left)<br>            &#123;<br>                min = min-&gt;_left;<br>            &#125;<br>            <span class="hljs-built_in">swap</span>(min-&gt;_val, root-&gt;_val); <span class="hljs-comment">//把替代节点替换上去，后面只需要再递归的去删除交换的节点就可以了</span><br>            <span class="hljs-comment">//递归到右子树的最左节点去删除</span><br>            <span class="hljs-keyword">return</span> _EraseR(key, root-&gt;_right);<br>        &#125;<br>        <span class="hljs-keyword">delete</span> del;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h4 id="InOrder"><a href="#InOrder" class="headerlink" title="InOrder"></a>InOrder</h4><p>中序遍历，左根右<br>在类里面递归遍历，我们可以使用子函数，这样外部就不需要用类里面的私有成员变量</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">InOrder</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-comment">//套一个子函数就可以了</span><br>    _InOrder(_root);<br>&#125;<br><br><span class="hljs-type">void</span> _InOrder(Node *root) <span class="hljs-comment">//在外面或得不到根</span><br>&#123;<br>    <span class="hljs-keyword">if</span> (root == <span class="hljs-literal">nullptr</span>)<br>        <span class="hljs-keyword">return</span>;<br>    _InOrder(root-&gt;_left);<br>    cout &lt;&lt; root-&gt;_val &lt;&lt; <span class="hljs-string">&quot; &quot;</span>;<br>    _InOrder(root-&gt;_right);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h3 id="KV模型"><a href="#KV模型" class="headerlink" title="KV模型"></a>KV模型</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">K</span>,<span class="hljs-keyword">class</span> <span class="hljs-title class_">V</span>&gt;<br><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">BSTNode</span><br>&#123;<br>    K _key;<br>    V _val;<br>    BSTNode&lt;K,V&gt; *_left;<br>    BSTNode&lt;K,V&gt; *_right;<br>    <span class="hljs-built_in">BSTNode</span>(<span class="hljs-type">const</span> K &amp;key,<span class="hljs-type">const</span> V&amp; val)<br>        : _val(val), _right(<span class="hljs-literal">nullptr</span>), _left(<span class="hljs-literal">nullptr</span>),_key(key)<br>    &#123;<br>    &#125;<br>&#125;;<br><br><span class="hljs-comment">//比如：key是身份证，value就是票的信息，vector&lt;info&gt; _vinfo</span><br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">K</span>,<span class="hljs-keyword">class</span> <span class="hljs-title class_">V</span>&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">BSTree</span><br>&#123;<br>    <span class="hljs-keyword">typedef</span> BSTNode&lt;K,V&gt; Node;<br><br><span class="hljs-keyword">private</span>:<br>    Node *_root;<br><br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-built_in">BSTree</span>()<br>        : _root(<span class="hljs-literal">nullptr</span>)<br>    &#123;<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">Insert</span><span class="hljs-params">(<span class="hljs-type">const</span> K &amp;key,<span class="hljs-type">const</span> V&amp; val)</span> <span class="hljs-comment">//非线性叫做insert</span></span><br><span class="hljs-function">    </span>&#123;<br>        <span class="hljs-comment">//插入重复的值，就返回失败</span><br>        <span class="hljs-keyword">if</span> (_root == <span class="hljs-literal">nullptr</span>)<br>        &#123;<br>            _root = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Node</span>(key,val);<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>        &#125;<br>        <span class="hljs-keyword">else</span><br>        &#123;<br>            Node *cur = _root;<br>            Node *prev;<br>            <span class="hljs-keyword">while</span> (cur)<br>            &#123;<br>                <span class="hljs-keyword">if</span> (cur-&gt;_key &gt; key)<br>                &#123;<br>                    prev = cur;<br>                    cur = cur-&gt;_left;<br>                &#125;<br>                <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (cur-&gt;_key &lt; key)<br>                &#123;<br>                    prev = cur;<br>                    cur = cur-&gt;_right;<br>                &#125;<br>                <span class="hljs-keyword">else</span><br>                &#123;<br>                    <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>                &#125;<br>            &#125;<br>            cur = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Node</span>(key,val);<br>            <span class="hljs-keyword">if</span> (prev-&gt;_key &lt; key)<br>            &#123;<br>                prev-&gt;_right = cur;<br>            &#125;<br>            <span class="hljs-keyword">else</span><br>            &#123;<br>                prev-&gt;_left = cur;<br>            &#125;<br>            <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>        &#125;<br>    &#125;<br><br>    <br><br>    <span class="hljs-function">Node* <span class="hljs-title">Find</span><span class="hljs-params">(<span class="hljs-type">const</span> K &amp;key)</span> <span class="hljs-comment">//查找,返回对应的节点</span></span><br><span class="hljs-function">    </span>&#123;<br>        Node *cur = _root;<br>        <span class="hljs-keyword">while</span> (cur)<br>        &#123;<br>            <span class="hljs-keyword">if</span> (cur-&gt;_key &gt; key)<br>            &#123;<br>                cur = cur-&gt;_left;<br>            &#125;<br>            <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (cur-&gt;_key &lt; key)<br>            &#123;<br>                cur = cur-&gt;_right;<br>            &#125;<br>            <span class="hljs-keyword">else</span><br>            &#123;<br>                <span class="hljs-keyword">return</span> cur;<span class="hljs-comment">//找到就返回对应的节点</span><br>            &#125;<br>        &#125;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">nullptr</span>;<span class="hljs-comment">//没有找到就返回空</span><br>    &#125;<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">InOrder</span><span class="hljs-params">()</span></span><br><span class="hljs-function">    </span>&#123;<br>        <span class="hljs-comment">//套一个子函数就可以了</span><br>        _InOrder(_root);<br>    &#125;<br><br>    <span class="hljs-type">void</span> _InOrder(Node *root) <span class="hljs-comment">//在外面或得不到根</span><br>    &#123;<br>        <span class="hljs-keyword">if</span> (root == <span class="hljs-literal">nullptr</span>)<br>            <span class="hljs-keyword">return</span>;<br>        _InOrder(root-&gt;_left);<br>        cout &lt;&lt; root-&gt;_key &lt;&lt; <span class="hljs-string">&quot; &quot;</span>;<br>        _InOrder(root-&gt;_right);<br>    &#125;<br><br>    <span class="hljs-function"><span class="hljs-type">bool</span> <span class="hljs-title">Erase</span><span class="hljs-params">(<span class="hljs-type">const</span> K &amp;key)</span></span><br><span class="hljs-function">    </span>&#123;<br>        <span class="hljs-comment">//先查找,删除之后要保持搜索二叉树的状态</span><br>        <span class="hljs-comment">//有两个儿子，用左子树的最右节点，或者右子树的最左节点来进行替换删除</span><br>        <span class="hljs-comment">//先找到要删除的值，还要找到它的父亲</span><br>        Node *cur = _root;<br>        Node *parent = <span class="hljs-literal">nullptr</span>;<br>        <span class="hljs-keyword">while</span> (cur)<br>        &#123;<br>            <span class="hljs-keyword">if</span> (cur-&gt;_key &lt; key)<br>            &#123;<br>                parent = cur;<br>                cur = cur-&gt;_right;<br>            &#125;<br>            <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (cur-&gt;_key &gt; key)<br>            &#123;<br>                parent = cur;<br>                cur = cur-&gt;_left;<br>            &#125;<br>            <span class="hljs-keyword">else</span><br>            &#123;<br>                <span class="hljs-comment">//这里面就找到了</span><br>                <span class="hljs-comment">//如果删除的是根节点，左为空，或右为空，没有父亲，我们还要单独处理</span><br><br>                <span class="hljs-keyword">if</span> (cur-&gt;_left == <span class="hljs-literal">nullptr</span>) <span class="hljs-comment">//左为空</span><br>                &#123;<br>                    <span class="hljs-keyword">if</span> (parent == <span class="hljs-literal">nullptr</span>)<br>                    &#123;<br>                        _root = _root-&gt;_right;<br>                    &#125;<br>                    <span class="hljs-keyword">else</span><br>                    &#123;<br>                        <span class="hljs-keyword">if</span> (parent-&gt;_left == cur)<br>                        &#123;<br>                            <span class="hljs-comment">//我是父亲的左</span><br>                            <span class="hljs-comment">//父亲的左，指向我的右</span><br>                            parent-&gt;_left = cur-&gt;_right;<br>                        &#125;<br>                        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (parent-&gt;_right == cur)<br>                        &#123;<br>                            parent-&gt;_right = cur-&gt;_right;<br>                        &#125;<br>                    &#125;<br>                    <span class="hljs-keyword">delete</span> cur;<br>                    cur = <span class="hljs-literal">nullptr</span>;<br>                &#125;<br>                <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (cur-&gt;_right == <span class="hljs-literal">nullptr</span>) <span class="hljs-comment">//右为空</span><br>                &#123;<br>                    <span class="hljs-keyword">if</span> (parent == <span class="hljs-literal">nullptr</span>)<br>                    &#123;<br>                        _root = _root-&gt;_left;<br>                    &#125;<br>                    <span class="hljs-keyword">else</span><br>                    &#123;<br>                        <span class="hljs-keyword">if</span> (parent-&gt;_left == cur)<br>                        &#123;<br>                            <span class="hljs-comment">//我是父亲的左</span><br>                            <span class="hljs-comment">//父亲的左，指向我的右</span><br>                            parent-&gt;_left = cur-&gt;_left;<br>                        &#125;<br>                        <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (parent-&gt;_right == cur)<br>                        &#123;<br>                            parent-&gt;_right = cur-&gt;_left;<br>                        &#125;<br>                    &#125;<br>                    <span class="hljs-keyword">delete</span> cur;<br>                    cur = <span class="hljs-literal">nullptr</span>;<br>                &#125;<br>                <span class="hljs-keyword">else</span><br>                &#123;<br>                    <span class="hljs-comment">//都不为空</span><br>                    <span class="hljs-comment">//我们用右子树的最左节点,替换法删除</span><br>                    Node *node = cur-&gt;_right;<br>                    Node *parent = cur;<br>                    <span class="hljs-keyword">if</span> (node-&gt;_left != <span class="hljs-literal">nullptr</span>)<br>                    &#123;<br><br>                        <span class="hljs-keyword">while</span> (node-&gt;_left)<br>                        &#123;<br>                            parent = node;<br>                            node = node-&gt;_left;<br>                        &#125;<br>                        <span class="hljs-built_in">swap</span>(cur-&gt;_val, node-&gt;_val);<br>                        <span class="hljs-built_in">swap</span>(cur-&gt;_key, node-&gt;_key);<br>                        parent-&gt;_left = node-&gt;_right;<br>                        <span class="hljs-keyword">delete</span> node;<br>                        node = <span class="hljs-literal">nullptr</span>;<br>                    &#125;<br>                    <span class="hljs-keyword">else</span><br>                    &#123;<br>                        <span class="hljs-built_in">swap</span>(cur-&gt;_val, node-&gt;_val);<br>                        <span class="hljs-built_in">swap</span>(cur-&gt;_key, node-&gt;_key);<br>                        parent-&gt;_right = node-&gt;_right;<br>                        <span class="hljs-keyword">delete</span> node;<br>                        node = <span class="hljs-literal">nullptr</span>;<br>                    &#125;<br>                &#125;<br><br>                <span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>            &#125;<br>        &#125;<br>        <span class="hljs-keyword">return</span> <span class="hljs-literal">false</span>;<br>    &#125;<br><br>    <br>&#125;;<br></code></pre></td></tr></table></figure>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" class="category-chain-item">数据结构</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/c-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-%E7%AE%97%E6%B3%95/">#c++ 数据结构 算法</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>二叉搜索树</div>
+      <div>http://example.com/2022/08/28/二叉搜索树/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zevin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年8月28日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/08/30/%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E5%B1%82%E5%BA%8F%E9%81%8D%E5%8E%86%E5%8F%8A%E5%85%B6%E5%8F%98%E5%BD%A2/" title="二叉树的层序遍历及其变形">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">二叉树的层序遍历及其变形</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/08/24/C++%E7%B1%BB%E5%9E%8B%E8%BD%AC%E6%8D%A2/" title="C++类型转换">
+                        <span class="hidden-mobile">C++类型转换</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","appKey":"javf3F1xk56WiY222ZrCxGt1","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

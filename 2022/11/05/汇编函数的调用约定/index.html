@@ -1,0 +1,779 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zevin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="文章目录 汇编的调用约定 函数调用过程中的编程约定  有关寄存器的编程约定 函数跳转和返回指令的编程约定   示例  汇编的调用约定函数调用过程的概述stack frame  调用一个函数的时候，就会压入栈帧里面，在调用A函数后，再调用B函数，B函数的地址就会继续压栈，当B函数处理完之后，在栈帧里面的B地址就会出栈，入宫函数过多的话，有可能会出现爆栈的情况  函数调用约定  caller就是一">
+<meta property="og:type" content="article">
+<meta property="og:title" content="汇编函数的调用约定">
+<meta property="og:url" content="http://example.com/2022/11/05/%E6%B1%87%E7%BC%96%E5%87%BD%E6%95%B0%E7%9A%84%E8%B0%83%E7%94%A8%E7%BA%A6%E5%AE%9A/index.html">
+<meta property="og:site_name" content="Zevin-Blog">
+<meta property="og:description" content="文章目录 汇编的调用约定 函数调用过程中的编程约定  有关寄存器的编程约定 函数跳转和返回指令的编程约定   示例  汇编的调用约定函数调用过程的概述stack frame  调用一个函数的时候，就会压入栈帧里面，在调用A函数后，再调用B函数，B函数的地址就会继续压栈，当B函数处理完之后，在栈帧里面的B地址就会出栈，入宫函数过多的话，有可能会出现爆栈的情况  函数调用约定  caller就是一">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/fadda0b23037428da368f2e393029836.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/c262e14a68b741de9517fd995d9d5af0.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/227e46ac11824db894696d6e9c57cc63.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/cacc897c8d334dff860c0ca186684187.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/df36448d8baf4fe38068d130168a6f3d.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/0f62661d343440ceb6537af173f0f376.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/711cb1f9a3eb45febc8527e1b15721a0.png">
+<meta property="article:published_time" content="2022-11-05T12:09:26.000Z">
+<meta property="article:modified_time" content="2023-01-20T12:55:15.358Z">
+<meta property="article:author" content="Zevin">
+<meta property="article:tag" content="数据结构 java 算法">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/fadda0b23037428da368f2e393029836.png">
+  
+  
+  
+  <title>汇编函数的调用约定 - Zevin-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","app_key":"javf3F1xk56WiY222ZrCxGt1","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zevin-Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="汇编函数的调用约定"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-11-05 20:09" pubdate>
+          2022年11月5日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          24 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">汇编函数的调用约定</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+
+<h3 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h3><ul>
+<li><a href="#_1">汇编的调用约定</a></li>
+<li><a href="#_17">函数调用过程中的编程约定</a></li>
+<li><ul>
+<li><a href="#_18">有关寄存器的编程约定</a></li>
+<li><a href="#_31">函数跳转和返回指令的编程约定</a></li>
+</ul>
+</li>
+<li><a href="#_42">示例</a></li>
+</ul>
+<h1 id="汇编的调用约定"><a href="#汇编的调用约定" class="headerlink" title="汇编的调用约定"></a>汇编的调用约定</h1><p>函数调用过程的概述<br>stack frame<br><img src="https://img-blog.csdnimg.cn/fadda0b23037428da368f2e393029836.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<blockquote>
+<p>调用一个函数的时候，就会压入栈帧里面，在调用A函数后，再调用B函数，B函数的地址就会继续压栈，当B函数处理完之后，在栈帧里面的B地址就会出栈，入宫函数过多的话，有可能会出现爆栈的情况</p>
+</blockquote>
+<p>函数调用约定</p>
+<ul>
+<li>caller就是一个函数调用者，callee就是被调用函数</li>
+<li>在caller中调用call，调用了callee，callee执行完之后返回，返回到调用call的下一个地址</li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/c262e14a68b741de9517fd995d9d5af0.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<blockquote>
+<p>这里有一个问题，函数调用的时候，那些函数的调用参数，和函数的返回值应该放在哪里呢？<br>这就是我们下面要解决的问题</p>
+</blockquote>
+<h1 id="函数调用过程中的编程约定"><a href="#函数调用过程中的编程约定" class="headerlink" title="函数调用过程中的编程约定"></a>函数调用过程中的编程约定</h1><h2 id="有关寄存器的编程约定"><a href="#有关寄存器的编程约定" class="headerlink" title="有关寄存器的编程约定"></a>有关寄存器的编程约定</h2><p><strong>x0-x31</strong>就是寄存器的最初始化的名字，最开始的32个寄存器<br><strong>ABI</strong>就是在函数的时候吧这些寄存器普遍化修改的别名，主要使用的就是这些别名，我们之后都是使用这些别名，更好的进行理解<br><img src="https://img-blog.csdnimg.cn/227e46ac11824db894696d6e9c57cc63.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<blockquote>
+<p><strong>N&#x2F;A:<strong>就是not available，没有人维护<br><strong>ra</strong>:return address,就是jal函数返回后的下一个地址,由</strong>调用者</strong>来进行维护，因为函数返回之后要达到对应的位置<br><strong>sp</strong>:stack pointer:就是用来存放栈指针，由<strong>被调用者</strong>来维护，因为出栈和入栈主要就是由<strong>被调用的子函数</strong>来执行<br><strong>t</strong>:temporary:临时寄存器，用来函数调用者<strong>保存函数的一些临时变量</strong><br><strong>s</strong> :save ：保存寄存器，就是和t是反过来的，对于<strong>调用者</strong>来说，要<strong>保证save里面的值在调用前和调用后值是不变</strong>的<br><strong>a</strong>：argument参数寄存器，用于在函数时候保存函数的参数，以及传递返回值</p>
+</blockquote>
+<blockquote>
+<p>我们在写risc-v的时候，一般使用<strong>a0,a1</strong>来进行返回<br>使用<strong>a0-a7</strong>来进行传递函数的参数</p>
+</blockquote>
+<h2 id="函数跳转和返回指令的编程约定"><a href="#函数跳转和返回指令的编程约定" class="headerlink" title="函数跳转和返回指令的编程约定"></a>函数跳转和返回指令的编程约定</h2><p>（1）<br><img src="https://img-blog.csdnimg.cn/cacc897c8d334dff860c0ca186684187.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>（2）<br><img src="https://img-blog.csdnimg.cn/df36448d8baf4fe38068d130168a6f3d.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/0f62661d343440ceb6537af173f0f376.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<blockquote>
+<p>我们要将函数的ra寄存器保存在栈里面，避免之后调用的时候这个ra寄存器没了，寄存器没了的话，函数返回地址就没了，不知道返回到那里，所以我们要用s寄存器来保存ra的值，退栈的时候恢复ra的值<br>在c语言里面调用汇编代码<br><img src="https://img-blog.csdnimg.cn/711cb1f9a3eb45febc8527e1b15721a0.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<ul>
+<li>汇编</li>
+</ul>
+</blockquote>
+<h1 id="示例"><a href="#示例" class="headerlink" title="示例"></a>示例</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br></pre></td><td class="code"><pre><code class="hljs c"># Calling Convention<br># Demo how to write nested routines<br>#<br><span class="hljs-meta"># void _start()</span><br># &#123;<br>#     <span class="hljs-comment">// calling nested routine</span><br>#     aa_bb(<span class="hljs-number">3</span>, <span class="hljs-number">4</span>);<br># &#125;<br>#<br><span class="hljs-meta"># int aa_bb(int a, int b)</span><br># &#123;<br><span class="hljs-meta">#     return square(a) + square(b);</span><br># &#125;<br>#<br><span class="hljs-meta"># int square(int num)</span><br># &#123;<br><span class="hljs-meta">#     return num * num;</span><br># &#125;<br><br>	.text			# Define beginning of text section<br>	.global	_start		# Define entry _start,这个_start是一个全局的标签地址<br><br>_start:<br>	la sp, stack_end	<span class="hljs-meta"># prepare stack for calling functions  ，同样进入主函数之后就开辟了栈内存空间</span><br><br>	# aa_bb(<span class="hljs-number">3</span>, <span class="hljs-number">4</span>);<br>	li a0, <span class="hljs-number">3</span><br>	li a1, <span class="hljs-number">4</span>			# 给函数两个参数的值，传参<br>	call aa_bb			# 一个<span class="hljs-number">3</span>,一个<span class="hljs-number">4</span><br><br>stop:<br>	j stop			# Infinite loop to stop execution<br><br><span class="hljs-meta"># int aa_bb(int a, int b)</span><br><span class="hljs-meta"># return a^2 + b^2</span><br>aa_bb:<br>	<span class="hljs-meta"># prologue</span><br>	addi sp, sp, <span class="hljs-number">-16</span>	# 压栈<br>	sw s0, <span class="hljs-number">0</span>(sp)		# 这里把s0,s2保存起来，函数的参数，以及栈指针，把sp+<span class="hljs-number">0</span>存储到s0里面<br>	sw s1, <span class="hljs-number">4</span>(sp)		<br>	sw s2, <span class="hljs-number">8</span>(sp)		<br>	sw ra, <span class="hljs-number">12</span>(sp)		# 这里还要保存ra的值，sw 是存字，把 ra 的低位四字节存入地址 rs1+立即数中。<br><br>	<span class="hljs-meta"># cp and store the input params</span><br>	mv s0, a0<br>	mv s1, a1<br><br>	<span class="hljs-meta"># sum will be stored in s2 and is initialized as zero</span><br>	li s2, <span class="hljs-number">0</span><br><br>	mv a0, s0<br>	jal square		# 这里是尾调用，所以就不会回来了，如果不保存ra的话，就会把ra的地址给改调了<br>	add s2, s2, a0	# 上一层函数函数运行的结果的在a0里面，因为这就是用来处理函数参数和返回值的寄存器<br><br>	mv a0, s1<br>	jal square<br>	add s2, s2, a0	# a0里面放的就是第二个参数调用函数处理的结果，放到s2里面<br><br>	mv a0, s2		# 再把s2的值放到参数寄存器里面，返回<br><br>	<span class="hljs-meta"># epilogue</span><br>	lw s0, <span class="hljs-number">0</span>(sp)	# 恢复寄存器，退出栈帧<br>	lw s1, <span class="hljs-number">4</span>(sp)<br>	lw s2, <span class="hljs-number">8</span>(sp)<br>	lw ra, <span class="hljs-number">12</span>(sp)<br>	addi sp, sp, <span class="hljs-number">16</span>	# 把栈镇退出<br>	ret				# 返回<br><br><span class="hljs-meta"># int square(int num)</span><br>square:<br>	<span class="hljs-meta"># prologue</span><br>	addi sp, sp, <span class="hljs-number">-8</span><br>	sw s0, <span class="hljs-number">0</span>(sp)# 因为这里是最后一次调用函数所以不用存储函数的返回值ra<br>	sw s1, <span class="hljs-number">4</span>(sp)<br><br>	# `mul a0, a0, a0` should be fine,<br>	<span class="hljs-meta"># programing as below just to demo we can contine use the stack</span><br>	mv s0, a0<br>	mul s1, s0, s0<br>	mv a0, s1<br><br>	<span class="hljs-meta"># epilogue</span><br>	lw s0, <span class="hljs-number">0</span>(sp)<br>	lw s1, <span class="hljs-number">4</span>(sp)<br>	addi sp, sp, <span class="hljs-number">8</span><br><br>	ret<br><br>	<span class="hljs-meta"># add nop here just for demo in gdb</span><br>	nop<br><br>	<span class="hljs-meta"># allocate stack space，开辟了栈空间</span><br>stack_start:<br>	.rept <span class="hljs-number">12</span><br>	.word <span class="hljs-number">0</span><br>	.endr<br>stack_end:<br><br>	.end			# End of file<br></code></pre></td></tr></table></figure>
+
+<p>在汇编代码里面调用c代码</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs c"># C all ASM<br><br>	.text			# Define beginning of text section<br>	.global	_start		# Define entry _start<br>	.global	foo		<span class="hljs-meta"># foo is a C function defined in test.c，c函数定义到这里</span><br><br>_start:<br>	la sp, stack_end	<span class="hljs-meta"># prepare stack for calling functions</span><br><br>	li a0, <span class="hljs-number">1</span><br>	li a1, <span class="hljs-number">2</span><br>	call foo # 调用c函数<br><br>stop:<br>	j stop			# Infinite loop to stop execution<br><br>	nop			<span class="hljs-meta"># just for demo effect</span><br><br>stack_start:<br>	.rept <span class="hljs-number">12</span><br>	.word <span class="hljs-number">0</span><br>	.endr<br>stack_end:<br><br>	.end			# End of file<br></code></pre></td></tr></table></figure>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/RISC-V%E6%B1%87%E7%BC%96/" class="category-chain-item">RISC_V汇编</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84-java-%E7%AE%97%E6%B3%95/">#数据结构 java 算法</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>汇编函数的调用约定</div>
+      <div>http://example.com/2022/11/05/汇编函数的调用约定/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zevin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年11月5日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/12/10/%E5%9F%BA%E4%BA%8Exv6%E7%9A%84Copy-On-Write/" title="基于xv6的Copy-On-Write">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">基于xv6的Copy-On-Write</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E6%8C%87%E4%BB%A4/" title="汇编语言指令">
+                        <span class="hidden-mobile">汇编语言指令</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","appKey":"javf3F1xk56WiY222ZrCxGt1","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

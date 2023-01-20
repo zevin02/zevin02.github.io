@@ -1,0 +1,951 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zevin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="文章目录 索引 MySQL 认识磁盘 MySQL与磁盘交互的基本单位 建立共识 索引的理解  单个page   多页情况 什么是主键索引  为什么只能是B+树   聚簇索引vs非聚簇索引  非聚簇索引 聚簇索引    索引索引：提高数据库的性能，提高数据库的检索速度，不用加内存，不用改sql，不用改程序，速度可以提高成败上千倍，但是插入，更新，删除的速度就比较慢 常见的索引  主键索引（pri">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL索引">
+<meta property="og:url" content="http://example.com/2022/10/18/MySQL%E7%B4%A2%E5%BC%95/index.html">
+<meta property="og:site_name" content="Zevin-Blog">
+<meta property="og:description" content="文章目录 索引 MySQL 认识磁盘 MySQL与磁盘交互的基本单位 建立共识 索引的理解  单个page   多页情况 什么是主键索引  为什么只能是B+树   聚簇索引vs非聚簇索引  非聚簇索引 聚簇索引    索引索引：提高数据库的性能，提高数据库的检索速度，不用加内存，不用改sql，不用改程序，速度可以提高成败上千倍，但是插入，更新，删除的速度就比较慢 常见的索引  主键索引（pri">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/ebf8cf4d7ae04133ad14250efd8f00d9.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/a27e130b3115434b85e8a91f4f7b2be1.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/1ada73fd83544574a3b02e7baff30c11.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/4200f753f75440f0b0f540fab407ecbb.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/3ced48297abf431a9e76327060090cab.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/7808cedb3c474e7191c0b327476d9e0f.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/30d45977ee494de488ee4baaa2864f16.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/b85a97ccc00943828dded8a09b0c3b40.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/52bc13a678e742c1847ab12887cbf4fa.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/e7c3286251ab427f89d2f0c842814020.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/25b1b4a48a5c441c80045e5e327bc227.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/ee5d5029723049ec8c850276b322d5d2.png">
+<meta property="article:published_time" content="2022-10-18T06:15:45.000Z">
+<meta property="article:modified_time" content="2023-01-20T12:55:15.358Z">
+<meta property="article:author" content="Zevin">
+<meta property="article:tag" content="mysql 数据库 sql">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/ebf8cf4d7ae04133ad14250efd8f00d9.png">
+  
+  
+  
+  <title>MySQL索引 - Zevin-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","app_key":"javf3F1xk56WiY222ZrCxGt1","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zevin-Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="MySQL索引"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-10-18 14:15" pubdate>
+          2022年10月18日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          42 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">MySQL索引</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+
+<h3 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h3><ul>
+<li><a href="#_1">索引</a></li>
+<li><a href="#MySQL_10">MySQL</a></li>
+<li><a href="#_40">认识磁盘</a></li>
+<li><a href="#MySQL_59">MySQL与磁盘交互的基本单位</a></li>
+<li><a href="#_70">建立共识</a></li>
+<li><a href="#_95">索引的理解</a></li>
+<li><ul>
+<li><a href="#page_115">单个page</a></li>
+</ul>
+</li>
+<li><a href="#_162">多页情况</a></li>
+<li><a href="#_192">什么是主键索引</a></li>
+<li><ul>
+<li><a href="#B_212">为什么只能是B+树</a></li>
+</ul>
+</li>
+<li><a href="#vs_235">聚簇索引vs非聚簇索引</a></li>
+<li><ul>
+<li><a href="#_236">非聚簇索引</a></li>
+<li><a href="#_243">聚簇索引</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="索引"><a href="#索引" class="headerlink" title="索引"></a>索引</h1><p>索引：提高数据库的性能，提高数据库的检索速度，不用加内存，不用改sql，不用改程序，速度可以提高成败上千倍，但是插入，更新，删除的速度就比较慢</p>
+<p>常见的索引</p>
+<ul>
+<li>主键索引（primary key）</li>
+<li>唯一键索引（unique）</li>
+<li>普通索引（index）</li>
+</ul>
+<h1 id="MySQL"><a href="#MySQL" class="headerlink" title="MySQL"></a>MySQL</h1><p>MySQL的工作过程</p>
+<ul>
+<li>mysql对数据做的CURD的操作，根据冯诺依曼体系，mysql是不可能直接去访问磁盘的</li>
+<li>实际上数据库对数据做的所有访问，全部都是在内存中进行的，</li>
+<li>如果数据有变化，再定期的把数据刷新到磁盘里面</li>
+<li>sync使用，使用这个系统调用，把内核数据刷新到磁盘里面，不经过OS</li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/ebf8cf4d7ae04133ad14250efd8f00d9.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/a27e130b3115434b85e8a91f4f7b2be1.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<ul>
+<li>示例，添加索引前</li>
+</ul>
+<blockquote>
+<p>我们插入了大量的数据，然后从里面进行查找数据，这样我们就会发现了查询的结果会查很久</p>
+</blockquote>
+<ul>
+<li>查询员工号2&#x3D;998877<br><img src="https://img-blog.csdnimg.cn/1ada73fd83544574a3b02e7baff30c11.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/4200f753f75440f0b0f540fab407ecbb.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></li>
+</ul>
+<p>我们发现很慢，时间过了很久才能查询出来</p>
+<ul>
+<li>示例，添加索引后</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">alter</span> <span class="hljs-keyword">table</span> EMP <span class="hljs-keyword">add</span> index(empno);<br></code></pre></td></tr></table></figure>
+
+<p>我们在添加索引之后，发现查找的非常块，几乎每花什么时间</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">from</span> EMP <span class="hljs-keyword">where</span> empno<span class="hljs-operator">=</span><span class="hljs-number">998877</span>;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/3ced48297abf431a9e76327060090cab.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>我们会发现搜索的时间不到一秒</p>
+<h1 id="认识磁盘"><a href="#认识磁盘" class="headerlink" title="认识磁盘"></a>认识磁盘</h1><p>数据存储效率很低，路上还要有带宽限制，因为我们在传输数据的时候，不仅要在自己的磁盘中传送，还要在网络中进行跨网络传输</p>
+<p>所有的数据都是基于LInux文件系统的</p>
+<p>要找到一个文件的全部，本质上，就是在磁盘中找到所有保存文件的扇区</p>
+<p>磁盘里面：磁头确认的是哪一个面，磁盘确认的是哪个圈，扇区来进行确认是哪一块区域，来定位到某一个扇区（CHS定位方案），磁盘使用的方案<br>磁盘的使用，使用的LBA，逻辑块地址（可以理解为虚拟地址和物理地址），这个是操作系统使用的方案</p>
+<ul>
+<li><p>结论<br>我们已经能够在硬件层面上定位到对应的地址了，任何一个数据块（扇区），在系统软件上，直接按照扇区（512字节，会造成过度寻址，所以我们基本都是使用4096来进行寻址，4页）</p>
+</li>
+<li><p>如果OS直接用硬件提供的数据大小进行交互，那么系统软件，</p>
+</li>
+</ul>
+<p>磁盘的交互都是使用4KB进行交互<br>连续磁盘访问</p>
+<h1 id="MySQL与磁盘交互的基本单位"><a href="#MySQL与磁盘交互的基本单位" class="headerlink" title="MySQL与磁盘交互的基本单位"></a>MySQL与磁盘交互的基本单位</h1><p>MySQL作为一款软件，可以想象成一个特殊的文件系统，它有更高的IO 场景，为了提高效率，</p>
+<ul>
+<li>MySQL数据交互的<strong>基本单位</strong>：<strong>16KB</strong></li>
+</ul>
+<p>也就是说，磁盘这个硬件的基本单位是<strong>512字节</strong>，而MySQL使用16kb进行IO交互，即<br>MySQL和磁盘进行数据交互（通过OS）的基本单位是16KB，这个基本数据单位在mysql里面叫做<strong>page</strong></p>
+<p>如果它的基本单位和磁盘一样的话，万一磁盘的基本单位变了，它也要跟着变，兼容性不行<br><img src="https://img-blog.csdnimg.cn/7808cedb3c474e7191c0b327476d9e0f.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>所以这里规定MySQL数据交互的基本单位是16KB&#x3D;1page</p>
+<h1 id="建立共识"><a href="#建立共识" class="headerlink" title="建立共识"></a>建立共识</h1><ul>
+<li>MySQL中数据文件，一定是在磁盘当中的，以<strong>page为基本单位</strong></li>
+<li>MySQL的CURD操作，都需要计算，找到对应的插入位置，或者找到对应要修改或者查询的数据</li>
+<li>只要涉及计算，就要有CPU参与，为了cpu参与，一定把数据加载到内存，cpu只和内存打交道（根据需要把数据从外设掉到内存中，不是所有数据都加载进去）</li>
+<li>所以在特定时间内，数据一定是在磁盘中有，内存中也有，后序操作完内存数据之后，以特定的刷新策略，刷新到磁盘里面，这个时候就涉及磁盘和内存数据的交互，此时基本单位就是page（即便只改一个字节，也要以16kb的大小来进行交互）</li>
+<li>为何更高的效率，一定要减少系统和内存之间的IO请求次数</li>
+</ul>
+<p>IO请求—-系统中一定存在大量的IO 请求————操作系统一定也要管理这些IO请求<br>先描述再组织</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">request_io</span></span><br><span class="hljs-class">&#123;</span><br>	<span class="hljs-type">char</span> * start,*end;<br>	<span class="hljs-type">pid_t</span> id;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>磁盘中,磁盘中一定是要对这些io请求进行管理的</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">disk</span></span><br><span class="hljs-class">&#123;</span><br>	<span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">requestt_io</span>* <span class="hljs-title">queue</span>;</span><span class="hljs-comment">//访问对应的磁盘，都有对应的对应进行保存起来</span><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<h1 id="索引的理解"><a href="#索引的理解" class="headerlink" title="索引的理解"></a>索引的理解</h1><p>创建表</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> <span class="hljs-keyword">user</span>(<br>    <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> id <span class="hljs-type">int</span> <span class="hljs-keyword">primary</span> key,<span class="hljs-comment">--再id这个地方添加主键，建立了一个主键索引</span><br>    <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> age <span class="hljs-type">int</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">null</span>,<br>    <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> name <span class="hljs-type">varchar</span>(<span class="hljs-number">16</span>) <span class="hljs-keyword">not</span> <span class="hljs-keyword">null</span><br>    <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> );<br></code></pre></td></tr></table></figure>
+
+<p>我们这里是故意乱序的进行数据的插入<br><img src="https://img-blog.csdnimg.cn/30d45977ee494de488ee4baaa2864f16.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>我们select之后，发现：查询的结果是按照主键顺序进行排序的<br><img src="https://img-blog.csdnimg.cn/b85a97ccc00943828dded8a09b0c3b40.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>我们中断一下，排序的工作是由谁操作的，为什么要这样干呢?<br>为何IO交互要使用page?</p>
+<blockquote>
+<p>每次交互都使用<strong>page</strong>（16 KB），这样一次可以预加载很多，可以充分利用局部性原理。<a href="#fn1">1</a></p>
+</blockquote>
+<h2 id="单个page"><a href="#单个page" class="headerlink" title="单个page"></a>单个page</h2><blockquote>
+<p>为何MySQL和磁盘进行IO交互的时候，要采用page的方案进行交互，用多少，加载多少的方式不香吗？</p>
+<ul>
+<li><p>如上面的5条数据，MySQL要查id&#x3D;2，第一次加载，id&#x3D;1，第二次加载id&#x3D;2，一次一条数据，就要进行2次IO，如果要找id&#x3D;5，就需要5次IO</p>
+</li>
+<li><p>但是如果5条数据都被保存再page里面（16kb能保存很多记录），第一次IO查找的时候，整个page就直接加载MySQL的buffer pool里面了，这里完成了一次IO，但是往后的id&#x3D;1，3，4，5等，就不需要进行IO了，而是直接再内存里面进行了，大大减小了IO 的次数</p>
+</li>
+<li><p>你怎么保证，用户下次找的数据，就再这个page里面，我们不能保证，但是会由很大的概率，因为由<strong>局部性原理</strong>，往往IO 效率低下唉，最主要矛盾不是单次IO的数据量大小，而是IO 的次数</p>
+</li>
+</ul>
+</blockquote>
+<p>正式理解索引结构,一定会存在page结构体</p>
+<blockquote>
+<ol>
+<li><pre><code class="hljs">mysql会预先开辟一段空间来保留这些page
+</code></pre>
+</li>
+<li><pre><code class="hljs">MySQL在，任何一个时刻，一定会存在大量的page页，存在MySQL内部
+</code></pre>
+</li>
+<li><pre><code class="hljs">MySQL本身也要对page进行管理，也是要先描述再组织
+</code></pre>
+</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span></span><br><span class="hljs-class">&#123;</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> * <span class="hljs-title">prev</span>;</span><span class="hljs-comment">//指向前一个page</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">page</span> * <span class="hljs-title">next</span>;</span><span class="hljs-comment">//指向后一个page</span><br><span class="hljs-type">char</span> <span class="hljs-title function_">buff</span><span class="hljs-params">(<span class="hljs-number">16</span>kb-其他字段占用的大小)</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>对page的管理，就是对链表的管理</p>
+</blockquote>
+<p>之后的操作都是再内存当中实现的<br>mysql插入数据时按照<strong>主键</strong>来进行排序，插入后，page里面就是有序的,查找的时候，就能优化查找算法，有序的就可以提高查找效率，如二分查找，方便我们进行查找</p>
+<p>理解多个page</p>
+<ul>
+<li>在page之间和page里面查找数据，都是基于链表的，线性遍历，一个遍历一遍，没找到，下一个继续遍历，效率非常的低，还是O（N）的方式进行遍历</li>
+</ul>
+<p>页内目录</p>
+<blockquote>
+<p>用目录查找，效率就很高，第一章是什么，在第几页，这样查找就很快，以空间换时间<br>先在一个page里面提高搜索效率，那么在所有page里面，效率也提高了很多<br>有了目录，就能一次淘汰很多数据，这样就会导致单页中数据减少，我们是先遍历数据目录，再去便利数据记录，这样提高的效率就很大，我们先遍历目录，</p>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/52bc13a678e742c1847ab12887cbf4fa.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<blockquote>
+<p>假如说数据500条，我们目录10条，这样就是只要遍历10次目录，遍历50次目录中对应的数据，大大减少了遍历的次数</p>
+</blockquote>
+<ul>
+<li>所以有主键的时候，默认的进行排序，可以方便我们引入<strong>页内目录</strong>，方便查询</li>
+</ul>
+<p>page之间也是线性的，怎么提高page之间的搜索效率</p>
+<ol>
+<li><p>page内部的效率问题</p>
+</li>
+<li><p>page和page之间的效率问题！</p>
+</li>
+</ol>
+<h1 id="多页情况"><a href="#多页情况" class="headerlink" title="多页情况"></a>多页情况</h1><p>数据不断的插入新增，mysql很容易容量不足，所以就需要开辟一个新的page来保存数据，然后通过指针的方式，来将所有的page组织起来<br>问题</p>
+<ul>
+<li><p>因为我们要保证一个整体有序，所以新来的数据，不会放在新的page里面，</p>
+</li>
+<li><p>这样我们就可以通过多个page的遍历，page内部用目录进行定位数据，可是这样也有效率问题，在page里面我们也需要用mysql进行遍历，这样就显得我们之前的page，有点没用了,我们查找一个数据，需要把前面的所有page遍历一遍，</p>
+</li>
+</ul>
+<p>解决方案</p>
+<p>给我们的一个一个page也带上目录，</p>
+<p>把每个page里面最小的记录，作为每个page的键值，这样page和page之间键值就不会重复了<br>在page里面中在开一个page，里面就只保存下面所管理的主键和指针，只保存一个一个目录<br>用一个page专门来保存page目录，和page对应的地址，一个page可以管理2000多个page<br>直接到顶层的page目录</p>
+<p><img src="https://img-blog.csdnimg.cn/e7c3286251ab427f89d2f0c842814020.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>数据量很大的话，还要继续在中间增加page目录<br>相当于一个b+树，一个节点可以索引到很多地址，至此， 我们就已经可以给我们的表user构建完主键索引了<br>随便找一个id&#x3D;？，我们发现，现在查找的page树一定减少了，说明我们IO次数也减少了，那么效率也高了</p>
+<p>在page之间，和page内部都添加目录结构，这样就能构建一个b+树</p>
+<p><img src="https://img-blog.csdnimg.cn/25b1b4a48a5c441c80045e5e327bc227.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h1 id="什么是主键索引"><a href="#什么是主键索引" class="headerlink" title="什么是主键索引"></a>什么是主键索引</h1><ol>
+<li>所有的数据最终都可以在磁盘中，也可以在mysql的buffer pool内存中</li>
+<li>我们所有的数据，都必须要以page为单位进行IO，以page为单位组织</li>
+</ol>
+<blockquote>
+<p>在MySQL内部，将热点数据，以B+树的形式将所有的page页进行组织，形成的数据结构与其配套的查找算法，叫做索引</p>
+</blockquote>
+<p>添加索引，就给业内加目录，给顶层添加目录结构，方便对数据进行筛查<br>如果没有添加索引，所有的数据都是以链表的形式串联起来，数据没有做优化，没有排序，插入什么样就是什么样的，</p>
+<p>有了b+树，每次从叶子节点中，进行搜索，一路找下去，就可以查找到对应的数据了<br>现在我们就不用加载很多数据到内存中，不需要查找的page就不需要加载到内存中了，我们需要哪个page加载哪个page即可，一路把我们查询过程中的路径page加载进去即可</p>
+<p>只要我们把页目录加载进去之后，这些目录就常驻了，以后就不需要再加载到内存了，减少了IO的次数</p>
+<p>但是其实目录页本来就没多少，所以可以直接都加载进来，</p>
+<p>但是如果插入数据，删除数据的时候，会影响一下效率，因为会影响整个页目录的结构，<br>修改了一个数据，都要以整个page进行刷新到磁盘中</p>
+<h2 id="为什么只能是B-树"><a href="#为什么只能是B-树" class="headerlink" title="为什么只能是B+树"></a>为什么只能是B+树</h2><ul>
+<li>链表：线性遍历，效率太低</li>
+<li>二叉树：可能会退化成线性结构</li>
+<li>AVL&#x2F;RBtree：二叉树，相较于多阶B+树，意味着，整体的树比较高，需要系统与磁盘进行的IO page更多，而B+，矮胖的，层级低，数据量大，访问次数少</li>
+<li>Hash：有的索引就是基于Hash，但是Innodb，hash有的时候也能O（1），但是最大的问题，不能够支持区间性的范围查找，比如我们要查找（40，60），但是hash是乱序的，无法实现区域性哈希，但是b+树，只需要知道自己找40，到40里面查找即可</li>
+<li>B树，B+树下面的叶子节点都被链表连起来，这样page之间，都能够查找，跨范围，而且非叶子节点也会携带数据，增加的空间大小，逻辑上没有解耦</li>
+</ul>
+<p>B+树</p>
+<ul>
+<li>只有叶子节点有数据</li>
+<li>叶子节点相连，非常便于进行范围查找</li>
+<li>IO次数较少</li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/ee5d5029723049ec8c850276b322d5d2.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>创建了一个索引，它就会创建一个文件叫.ibd，index_block_data,这个说明数据和索引合在一起的<br>把索引和数据都加载进去了</p>
+<p>B+树在哪里</p>
+<blockquote>
+<ul>
+<li>在磁盘上，有完整的B+和数据</li>
+<li>在内存中有局部高频被访问的B+核心Page</li>
+<li>mysql查找一定会伴生着mysql进行根据B+进行page的换入换出！</li>
+</ul>
+</blockquote>
+<p>同样，文件也是，内存中，一定是被打开的文件</p>
+<h1 id="聚簇索引vs非聚簇索引"><a href="#聚簇索引vs非聚簇索引" class="headerlink" title="聚簇索引vs非聚簇索引"></a>聚簇索引vs非聚簇索引</h1><h2 id="非聚簇索引"><a href="#非聚簇索引" class="headerlink" title="非聚簇索引"></a>非聚簇索引</h2><p>：数据和索引分离</p>
+<p>myisam的叶子节点不存储数据，只存储数据对应的地址，这样就能保存更多键值和索引关系，把数据放到对应的一个地方，用指针进行索引</p>
+<p>把索引page和数据page进行分离，也就是叶子节点没有数据，只有对应数据的地址</p>
+<h2 id="聚簇索引"><a href="#聚簇索引" class="headerlink" title="聚簇索引"></a>聚簇索引</h2><p>innodb就是聚簇索引<br>把数据和索引聚合在一起</p>
+<p><strong>辅助索引</strong></p>
+<p>MySQL除了会建立主键索引之外，还会建立按照其他列信息建立索引，一般这叫做辅助索引，其他字段也能建立索引<br>和主键索引没有差别，无非是主键不能重复，而非主键可以重复</p>
+<p>主键就是叶子有地址，有索引<br>同样是构建b+树，innodb非主键索引中叶子节点保存对应地址的索引，但是没有保存数据，太浪费空间了，包含的是对应主键，再根据主键进行查询索引，回调索引，两边索引，先获得主键，再主键索引，获得索引的记录，</p>
+<p>附上数据，太浪费空间了，会造成数据的冗余，但是myisam不需要进行回表，查询效率还是回更高一点，但是innodb支持事务，而mysiam不保证事务</p>
+<hr>
+<ol>
+<li>下一次访问的数据，有很大概率会和上一次访问的数据重叠 <a href="#fnref1">↩︎</a></li>
+</ol>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/MySQL/" class="category-chain-item">MySQL</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/mysql-%E6%95%B0%E6%8D%AE%E5%BA%93-sql/">#mysql 数据库 sql</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>MySQL索引</div>
+      <div>http://example.com/2022/10/18/MySQL索引/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zevin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年10月18日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/10/18/MySQL%E7%B4%A2%E5%BC%95%E6%93%8D%E4%BD%9C/" title="MySQL索引操作">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">MySQL索引操作</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/10/13/%E5%86%85%E5%A4%96%E9%93%BE%E6%8E%A5/" title="内外链接">
+                        <span class="hidden-mobile">内外链接</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","appKey":"javf3F1xk56WiY222ZrCxGt1","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

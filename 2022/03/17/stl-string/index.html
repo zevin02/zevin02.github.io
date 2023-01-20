@@ -1,0 +1,731 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zevin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899100101102">
+<meta property="og:type" content="article">
+<meta property="og:title" content="stl-string">
+<meta property="og:url" content="http://example.com/2022/03/17/stl-string/index.html">
+<meta property="og:site_name" content="Zevin-Blog">
+<meta property="og:description" content="123456789101112131415161718192021222324252627282930313233343536373839404142434445464748495051525354555657585960616263646566676869707172737475767778798081828384858687888990919293949596979899100101102">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2022-03-17T09:25:36.000Z">
+<meta property="article:modified_time" content="2023-01-20T12:55:15.358Z">
+<meta property="article:author" content="Zevin">
+<meta property="article:tag" content="c++ 算法 visual studio">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>stl-string - Zevin-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","app_key":"javf3F1xk56WiY222ZrCxGt1","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zevin-Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="stl-string"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-03-17 17:25" pubdate>
+          2022年3月17日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          67 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">stl-string</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br><span class="line">162</span><br><span class="line">163</span><br><span class="line">164</span><br><span class="line">165</span><br><span class="line">166</span><br><span class="line">167</span><br><span class="line">168</span><br><span class="line">169</span><br><span class="line">170</span><br><span class="line">171</span><br><span class="line">172</span><br><span class="line">173</span><br><span class="line">174</span><br><span class="line">175</span><br><span class="line">176</span><br><span class="line">177</span><br><span class="line">178</span><br><span class="line">179</span><br><span class="line">180</span><br><span class="line">181</span><br><span class="line">182</span><br><span class="line">183</span><br><span class="line">184</span><br><span class="line">185</span><br><span class="line">186</span><br><span class="line">187</span><br><span class="line">188</span><br><span class="line">189</span><br><span class="line">190</span><br><span class="line">191</span><br><span class="line">192</span><br><span class="line">193</span><br><span class="line">194</span><br><span class="line">195</span><br><span class="line">196</span><br><span class="line">197</span><br><span class="line">198</span><br><span class="line">199</span><br><span class="line">200</span><br><span class="line">201</span><br><span class="line">202</span><br><span class="line">203</span><br><span class="line">204</span><br><span class="line">205</span><br><span class="line">206</span><br><span class="line">207</span><br><span class="line">208</span><br><span class="line">209</span><br><span class="line">210</span><br><span class="line">211</span><br><span class="line">212</span><br><span class="line">213</span><br><span class="line">214</span><br><span class="line">215</span><br><span class="line">216</span><br><span class="line">217</span><br><span class="line">218</span><br><span class="line">219</span><br><span class="line">220</span><br><span class="line">221</span><br><span class="line">222</span><br><span class="line">223</span><br><span class="line">224</span><br><span class="line">225</span><br><span class="line">226</span><br><span class="line">227</span><br><span class="line">228</span><br><span class="line">229</span><br><span class="line">230</span><br><span class="line">231</span><br><span class="line">232</span><br><span class="line">233</span><br><span class="line">234</span><br><span class="line">235</span><br><span class="line">236</span><br><span class="line">237</span><br><span class="line">238</span><br><span class="line">239</span><br><span class="line">240</span><br><span class="line">241</span><br><span class="line">242</span><br><span class="line">243</span><br><span class="line">244</span><br><span class="line">245</span><br><span class="line">246</span><br><span class="line">247</span><br><span class="line">248</span><br><span class="line">249</span><br><span class="line">250</span><br><span class="line">251</span><br><span class="line">252</span><br><span class="line">253</span><br><span class="line">254</span><br><span class="line">255</span><br><span class="line">256</span><br><span class="line">257</span><br><span class="line">258</span><br><span class="line">259</span><br><span class="line">260</span><br><span class="line">261</span><br><span class="line">262</span><br><span class="line">263</span><br><span class="line">264</span><br><span class="line">265</span><br><span class="line">266</span><br><span class="line">267</span><br><span class="line">268</span><br><span class="line">269</span><br><span class="line">270</span><br><span class="line">271</span><br><span class="line">272</span><br><span class="line">273</span><br><span class="line">274</span><br><span class="line">275</span><br><span class="line">276</span><br><span class="line">277</span><br><span class="line">278</span><br><span class="line">279</span><br><span class="line">280</span><br><span class="line">281</span><br><span class="line">282</span><br><span class="line">283</span><br><span class="line">284</span><br><span class="line">285</span><br><span class="line">286</span><br><span class="line">287</span><br><span class="line">288</span><br><span class="line">289</span><br><span class="line">290</span><br><span class="line">291</span><br><span class="line">292</span><br><span class="line">293</span><br><span class="line">294</span><br><span class="line">295</span><br><span class="line">296</span><br><span class="line">297</span><br><span class="line">298</span><br><span class="line">299</span><br><span class="line">300</span><br><span class="line">301</span><br><span class="line">302</span><br><span class="line">303</span><br><span class="line">304</span><br><span class="line">305</span><br><span class="line">306</span><br><span class="line">307</span><br><span class="line">308</span><br><span class="line">309</span><br><span class="line">310</span><br><span class="line">311</span><br><span class="line">312</span><br><span class="line">313</span><br><span class="line">314</span><br><span class="line">315</span><br><span class="line">316</span><br><span class="line">317</span><br><span class="line">318</span><br><span class="line">319</span><br><span class="line">320</span><br><span class="line">321</span><br><span class="line">322</span><br><span class="line">323</span><br><span class="line">324</span><br><span class="line">325</span><br><span class="line">326</span><br><span class="line">327</span><br><span class="line">328</span><br><span class="line">329</span><br><span class="line">330</span><br><span class="line">331</span><br><span class="line">332</span><br><span class="line">333</span><br><span class="line">334</span><br><span class="line">335</span><br><span class="line">336</span><br><span class="line">337</span><br><span class="line">338</span><br><span class="line">339</span><br><span class="line">340</span><br><span class="line">341</span><br><span class="line">342</span><br><span class="line">343</span><br><span class="line">344</span><br><span class="line">345</span><br><span class="line">346</span><br><span class="line">347</span><br><span class="line">348</span><br><span class="line">349</span><br><span class="line">350</span><br><span class="line">351</span><br><span class="line">352</span><br><span class="line">353</span><br><span class="line">354</span><br><span class="line">355</span><br><span class="line">356</span><br><span class="line">357</span><br><span class="line">358</span><br><span class="line">359</span><br><span class="line">360</span><br><span class="line">361</span><br><span class="line">362</span><br><span class="line">363</span><br><span class="line">364</span><br><span class="line">365</span><br><span class="line">366</span><br><span class="line">367</span><br><span class="line">368</span><br><span class="line">369</span><br><span class="line">370</span><br><span class="line">371</span><br><span class="line">372</span><br><span class="line">373</span><br><span class="line">374</span><br><span class="line">375</span><br><span class="line">376</span><br><span class="line">377</span><br><span class="line">378</span><br><span class="line">379</span><br><span class="line">380</span><br><span class="line">381</span><br><span class="line">382</span><br><span class="line">383</span><br><span class="line">384</span><br><span class="line">385</span><br><span class="line">386</span><br><span class="line">387</span><br><span class="line">388</span><br><span class="line">389</span><br><span class="line">390</span><br><span class="line">391</span><br><span class="line">392</span><br><span class="line">393</span><br><span class="line">394</span><br><span class="line">395</span><br><span class="line">396</span><br><span class="line">397</span><br><span class="line">398</span><br><span class="line">399</span><br><span class="line">400</span><br><span class="line">401</span><br><span class="line">402</span><br><span class="line">403</span><br><span class="line">404</span><br><span class="line">405</span><br><span class="line">406</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;cstdio&gt;</span></span><br><span class="hljs-comment">//string就是管理字符串的类</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;string&gt;</span></span><br><br><span class="hljs-comment">//库里面定义</span><br><span class="hljs-keyword">template</span>&lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">T</span>&gt;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">basic_string</span><br>&#123;<br><span class="hljs-keyword">private</span>:<br>	T* _str;<br>	<span class="hljs-comment">//...</span><br>&#125;;<br><br><br><span class="hljs-comment">//编码 --值--符号建立映射关系--编码表（用值和符号建立对应关系） </span><br><span class="hljs-comment">// ASCILL编码表---表示英文编码</span><br><span class="hljs-comment">// unicode ---（包含ascill）表示全世界文字编码</span><br><span class="hljs-comment">//又包含utf -8，utf-16 </span><br><span class="hljs-comment">//gbk        --     中国自己量身定做的编码表</span><br><span class="hljs-comment">// 汉字可以用2个字节，</span><br><span class="hljs-comment">// </span><br><span class="hljs-comment">//typrdef basic_string&lt;char&gt; string,我们用的是typedef后出来的，模板的</span><br><br><span class="hljs-comment">//int main()</span><br><span class="hljs-comment">//&#123;</span><br><span class="hljs-comment">//	string s1(&quot;hello&quot;);</span><br><span class="hljs-comment">//	char str2[] = &quot;吃饭&quot;;</span><br><span class="hljs-comment">//	cout &lt;&lt; sizeof(char) &lt;&lt; endl;</span><br><span class="hljs-comment">//	cout &lt;&lt; sizeof(wchar_t) &lt;&lt; endl;//2个字节，wstring</span><br><span class="hljs-comment">//</span><br><span class="hljs-comment">//	return 0;</span><br><span class="hljs-comment">//&#125;</span><br><br><br><br><span class="hljs-comment">//初始化</span><br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">init</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>	string s1;<span class="hljs-comment">//无调用构造函数</span><br>	<span class="hljs-function">string <span class="hljs-title">s2</span><span class="hljs-params">(<span class="hljs-string">&quot;hello world&quot;</span>)</span></span>;<span class="hljs-comment">//构造函数</span><br>	<span class="hljs-function">string <span class="hljs-title">s3</span><span class="hljs-params">(s2)</span></span>;<span class="hljs-comment">//拷贝构造</span><br>	<span class="hljs-comment">//cin &gt;&gt; s1;</span><br>	cout &lt;&lt; s1 &lt;&lt; endl;<br>	cout &lt;&lt; s2 &lt;&lt; endl;<br>	cout &lt;&lt; s3 &lt;&lt; endl;<br>	<span class="hljs-comment">//substring (3)	</span><br><br>	<span class="hljs-comment">//string(const string &amp; str, size_t pos, size_t len = npos);</span><br>	<span class="hljs-comment">//利用字串进行初始化，pos是从0开始，从string里面先后数len个长度进行拷贝</span><br><br><br>	<span class="hljs-function">string <span class="hljs-title">s4</span><span class="hljs-params">(s2, <span class="hljs-number">2</span>, <span class="hljs-number">6</span>)</span></span>;<br>	cout &lt;&lt; s4 &lt;&lt; endl;<span class="hljs-comment">//llo wo</span><br>	<span class="hljs-function">string <span class="hljs-title">s5</span><span class="hljs-params">(s2, <span class="hljs-number">2</span>)</span></span>;<span class="hljs-comment">//默认从坐标为2的地方往后截取所有的s2</span><br>	cout &lt;&lt; s5 &lt;&lt; endl;<span class="hljs-comment">//ello world</span><br><br>	<span class="hljs-comment">//string (const char* s, size_t n);</span><br>	<span class="hljs-function">string <span class="hljs-title">s7</span><span class="hljs-params">(<span class="hljs-string">&quot;hello world&quot;</span>, <span class="hljs-number">3</span>)</span></span>;<span class="hljs-comment">//取前3个字符</span><br>	cout &lt;&lt; s7 &lt;&lt; endl;<br>	<span class="hljs-comment">//string(size_t n, char c);连续弄n个c</span><br>	<span class="hljs-function">string <span class="hljs-title">s8</span><span class="hljs-params">(<span class="hljs-number">3</span>, <span class="hljs-string">&#x27;!&#x27;</span>)</span></span>;<span class="hljs-comment">//！！！</span><br>&#125;<br><br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">func</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>	<span class="hljs-function">string <span class="hljs-title">s1</span><span class="hljs-params">(<span class="hljs-string">&quot;hello&quot;</span>)</span></span>;<br>	<span class="hljs-comment">//不计算‘\0’，这两个对于string没什么区别，size是后出现为了保证容器的一致性</span><br>	cout &lt;&lt; s1.<span class="hljs-built_in">size</span>() &lt;&lt; endl;<span class="hljs-comment">//5</span><br>	cout &lt;&lt; s1.<span class="hljs-built_in">length</span>() &lt;&lt; endl;<span class="hljs-comment">//5</span><br>	cout &lt;&lt; s1.<span class="hljs-built_in">max_size</span>() &lt;&lt; endl;<span class="hljs-comment">//没什么意义</span><br>	cout &lt;&lt; s1 &lt;&lt; endl;<br>								  <span class="hljs-comment">//计算容量</span><br>	cout &lt;&lt; s1.<span class="hljs-built_in">capacity</span>() &lt;&lt; endl;<span class="hljs-comment">//15</span><br>	s1.<span class="hljs-built_in">clear</span>();<span class="hljs-comment">//把有效数据都清理掉,空间保留，变成空字符串，0个字符</span><br>	cout &lt;&lt; s1 &lt;&lt; endl;<br>	cout &lt;&lt; s1.<span class="hljs-built_in">capacity</span>() &lt;&lt; endl;<br>	<span class="hljs-keyword">if</span> (s1.<span class="hljs-built_in">empty</span>())<span class="hljs-comment">//判断此字符串是否为空，即是否长度为0</span><br>	&#123;<br>		cout &lt;&lt; <span class="hljs-string">&quot;not&quot;</span> &lt;&lt; endl;<br>	&#125;<br><br><br>&#125;<br><br><br><span class="hljs-comment">//char&amp; operator[] (size_t pos);这里的引用返回是因为这个数组是在堆上开辟的，出了作用域还在，并且可以对其中的字符进行修改，或者调用，还可以减少拷贝（不是主要目的）</span><br><br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">operatoracess</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>	<span class="hljs-function">string <span class="hljs-title">s1</span><span class="hljs-params">(<span class="hljs-string">&quot;hello world&quot;</span>)</span></span>;<br>	<span class="hljs-keyword">for</span> (<span class="hljs-type">size_t</span> i = <span class="hljs-number">0</span>; i &lt; s1.<span class="hljs-built_in">length</span>(); i++)<br>	&#123;<br>		cout &lt;&lt; s1[i];<span class="hljs-comment">//[]是断言终止程序，检查错误</span><br>		s1[i] += <span class="hljs-number">1</span>;<br>	&#125;<br>	cout &lt;&lt; endl;<br>	<span class="hljs-keyword">for</span> (<span class="hljs-type">size_t</span> i = <span class="hljs-number">0</span>; i &lt; s1.<span class="hljs-built_in">length</span>(); i++)<br>	&#123;<br>		s1.<span class="hljs-built_in">at</span>(i) -= <span class="hljs-number">1</span>;<span class="hljs-comment">//和上面是一样的</span><br>		cout &lt;&lt; s1.<span class="hljs-built_in">at</span>(i) &lt;&lt; endl;<span class="hljs-comment">//at是抛异常检查错误,建议还是使用[ ]</span><br>	&#125;<br>	cout &lt;&lt; endl;<br><br>&#125;<br><br><span class="hljs-comment">//对字符串进行尾部添加字符或字符串</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">add</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>	string s;<br>	s.<span class="hljs-built_in">push_back</span>(<span class="hljs-string">&#x27;a&#x27;</span>);<br>	s.<span class="hljs-built_in">append</span>(<span class="hljs-string">&quot;bcde&quot;</span>);<span class="hljs-comment">//尾插bcd</span><br>	cout &lt;&lt; s &lt;&lt; endl;<span class="hljs-comment">//abcd</span><br>	s += <span class="hljs-string">&#x27;!&#x27;</span>;<span class="hljs-comment">//也可以利用运算符重载进行实现尾插，推荐,abcd!</span><br>&#125;<br><br><br><span class="hljs-comment">//只交换字符</span><br><span class="hljs-comment">//abc-bcd-qwlkj变成 jkl-wqd-cbcba  </span><br><span class="hljs-comment">//</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Solution</span> &#123;<br><span class="hljs-keyword">public</span>:<br>  <span class="hljs-comment">//计算最后一个单词的长度如“hello world  ”g</span><br><br>  <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">lengthOfLastWord</span><span class="hljs-params">(string s)</span> </span>&#123;<br>            <span class="hljs-type">int</span> end=s.<span class="hljs-built_in">size</span>()<span class="hljs-number">-1</span>;<br>                    <span class="hljs-keyword">while</span>(s[end]==<span class="hljs-string">&#x27; &#x27;</span>)<br>                    &#123;<br>                                  s.<span class="hljs-built_in">erase</span>(end,<span class="hljs-number">1</span>);<span class="hljs-comment">//无法使用</span><br>                                              end--;<br>                                                      <br>                                                      <br>                    &#125;<br>                            <br>                    <span class="hljs-type">size_t</span> pos=s.<span class="hljs-built_in">rfind</span>(<span class="hljs-string">&quot; &quot;</span>);<br><br>                    string sub=s.<span class="hljs-built_in">substr</span>(pos+<span class="hljs-number">1</span>);<br>                    <span class="hljs-keyword">return</span> sub.<span class="hljs-built_in">size</span>();<br><br><br><br>                        <br>  &#125;<br><br><br><br><br>&#125;;<br><br><span class="hljs-comment">//遍历，1.迭代器2.范围for</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">test_string1</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>  <br><span class="hljs-function">string <span class="hljs-title">s1</span><span class="hljs-params">(<span class="hljs-string">&quot;hello&quot;</span>)</span></span>;<br>string::iterator it=s1.<span class="hljs-built_in">begin</span>();<span class="hljs-comment">//s1.begin(),是第一个数据的地址，s1.end（）是最后一个数据的后一个的地址</span><br><span class="hljs-comment">//这个iterator是定义在string里面，it现在指向了第一个数据的地址</span><br><span class="hljs-comment">//现在可以先想象成一个像指针一样的类型</span><br><span class="hljs-comment">//</span><br><span class="hljs-keyword">while</span>(it!=s1.<span class="hljs-built_in">end</span>())<span class="hljs-comment">//直到结尾就结束了，但是不建议用&lt;</span><br>&#123;<br>  cout&lt;&lt;*it&lt;&lt;<span class="hljs-string">&quot; &quot;</span>;<span class="hljs-comment">//*就是取他的数据</span><br>  ++it;<span class="hljs-comment">//到下一个地址</span><br>&#125;<br>cout&lt;&lt;endl;<br><span class="hljs-comment">//除了可以读还可以写</span><br> it=s1.<span class="hljs-built_in">begin</span>();<span class="hljs-comment">//s1.begin(),是第一个数据的地址，s1.end（）是最后一个数据的后一个的地址</span><br><span class="hljs-comment">//这个iterator是定义在string里面，it现在指向了第一个数据的地址</span><br><span class="hljs-comment">//现在可以先想象成一个像指针一样的类型</span><br><span class="hljs-comment">//</span><br><span class="hljs-keyword">while</span>(it!=s1.<span class="hljs-built_in">end</span>())<span class="hljs-comment">//直到结尾就结束了</span><br>&#123;<br>  *it-=<span class="hljs-number">1</span>;<span class="hljs-comment">//*就是取他的数据</span><br>  ++it;<span class="hljs-comment">//到下一个地址</span><br>&#125;<br>cout&lt;&lt;endl;<br><br><br><span class="hljs-comment">//范围for,auto可以自动识别</span><br><span class="hljs-comment">//for(auto e:s1)//把s1里面每个字符取出来赋值给e，不需要自己++，自动判断结束</span><br><span class="hljs-comment">//&#123;</span><br><span class="hljs-comment">//  cout&lt;&lt;e&lt;&lt;&quot; &quot;;</span><br><span class="hljs-comment">//&#125;</span><br>cout&lt;&lt;endl;<br><br><span class="hljs-comment">//要修改就要用引用</span><br><span class="hljs-comment">//for(auto&amp; e:s1)</span><br><span class="hljs-comment">//&#123;</span><br><span class="hljs-comment">//  e-=1;</span><br><span class="hljs-comment">//&#125;</span><br>cout&lt;&lt;endl;<br><br><span class="hljs-comment">//反向迭代器</span><br><span class="hljs-comment">//倒着遍历</span><br>string::reverse_iterator rit=s1.<span class="hljs-built_in">rbegin</span>();<span class="hljs-comment">//rbegin（），是最后一个数据的地址</span><br><span class="hljs-comment">//为了简化代码也可以直接auto推到</span><br><span class="hljs-comment">//</span><br><span class="hljs-comment">//auto  rit=s1.rbegin()</span><br><span class="hljs-comment">//</span><br><span class="hljs-keyword">while</span>(rit!=s1.<span class="hljs-built_in">rend</span>())<span class="hljs-comment">//rend（）是第一个数据的前一个地址</span><br>&#123;<br>  cout&lt;&lt;*rit&lt;&lt;<span class="hljs-string">&quot; &quot;</span>;<span class="hljs-comment">//olleh，反过来遍历</span><br>  ++rit;<span class="hljs-comment">//反向迭代器的++，是往左走的</span><br>&#125;<br>cout&lt;&lt;endl;<br><br><span class="hljs-comment">//迭代器遍历的意义是什么呢：所有的容器都可以用迭代器这种访问修改</span><br><span class="hljs-comment">//1.对于string类来说，利用[]都足够好用,确实可以不用迭代器</span><br><span class="hljs-comment">//2。对于其他容器（数据结构）也可以使用，如list，map，set，这些是不支持[]，因为只有像数组一样的东西才支持[]遍历和下标，</span><br><span class="hljs-comment">//结论：：对于string得会用迭代器，但是我们还是喜欢下标加[],</span><br><br><span class="hljs-comment">//还有const迭代器，普通迭代器是可读可写的</span><br><span class="hljs-function">string <span class="hljs-title">cstr</span><span class="hljs-params">(<span class="hljs-string">&quot;hello world&quot;</span>)</span></span>;<br><span class="hljs-comment">//funcion(cstr);</span><br>string::const_iterator re=s1.<span class="hljs-built_in">begin</span>();<span class="hljs-comment">//只读不写，同理还有反向迭代器</span><br><span class="hljs-comment">//cbegin（）就是const迭代器，但是我们平时都不太用，</span><br><br>&#125;<br><br><br><br><span class="hljs-comment">//对于容量的函数</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">test_string3</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>string s1;<br>s1.<span class="hljs-built_in">reserve</span>(<span class="hljs-number">100</span>);<span class="hljs-comment">//可以设置容量的大小，容量就是100，加上原来的容量</span><br>string s2;<br>s2.<span class="hljs-built_in">resize</span>(<span class="hljs-number">100</span>,<span class="hljs-string">&#x27;x&#x27;</span>);<span class="hljs-comment">//也是可以设置容量的大小，同时还可以对其进行初始化，如将s1有效数据的后面全部设置成x，如果没有第二个参数，则默认是‘\0’</span><br>&#125;<br><br><br><br><br><br><span class="hljs-comment">//对于find，c_str ,rfind的认识与理解</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">test_string2</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br><br>string s2=<span class="hljs-string">&quot;hello world&quot;</span>;<br>cout&lt;&lt;s2.<span class="hljs-built_in">c_str</span>()&lt;&lt;endl;<span class="hljs-comment">//将string转变成c语言的形式字符串，char*，以\0截至</span><br><span class="hljs-function">string <span class="hljs-title">file</span><span class="hljs-params">(<span class="hljs-string">&quot;test.txt&quot;</span>)</span></span>;<br><span class="hljs-comment">//我们要以c语言的形式打开一个文件</span><br><span class="hljs-comment">//FILE* fout=fopen(s2.c_str(),&quot;w&quot;); //fopen第一个参数是char*，所以用这函数</span><br><br><span class="hljs-comment">//要求取出文件的后缀</span><br><br>  <span class="hljs-type">size_t</span> pos=file.<span class="hljs-built_in">find</span>(<span class="hljs-string">&#x27;.&#x27;</span>);<span class="hljs-comment">//在file里面查找‘x’的位置，find的返回值是size_t,下标从0开始，查找第一个符合的坐标，否则就返回-1</span><br>  <br><span class="hljs-function">string <span class="hljs-title">s1</span><span class="hljs-params">(file,pos)</span></span>;<br>cout&lt;&lt;s1&lt;&lt;endl;<br><span class="hljs-keyword">if</span>(pos!=string::npos)<br>&#123;<br>  string suffix=file.<span class="hljs-built_in">substr</span>(pos);<br>cout&lt;&lt;suffix&lt;&lt;endl;<br>&#125;<br><br><span class="hljs-comment">//rfind()//可以从后面完前找，找到第一个.，方便找后缀名</span><br><span class="hljs-comment">//https://blog.csdn.net/m0_61567378?spm=1000.2115.3001.5343</span><br><span class="hljs-function">string <span class="hljs-title">url</span><span class="hljs-params">(<span class="hljs-string">&quot;http://blog.csdn.net/m0_61567378?spm=1000.2115.3001.5343&quot;</span>)</span></span>;<br><span class="hljs-comment">//找协议头</span><br><span class="hljs-type">size_t</span> pos1=url.<span class="hljs-built_in">find</span>(<span class="hljs-string">&#x27;:&#x27;</span>);<span class="hljs-comment">//：前面的就是协议头</span><br><br>string protocol=url.<span class="hljs-built_in">substr</span>(<span class="hljs-number">0</span>,pos1<span class="hljs-number">-0</span>);<span class="hljs-comment">//取得字串就是从0开始，到pos1位置，长度为pos1的字串，也就是http</span><br>cout&lt;&lt;protocol&lt;&lt;endl;<br><br><span class="hljs-comment">//找域名，</span><br><span class="hljs-type">size_t</span> pos2=url.<span class="hljs-built_in">find</span>(<span class="hljs-string">&#x27;/&#x27;</span>,pos1+<span class="hljs-number">3</span>);<span class="hljs-comment">//find默认从0开始找，现在我们给定他从pos1+3位置处开始找，也就是b开始，往后找，找到/的位置</span><br><br>string domain=url.<span class="hljs-built_in">substr</span>(pos1+<span class="hljs-number">3</span>,pos2-pos1<span class="hljs-number">-3</span>);<br>cout&lt;&lt;domain&lt;&lt;endl;<br><br><span class="hljs-comment">//统一资源定位</span><br>string uri=url.<span class="hljs-built_in">substr</span>(pos2+<span class="hljs-number">1</span>);<br>cout&lt;&lt;uri&lt;&lt;endl;<br><br><br>&#125;<br><br><br><br><span class="hljs-comment">//</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">test_string4</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br><br><span class="hljs-comment">//insert不太推荐用,O(n),效率低</span><br><br>  string s=<span class="hljs-string">&quot;hell&quot;</span>;<br>  s.<span class="hljs-built_in">insert</span>(<span class="hljs-number">0</span>,<span class="hljs-string">&quot;owlod&quot;</span>);<span class="hljs-comment">//在头上插入一个owlod，是从第0个位置往后插入</span><br>  s.<span class="hljs-built_in">insert</span>(<span class="hljs-number">0</span>,<span class="hljs-number">1</span>,<span class="hljs-string">&#x27;x&#x27;</span>);<span class="hljs-comment">//在头上插入一个x,是</span><br>  s.<span class="hljs-built_in">insert</span>(<span class="hljs-number">4</span>,<span class="hljs-string">&quot;xx&quot;</span>);<span class="hljs-comment">//从第4个位置往后插入xx</span><br>  cout&lt;&lt;s&lt;&lt;endl;<br><br>  <span class="hljs-comment">//要挪动数据效率很低，</span><br>  s.<span class="hljs-built_in">erase</span>(<span class="hljs-number">4</span>,<span class="hljs-number">2</span>);<span class="hljs-comment">//从4位置，删除两个长度的字符</span><br>  cout&lt;&lt;s&lt;&lt;endl;<br>  s.<span class="hljs-built_in">erase</span>(s.<span class="hljs-built_in">size</span>()<span class="hljs-number">-1</span>,<span class="hljs-number">1</span>);<span class="hljs-comment">//尾删</span><br>  s.<span class="hljs-built_in">erase</span>(<span class="hljs-number">3</span>);<span class="hljs-comment">//第二个参数不给值就后面全部都删除了</span><br><br>  <span class="hljs-comment">//尾删也可以</span><br><span class="hljs-comment">//s.pop_back();</span><br><br><span class="hljs-comment">//输入一整行的数据，包括‘ ’</span><br><span class="hljs-built_in">getline</span>(cin,s);<span class="hljs-comment">//第一个参数是流 </span><br><br><br>&#125;<br><br><br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">test_string5</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br><br>  string s1=<span class="hljs-string">&quot;hello&quot;</span>;<br>  string s2=<span class="hljs-string">&quot;string&quot;</span>;<br>  cout&lt;&lt;(s1&lt;s2)&lt;&lt;endl;<span class="hljs-comment">//h&lt;s所以就是小于</span><br><br>  cout&lt;&lt;(<span class="hljs-string">&quot;hello&quot;</span>&lt;s2)&lt;&lt;endl;<span class="hljs-comment">//char*的也可以比较</span><br>  cout&lt;&lt;(<span class="hljs-built_in">string</span>(<span class="hljs-string">&quot;hello&quot;</span>)&lt;s2)&lt;&lt;endl;<span class="hljs-comment">//这样也是可以的</span><br>&#125;<br><br><br><br><span class="hljs-comment">//字符串与整形的转化</span><br><br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">test_string6</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br><br>  <span class="hljs-type">int</span> val=<span class="hljs-built_in">stoi</span>(<span class="hljs-string">&quot;1234&quot;</span>);<span class="hljs-comment">//转变成int</span><br>  cout&lt;&lt;val&lt;&lt;endl;<span class="hljs-comment">//1234</span><br>  <span class="hljs-type">double</span> val1=<span class="hljs-built_in">stod</span>(<span class="hljs-string">&quot;123&quot;</span>);<br>  <span class="hljs-comment">//转变成字符串</span><br>  string str=<span class="hljs-built_in">to_string</span>(<span class="hljs-number">12.345</span>);<br>string s=<span class="hljs-built_in">to_string</span>(<span class="hljs-number">123456</span>);<br><br><br>  string str = <span class="hljs-built_in">to_string</span>(<span class="hljs-number">12.345</span>);<br><br>&#125;<br><br><br><span class="hljs-comment">//浅拷贝，完成值拷贝，将每个字节一起拷贝</span><br><span class="hljs-comment">//对于指针类型的就不可以靠浅拷贝</span><br><span class="hljs-comment">//浅拷贝抄作业连名字都没改，完完全全的抄</span><br><span class="hljs-comment">//深拷贝就是抄作业改了名字，不完全的抄</span><br><span class="hljs-comment">//</span><br><br>classm  my_string <br>&#123;<br>  <span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">char</span>* _str;<br>  <span class="hljs-keyword">public</span>:<br>    <span class="hljs-comment">//构造函数</span><br>    <span class="hljs-built_in">my_string</span>(<span class="hljs-type">const</span> <span class="hljs-type">char</span>* str)<br>    :_str(<span class="hljs-keyword">new</span> <span class="hljs-type">char</span>[<span class="hljs-built_in">strlen</span>(str)+<span class="hljs-number">1</span>])<br>    &#123;<br><span class="hljs-built_in">strcpy</span>(_str,str);<br>    &#125;<br><br>    <span class="hljs-comment">//拷贝构造要用深拷贝</span><br>    <span class="hljs-built_in">my_string</span>(<span class="hljs-type">const</span> my_string&amp; s)<br>      :_str(<span class="hljs-keyword">new</span> <span class="hljs-type">char</span>[<span class="hljs-built_in">strlen</span>(str)+<span class="hljs-number">1</span>])<br>    &#123;<br>      <span class="hljs-built_in">strcpy</span>(_str,s.str);<br>    &#125;<br><br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">test_string7</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br><br><br>&#125;<br><br><br><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br><span class="hljs-comment">//	init();</span><br><span class="hljs-comment">//	func();</span><br><span class="hljs-comment">//	operatoracess();</span><br><span class="hljs-comment">//	add();</span><br><span class="hljs-comment">//	Solution sl;</span><br><br><span class="hljs-comment">//	sl.reverseOnlyLetters(&quot;Test1ng-Leet=code-Q!&quot;);</span><br><span class="hljs-comment">//test_string1();</span><br><span class="hljs-comment">//test_string3();</span><br><span class="hljs-comment">//test_string2();</span><br><span class="hljs-comment">//test_string4();</span><br>Solution ts;<br>string s=<span class="hljs-string">&quot;hello world  &quot;</span>;<br><span class="hljs-comment">//int k=ts.lengthOfLastWord(s);</span><br><span class="hljs-comment">//cout&lt;&lt;k&lt;&lt;endl;</span><br><span class="hljs-comment">//test_string6();</span><br><br>string s1 = <span class="hljs-string">&quot;A man, a plan, a canal: Panama&quot;</span>;<br><br><span class="hljs-built_in">isPalindrome</span>(s1);<br><br><span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/c/" class="category-chain-item">c++</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/c-%E7%AE%97%E6%B3%95-visual-studio/">#c++ 算法 visual studio</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>stl-string</div>
+      <div>http://example.com/2022/03/17/stl-string/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zevin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年3月17日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/03/17/stl--vector/" title="stl--vector">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">stl--vector</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/03/17/Linux%20----%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" title="Linux ----环境变量">
+                        <span class="hidden-mobile">Linux ----环境变量</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","appKey":"javf3F1xk56WiY222ZrCxGt1","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

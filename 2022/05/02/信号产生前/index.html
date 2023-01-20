@@ -1,0 +1,894 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zevin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="文章目录 信号入门 信号产生的各种方式（信号产生前）  demo signal 信号处理方式概述 信号产生的方式  1 2  11号信号SIGSEGV 8号信号SIGFPE   3  kill raise   4      信号与信号量完全没有任何关系 信号入门生活中还有没有信号的场景呢？：闹钟，烽火台的烽火，鸡鸣声。。。—》都是给人看的当我们面对这些场景的时候，我们就立马能够想到某些东西的时">
+<meta property="og:type" content="article">
+<meta property="og:title" content="信号产生前">
+<meta property="og:url" content="http://example.com/2022/05/02/%E4%BF%A1%E5%8F%B7%E4%BA%A7%E7%94%9F%E5%89%8D/index.html">
+<meta property="og:site_name" content="Zevin-Blog">
+<meta property="og:description" content="文章目录 信号入门 信号产生的各种方式（信号产生前）  demo signal 信号处理方式概述 信号产生的方式  1 2  11号信号SIGSEGV 8号信号SIGFPE   3  kill raise   4      信号与信号量完全没有任何关系 信号入门生活中还有没有信号的场景呢？：闹钟，烽火台的烽火，鸡鸣声。。。—》都是给人看的当我们面对这些场景的时候，我们就立马能够想到某些东西的时">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/2d049b003e4847639720e47dca6eb207.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/1a9e7c16636b4556bd2a3b5c6a30d6ed.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/238782ffbc78424f9327d5d0edb3c530.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/c83a0ff4ea644d0186ddf5dd28989a03.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/bedad3dda0b74ac7bb417ffe421ca9d7.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/f538420087184ab1a5288e9365fda0f0.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/5f464db7b503493f86622033d44ec1ac.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/2b991352d03b44dd9dd7725677129f64.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/a12eb2bf87634636939e4a3a180bbe19.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/37e4aef8454d47c69107f73583be1016.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/d609c156cbe4488f845c4f67d4893a4f.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/b10505c3189441479b43ff4a6e5892c9.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/17cfd6d213f4484ab7b3280a7b1533a5.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/407dd1d6e29c4895be5375747e9de39d.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/9ff3328ca20640f8a74a626a1a536001.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/502f6ff26bb042d8867162c099d5c6d1.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/7a7095df38e44825aa45b88fc950f08e.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/6cf11883c81147a1b5209b076149de09.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/6a423fffa1b04166bb21a748f9411802.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/31638602b2924d43b232c14cc47e1a21.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/18bd1ad56f844734a48be5f0a78f3c2e.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/7237ced8f8d44d238393378b3e58da6a.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/2d1a0fdf2d474381848dac7cb895bae3.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/ce59364d707d4a03a5b5290d2e39b3b9.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/7814c017c74846979a7ae479a837ca0a.png">
+<meta property="article:published_time" content="2022-05-02T14:40:40.000Z">
+<meta property="article:modified_time" content="2023-01-20T12:55:15.358Z">
+<meta property="article:author" content="Zevin">
+<meta property="article:tag" content="c语言 stm32 开发语言">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/2d049b003e4847639720e47dca6eb207.png">
+  
+  
+  
+  <title>信号产生前 - Zevin-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","app_key":"javf3F1xk56WiY222ZrCxGt1","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zevin-Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="信号产生前"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-05-02 22:40" pubdate>
+          2022年5月2日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.2k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          35 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">信号产生前</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+
+<h3 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h3><ul>
+<li><a href="#_3">信号入门</a></li>
+<li><a href="#_32">信号产生的各种方式（信号产生前）</a></li>
+<li><ul>
+<li><a href="#demo_33">demo</a></li>
+<li><a href="#signal_43">signal</a></li>
+<li><a href="#_87">信号处理方式概述</a></li>
+<li><a href="#_119">信号产生的方式</a></li>
+<li><ul>
+<li><a href="#1_120">1</a></li>
+<li><a href="#2_124">2</a></li>
+<li><ul>
+<li><a href="#11SIGSEGV_154">11号信号SIGSEGV</a></li>
+<li><a href="#8SIGFPE_176">8号信号SIGFPE</a></li>
+</ul>
+</li>
+<li><a href="#3_195">3</a></li>
+<li><ul>
+<li><a href="#kill_196">kill</a></li>
+<li><a href="#raise_232">raise</a></li>
+</ul>
+</li>
+<li><a href="#4_243">4</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p><strong>信号与信号量完全没有任何关系</strong></p>
+<h1 id="信号入门"><a href="#信号入门" class="headerlink" title="信号入门"></a>信号入门</h1><p>生活中还有没有信号的场景呢？<br>：闹钟，烽火台的烽火，鸡鸣声。。。—》都是给人看的<br>当我们面对这些场景的时候，我们就立马能够想到某些东西的时候，这些都是信号<br>信号的产生就代表上面的场景触发，<br>信号的产生—》信号是要给进程发的—》进程要在合适的时候，要执行对应的动作</p>
+<blockquote>
+<p>但是，并不是这些场景真正放在我面前的时候，我才知道应该怎么做，这些场景是否被触发，没有直接的关系<br>因为对于信号的处理动作，我们早就知道了，甚至远远早于信号的产生<br>如：听的铃声响了，我们就知道下课了</p>
+</blockquote>
+<blockquote>
+<p>我们怎么做到 呢？<br>我们对特定事件的反应，这是被教育的结果（本质是：我们这些都记住了）</p>
+</blockquote>
+<ol>
+<li>所以进程在没有收到信号的时候，进程知道如何识别是什么信号，怎么处理这些信号<br>而之前在写OS 的时候，程序员就已经设置好了<br>进程具有识别信号并且处理信号的能力，远远早于信号的产生</li>
+</ol>
+<p>在生活当中，我们收到某种信号的时候，并不一定被立即处理（因为信号随时都能产生，但是我当前可能做着更重要的事情，不去处理）</p>
+<ol start="2">
+<li><p>进程收到某种信号的时候，并不是立即处理的，而是在合适的时候才去处理，</p>
+</li>
+<li><p>进程收到信号之后，需要先将信号<strong>保存</strong>起来，以供在合适的时候进行对信号的处理<br>我们把这个信号放在进程 的PCB 里面，所以信号本质也是<strong>数据</strong><br>信号的发送—&gt;往进程task_struct 里面写数据</p>
+</li>
+<li><p>task_struct 是一个内核数据结构，定义进程对象，内核不相信任何人，只相信自己！只有OS 可以往task_struct 里面写入数据（无论我们的信号如何发送，本质上都是在底层通过 OS.进行传输的）</p>
+</li>
+</ol>
+<h1 id="信号产生的各种方式（信号产生前）"><a href="#信号产生的各种方式（信号产生前）" class="headerlink" title="信号产生的各种方式（信号产生前）"></a>信号产生的各种方式（信号产生前）</h1><h2 id="demo"><a href="#demo" class="headerlink" title="demo"></a>demo</h2><p><img src="https://img-blog.csdnimg.cn/2d049b003e4847639720e47dca6eb207.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>kill -l可以查看信号列表<br><img src="https://img-blog.csdnimg.cn/1a9e7c16636b4556bd2a3b5c6a30d6ed.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<blockquote>
+<p>前31个信号是常规信号，后31个是实时信号</p>
+</blockquote>
+<p>键盘ctrl+c的时候，本质上就是我们向进程里面发送2号信号SIGINT</p>
+<h2 id="signal"><a href="#signal" class="headerlink" title="signal"></a>signal</h2><p><img src="https://img-blog.csdnimg.cn/238782ffbc78424f9327d5d0edb3c530.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>signal:可以修改进程对信号的默认处理工作<br>第一个参数就是我们的信号对应的宏值，我们既可以使用kill -l信号前面的数字，也可以使用宏</p>
+<blockquote>
+<p>typedef void (*sighandler_t)(int);<br>函数指针，返回值为void，参数为int</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;signal.h&gt;</span></span><br><br><span class="hljs-type">void</span> <span class="hljs-title function_">handler</span><span class="hljs-params">(<span class="hljs-type">int</span> signo)</span><span class="hljs-comment">//函数名就是我们目标函数的地址，这里的signo对应的就是信号数值</span><br>&#123;<br>  <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;get a signal: signo:%d\n,pid:%d\n&quot;</span>,signo,getpid());<br>&#125;<br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span><br>&#123;<br>  <span class="hljs-comment">//我们可以通过signal注册对2号信号（终止）处理动作，改成我们自定义的动作</span><br>  signal(<span class="hljs-number">2</span>,handler);<span class="hljs-comment">//我们对2号信号进行处理</span><br>  <span class="hljs-comment">//注册的时候，并不会调用这个函数，只有当信号到来的时候，这个函数才会被调用</span><br>  <span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>)<br>  &#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;hello world\n,pid: %d\n&quot;</span>,getpid());<br>    sleep(<span class="hljs-number">1</span>);<br>  &#125;<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/c83a0ff4ea644d0186ddf5dd28989a03.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/bedad3dda0b74ac7bb417ffe421ca9d7.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>我们发现我们ctrl c 或者kill 2 的话都会处理我们自己对信号的处理</p>
+<p><strong>我们发现信号的产生方式其中一种是通过键盘产生的</strong><br><img src="https://img-blog.csdnimg.cn/f538420087184ab1a5288e9365fda0f0.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>但是键盘产生的信号只能终止前台进程，不能处理后台进程，只能杀掉前台进程<br>但是我们可以</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">kill <span class="hljs-number">-9</span> pid<br></code></pre></td></tr></table></figure>
+
+<p>杀掉后台进程</p>
+<h2 id="信号处理方式概述"><a href="#信号处理方式概述" class="headerlink" title="信号处理方式概述"></a>信号处理方式概述</h2><p><strong>总结：</strong><br>一般而言，收到信号的处理方式有3种</p>
+<ol>
+<li><pre><code class="hljs">默认动作：终止自己（ctrl c）暂停（ctrl z）等
+</code></pre>
+</li>
+<li><pre><code class="hljs">忽略动作：是一种信号处理的方式，只不过动作就是什么也不干，
+</code></pre>
+</li>
+<li><pre><code class="hljs">（信号的捕捉）自定义动作：类似我们刚刚用signal方法，就是在修改信号的处理动作，有：默认–》 自定义动作，我们可以对不同的信号设置不同的响应动作
+</code></pre>
+</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs c"><br><span class="hljs-type">void</span> <span class="hljs-title function_">handler</span><span class="hljs-params">(<span class="hljs-type">int</span> signo)</span><span class="hljs-comment">//函数名就是我们目标函数的地址</span><br>&#123;<br>  <span class="hljs-keyword">switch</span>(signo)<br>  &#123;<br>    <span class="hljs-keyword">case</span> <span class="hljs-number">2</span>:<br>      <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;hello bite %d&quot;</span>,signo);<br>      <span class="hljs-keyword">break</span>;<br>    <span class="hljs-keyword">case</span> <span class="hljs-number">3</span>:<br>      <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;hello world %d&quot;</span>,signo);<br>      <span class="hljs-keyword">break</span>;<br>    <span class="hljs-keyword">case</span> <span class="hljs-number">9</span>:<br>      <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;quit&quot;</span>);<br>      <span class="hljs-keyword">break</span>;<br>  &#125;<br>  <span class="hljs-comment">//printf(&quot;get a signal: signo:%d\n,pid:%d\n&quot;,signo,getpid());</span><br>  <span class="hljs-comment">//exit(1);</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/5f464db7b503493f86622033d44ec1ac.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>9号信号无法被捕捉</p>
+<h2 id="信号产生的方式"><a href="#信号产生的方式" class="headerlink" title="信号产生的方式"></a>信号产生的方式</h2><h3 id="1"><a href="#1" class="headerlink" title="1"></a>1</h3><p>我们通过<strong>键盘</strong>对进程发送信号<br>ctrl c ，ctrl d， ctrl z</p>
+<h3 id="2"><a href="#2" class="headerlink" title="2"></a>2</h3><p><strong>程序中存在异常问题</strong>，导致我们收到信号退出</p>
+<p>进程崩溃的时候我们最想知道什么</p>
+<blockquote>
+<p>当然是崩溃的原因，我收到了信号，waitpid（），status可以获取退出信号</p>
+</blockquote>
+<p>我要解决他<br>崩溃的话就可以用这个方法去运行</p>
+<blockquote>
+<p>我们得知道在<strong>哪一行</strong>崩溃了</p>
+</blockquote>
+<ol>
+<li>在linux中当一个进程退出的时候，他的退出码和退出信号都会被设置（正常情况下）</li>
+<li>当一个进程异常退出的时候，进程的退出信号会被设置，表面当前进程退出的原因</li>
+<li>如果必要，OS 会设置退出消息中的<strong>core dump</strong>标志位，并将进程在内存中的数据传输到磁盘当中，<strong>方便后续调试</strong></li>
+</ol>
+<p>默认情况下在云服务器上core dump是被关掉的<br><img src="https://img-blog.csdnimg.cn/2b991352d03b44dd9dd7725677129f64.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>我们这个core dump放开<br>ulimit -c 10240</p>
+<p><img src="https://img-blog.csdnimg.cn/a12eb2bf87634636939e4a3a180bbe19.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>放开之后会产生core dump文件</p>
+<p><img src="https://img-blog.csdnimg.cn/37e4aef8454d47c69107f73583be1016.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<blockquote>
+<p>如果进程异常退出的时候，被core dump设置为1</p>
+</blockquote>
+<p>不一定是所有信号都会被core dump</p>
+<h4 id="11号信号SIGSEGV"><a href="#11号信号SIGSEGV" class="headerlink" title="11号信号SIGSEGV"></a>11号信号SIGSEGV</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">sigtest</span><span class="hljs-params">()</span><br>&#123;<br>  <span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>)<br>  &#123;<br>    <span class="hljs-type">int</span> *p=<span class="hljs-literal">NULL</span>;<br>    p=(<span class="hljs-type">int</span>*)<span class="hljs-number">100</span>;<br>    *p=<span class="hljs-number">100</span>;<span class="hljs-comment">//对指针解引用，指向空间为NULL，我们是不可以写入的,进程的崩溃</span><br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/d609c156cbe4488f845c4f67d4893a4f.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p><img src="https://img-blog.csdnimg.cn/b10505c3189441479b43ff4a6e5892c9.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/17cfd6d213f4484ab7b3280a7b1533a5.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p><img src="https://img-blog.csdnimg.cn/407dd1d6e29c4895be5375747e9de39d.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>SIGSEGV段错误—-》进程崩溃是因为接收到了11号信号而崩溃的，</p>
+<h4 id="8号信号SIGFPE"><a href="#8号信号SIGFPE" class="headerlink" title="8号信号SIGFPE"></a>8号信号SIGFPE</h4><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>)<br>&#123;<br> <span class="hljs-comment">// int *p=NULL;</span><br> <span class="hljs-comment">// p=(int*)100;</span><br> <span class="hljs-comment">// *p=100;//对指针解引用，指向空间为NULL，我们是不可以写入的,进程的崩溃</span><br><span class="hljs-type">int</span> a=<span class="hljs-number">10</span>;<br>a/=<span class="hljs-number">0</span>;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>浮点数错误<br><img src="https://img-blog.csdnimg.cn/9ff3328ca20640f8a74a626a1a536001.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>在win or linux下进程崩溃的本质是进程收到了对应的信号，然后进程处理信号的默认动作（杀死进程）<br>但是为什么会收到信号呢？</p>
+<p><img src="https://img-blog.csdnimg.cn/502f6ff26bb042d8867162c099d5c6d1.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h3 id="3"><a href="#3" class="headerlink" title="3"></a>3</h3><h4 id="kill"><a href="#kill" class="headerlink" title="kill"></a>kill</h4><p><strong>给别人发信号</strong><br>通过系统调用产生信号<br><img src="https://img-blog.csdnimg.cn/7a7095df38e44825aa45b88fc950f08e.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>可以向特定进程发送特定信号</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;sys/types.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;signal.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><br><span class="hljs-type">void</span> <span class="hljs-title function_">usage</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span>* proc)</span><br>&#123;<br>  <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;Usage:\n \t,%s,sign who\n&quot;</span>,proc);<br>&#125;<br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc,<span class="hljs-type">char</span>*argv[])</span><br>&#123;<br>  <span class="hljs-keyword">if</span>(argc!=<span class="hljs-number">3</span>)<br>  &#123;<br>    usage(argv[<span class="hljs-number">0</span>]);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>  &#125;<br>  <span class="hljs-type">int</span> signo=atoi(argv[<span class="hljs-number">1</span>]);<br>  <span class="hljs-type">int</span> who=atoi(argv[<span class="hljs-number">2</span>]);<br>  kill(who,signo);<br>  <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%d %d&quot;</span>,signo,who);<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/6cf11883c81147a1b5209b076149de09.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/6a423fffa1b04166bb21a748f9411802.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p><img src="https://img-blog.csdnimg.cn/31638602b2924d43b232c14cc47e1a21.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h4 id="raise"><a href="#raise" class="headerlink" title="raise"></a>raise</h4><p>给自己发信号</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>)<br>&#123;<br>  <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;1&quot;</span>);<br>  sleep(<span class="hljs-number">3</span>);<br>  raise(<span class="hljs-number">8</span>);<span class="hljs-comment">//给自己发一个8号信号</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/18bd1ad56f844734a48be5f0a78f3c2e.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h3 id="4"><a href="#4" class="headerlink" title="4"></a>4</h3><p>通过软件条件，也能产生信号<br>alarm相当于一个闹钟</p>
+<p><img src="https://img-blog.csdnimg.cn/7237ced8f8d44d238393378b3e58da6a.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>在seconds秒之后给我们发送一个14号信号<br><img src="https://img-blog.csdnimg.cn/2d1a0fdf2d474381848dac7cb895bae3.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>返回值为0，或剩余的秒数</p>
+<p><img src="https://img-blog.csdnimg.cn/ce59364d707d4a03a5b5290d2e39b3b9.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;unistd.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;signal.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><br><span class="hljs-type">int</span> count=<span class="hljs-number">0</span>;<br><span class="hljs-comment">//统计一下1s，我们的server可以对int递增到多少</span><br><br><span class="hljs-type">void</span> <span class="hljs-title function_">HandAlarm</span><span class="hljs-params">(<span class="hljs-type">int</span> signo)</span><br>&#123;<br>  <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%d\n&quot;</span>,count);<br>  <span class="hljs-built_in">exit</span>(<span class="hljs-number">1</span>);<br>&#125;<br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span><br>&#123;<br>  signal(SIGALRM,HandAlarm);<span class="hljs-comment">//我们对14号信号进行注册一下</span><br>  <span class="hljs-comment">//设置闹钟</span><br>  alarm(<span class="hljs-number">1</span>);<span class="hljs-comment">//我们没有设置alarm信号的捕捉动作（没有自定义调用signal函数），执行默认动作</span><br>  <span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>)<br>  &#123;<br>    count++;<br>    <span class="hljs-comment">//printf(&quot;hello %d\n&quot;,count++);</span><br>  &#125;<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>永远都是操作系统发送的信号</p>
+<p>那么我们怎么理解OS给进程发送数据，task_struct -—-&gt;本质是，OS向执行进程的task_struct 中的信号位图写入比特位1，即完成了信号的发送–&gt;信号的写入<br><img src="https://img-blog.csdnimg.cn/7814c017c74846979a7ae479a837ca0a.png" srcset="/img/loading.gif" lazyload></p>
+<p>信号的编号是有规律的[1,31]</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">task_struct</span> </span><br><span class="hljs-class">&#123;</span><br><span class="hljs-comment">//进程的各种属性</span><br><span class="hljs-comment">//进程内部一定要有对应的数据变量，来保存是否收到了对应的信号，</span><br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>我们用什么数据变量来标识是否收到了信号，<br>uint32_t sigs:一定会存在位图结构<br>0000 0000 0000 0000 0000 0000 0000 0000<br>我们认为左大，右边第一个是第一个比特位，<br>所谓的比特位的位置（第几个），代表的就是哪一个信号，比特位的内容（0，1）代表的就是是否收到了信号<br>0000 0000 0000 0000 0000 0000 0000 0101<br>当前进程收到了1号信号，3 号信号，</p>
+</blockquote>
+<blockquote>
+<p>在进程中采用位图，来标识该进程是否收到信号，</p>
+</blockquote>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/c%E8%AF%AD%E8%A8%80-stm32-%E5%BC%80%E5%8F%91%E8%AF%AD%E8%A8%80/">#c语言 stm32 开发语言</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>信号产生前</div>
+      <div>http://example.com/2022/05/02/信号产生前/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zevin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年5月2日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/05/05/C++%E7%BB%A7%E6%89%BF/" title="C++继承">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">C++继承</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/04/29/%E5%91%BD%E5%90%8D%E7%AE%A1%E9%81%93%E4%BA%8ESystem%20V/" title="命名管道于System V">
+                        <span class="hidden-mobile">命名管道于System V</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","appKey":"javf3F1xk56WiY222ZrCxGt1","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

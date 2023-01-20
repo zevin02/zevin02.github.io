@@ -1,0 +1,830 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zevin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="文章目录 引言 动态的多态  举个例子： 买票这个行为，对于不同的人价格不同，普通人去买价格低，而有钱人买价格高   虚函数 析构函数的重写（析构函数） C++11 override 和final  final override   重载，覆盖，隐藏的对比 抽象类 底层剖析 多继承中的虚表 打印虚表  多态感觉真挺难的，这篇就水一水了 引言多态：多种形态静态的多态：函数重载，同一个函数看起来调">
+<meta property="og:type" content="article">
+<meta property="og:title" content="c++多态">
+<meta property="og:url" content="http://example.com/2022/05/18/c++%E5%A4%9A%E6%80%81/index.html">
+<meta property="og:site_name" content="Zevin-Blog">
+<meta property="og:description" content="文章目录 引言 动态的多态  举个例子： 买票这个行为，对于不同的人价格不同，普通人去买价格低，而有钱人买价格高   虚函数 析构函数的重写（析构函数） C++11 override 和final  final override   重载，覆盖，隐藏的对比 抽象类 底层剖析 多继承中的虚表 打印虚表  多态感觉真挺难的，这篇就水一水了 引言多态：多种形态静态的多态：函数重载，同一个函数看起来调">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/af33f3922c8046ff8f33016214177cb4.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/aca761f897d74d40b4d69913988ae253.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/af74a865727743beb23968ad704ea26c.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/7064d2c4ccb24bf5aeea1b2d18644c6c.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/063f4159687649fb905d06a26ec3800a.png">
+<meta property="article:published_time" content="2022-05-18T13:27:53.000Z">
+<meta property="article:modified_time" content="2023-01-20T12:55:15.358Z">
+<meta property="article:author" content="Zevin">
+<meta property="article:tag" content="c++ 开发语言">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/af33f3922c8046ff8f33016214177cb4.png">
+  
+  
+  
+  <title>c++多态 - Zevin-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","app_key":"javf3F1xk56WiY222ZrCxGt1","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zevin-Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="c++多态"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-05-18 21:27" pubdate>
+          2022年5月18日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          49 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">c++多态</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+
+<h3 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h3><ul>
+<li><a href="#_2">引言</a></li>
+<li><a href="#_8">动态的多态</a></li>
+<li><ul>
+<li><a href="#%0A_12">举个例子： 买票这个行为，对于不同的人价格不同，普通人去买价格低，而有钱人买价格高</a></li>
+</ul>
+</li>
+<li><a href="#_18">虚函数</a></li>
+<li><a href="#_51">析构函数的重写（析构函数）</a></li>
+<li><a href="#C11_override_final_121">C++11 override 和final</a></li>
+<li><ul>
+<li><a href="#final_123">final</a></li>
+<li><a href="#override_210">override</a></li>
+</ul>
+</li>
+<li><a href="#_242">重载，覆盖，隐藏的对比</a></li>
+<li><a href="#_256">抽象类</a></li>
+<li><a href="#_262">底层剖析</a></li>
+<li><a href="#_292">多继承中的虚表</a></li>
+<li><a href="#_294">打印虚表</a></li>
+</ul>
+<p>多态感觉真挺难的，这篇就水一水了</p>
+<h1 id="引言"><a href="#引言" class="headerlink" title="引言"></a>引言</h1><p>多态：多种形态<br>静态的多态：函数重载，同一个函数看起来调用同一个函数有不同的行为<br>动态的多态：<br>静态：是在编译的时候实现的</p>
+<h1 id="动态的多态"><a href="#动态的多态" class="headerlink" title="动态的多态"></a>动态的多态</h1><p>一个父类的引用或指针去调用同一个函数，如果传递不同的对象，会调用不同的函数<br>动态：运行时实现的</p>
+<h2 id="举个例子："><a href="#举个例子：" class="headerlink" title="举个例子："></a>举个例子：</h2><p>买票这个行为，对于不同的人价格不同，普通人去买价格低，而有钱人买价格高</p>
+<p>扫红包：也是一种多态行为，根据行为去分类，鼓励新用户用，给的红包就多，</p>
+<h1 id="虚函数"><a href="#虚函数" class="headerlink" title="虚函数"></a>虚函数</h1><p>子类中满足三同<br><strong>函数名，参数，返回值相同</strong>的虚函数，就叫做重写（覆盖），只有虚函数<br>本质就是不同的人去做同一件事情，结果不同<br>virtual（只能是类的非静态的成员函数才能是虚函数）：其他函数不能称为虚函数<br>：在最前面加一个virtual</p>
+<p>静态成员函数不能加virtual</p>
+<p>否则就是隐藏的关系</p>
+<p>多态的构成条件（少一个都不行）</p>
+<ol>
+<li>必须通过<strong>基类</strong>的<strong>指针或者引用</strong>调用<strong>虚函数</strong></li>
+<li>被调用的函数必须是<strong>虚函数</strong>，且派生类必须对<strong>基类的虚函数进行重写</strong></li>
+</ol>
+<blockquote>
+<p>重写要求返回值相同，有一个例外：协变：<strong>要求返回值是父子关系的指针或者引用</strong>(基本不会见到)</p>
+</blockquote>
+<p>class A<br>class B</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">func</span><span class="hljs-params">(Person p)</span><span class="hljs-comment">//我们没有用父类的指针和引用，而是用对象,就不能实现多态</span></span><br><span class="hljs-function"></span>&#123;<br>    p.<span class="hljs-built_in">BuyTicket</span>();<br>&#125;<br><span class="hljs-built_in">func</span>(st);<span class="hljs-comment">//正常来说因为我们是父类的引用，所以的对父类使用，一定是没有问题的，但是这个对子类也是可以使用的</span><br>    <span class="hljs-built_in">func</span>(ps);<span class="hljs-comment">//</span><br></code></pre></td></tr></table></figure>
+
+<h1 id="析构函数的重写（析构函数）"><a href="#析构函数的重写（析构函数）" class="headerlink" title="析构函数的重写（析构函数）"></a>析构函数的重写（析构函数）</h1><p>析构函数也可以是虚函数，构成重写（函数名，返回值，参数，virtual）都相同<br>把析构函数都被特殊处理成destructor,<br>完成重写，构成多态，那么才能正确调用析构函数<br><strong>只有动态申请的对象给了父类指针管理才可以，那么就需要定义成虚函数</strong></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Person</span><br>&#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-keyword">virtual</span> ~<span class="hljs-built_in">Person</span>()<span class="hljs-comment">//析构的名字都被特殊处理过了，差个虚函数的条件，这样就能够实现多态了</span><br>    &#123;<br>        cout &lt;&lt; <span class="hljs-string">&quot;person&quot;</span> &lt;&lt; endl;<br>    &#125;<br>&#125;;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Student</span> : <span class="hljs-keyword">public</span> Person<br>&#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-keyword">virtual</span> ~<span class="hljs-built_in">Student</span>() <span class="hljs-comment">//</span><br><br>    &#123;<br>        cout &lt;&lt; <span class="hljs-string">&quot;student&quot;</span> &lt;&lt; endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-comment">//析构函数是否是虚函数都正常调用了</span><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-comment">/*</span><br><span class="hljs-comment">    Person p;</span><br><span class="hljs-comment">    Student s;//person也会被析构，但是没加virtual也没有关系，</span><br><span class="hljs-comment">    */</span><br>   <span class="hljs-comment">//</span><br>    Person *p1 = <span class="hljs-keyword">new</span> Person; <span class="hljs-comment">// new 是开空间+构造函数</span><br>    Person *p2 = <span class="hljs-keyword">new</span> Student;<span class="hljs-comment">//这里是基类的指针，这里是父类的指针，就需要多态了</span><br>    Student *p3 = <span class="hljs-keyword">new</span> Student;<span class="hljs-comment">//这里是基类的指针,z这里不需要多态</span><br><br><br>    <span class="hljs-comment">//p1-&gt;destructor()</span><br>    <span class="hljs-comment">//p2-&gt;destructor()</span><br>    <br><br><br>    <span class="hljs-comment">//多态申请的对象如果给了父类指针管理，那么需要析构函数是虚函数（我们直接全部都）</span><br>    <span class="hljs-keyword">delete</span> p1;<span class="hljs-comment">//析构函数+释放空间</span><br>    <span class="hljs-comment">//我期望p1这里调用父类的析构函数</span><br>    <span class="hljs-keyword">delete</span> p2;<span class="hljs-comment">//指向student就掉student，又会掉person</span><br>    <span class="hljs-keyword">delete</span> p3;<br>    <span class="hljs-comment">//这里调用子类的析构函数</span><br>    <span class="hljs-comment">//这里不构成多态，都指向person，因为p2也是person</span><br>    <span class="hljs-comment">//构成多态才可以</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>虚函数的重写允许<br>：两个都是虚函数，或者父类是虚函数，再满足三同就构成重写<br>虽然子类没有写virtual<br>是因为他继承了父类的virtual的属性，也完成了重写（是因为析构函数，父类析构函数加上virtual，就不存在不构成多态的了，没钓到子类析构函数，内存泄漏的）<br>：在public：private也是可以的</p>
+<p>一般来说父类是别人写的，子类是我们写的，只要父类加了virtual，子类就不用加virtual<br>我们建议都写上</p>
+<h1 id="C-11-override-和final"><a href="#C-11-override-和final" class="headerlink" title="C++11 override 和final"></a>C++11 override 和final</h1><h2 id="final"><a href="#final" class="headerlink" title="final"></a>final</h2><p>设计一个不能被继承的类<br>c++ 98的方式</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">//设计一个无法被继承的基类，只能让基类的构造函数变成私有，因为初始化子类对象的时候要去调用其父类的构造函数，但是没法使用,间接限制</span><br><span class="hljs-comment">//c++ 98的方式</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">A</span><br>&#123;<br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-built_in">A</span>(<span class="hljs-type">int</span> a = <span class="hljs-number">0</span>)<br>        : _a(a)<br>    &#123;<br>    &#125;<br><br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-comment">//因为如果是一个成员函数，返回A 他必须是一个对象，但是他没有对象，加了一个静态就可以使用了</span><br>    <span class="hljs-function"><span class="hljs-type">static</span> A <span class="hljs-title">createobj</span><span class="hljs-params">(<span class="hljs-type">int</span> a = <span class="hljs-number">0</span>)</span> <span class="hljs-comment">//调用这个函数就可以使用了，获得父类的构造函数，如果是成员函数</span></span><br><span class="hljs-function">    <span class="hljs-comment">//静态的成员函数，没有this指针，只能访问静态的成员变量，和成员函数，不能访问_a 这些成员变量</span></span><br><span class="hljs-function">    </span>&#123;<br><br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">A</span>(a);<br>    &#125;<br><br><span class="hljs-keyword">protected</span>:<br>    <span class="hljs-type">int</span> _a;<br>&#125;;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">B</span>:<span class="hljs-keyword">public</span> A<br>&#123;<br><br>&#125;;<br><span class="hljs-comment">//子类继承了父类，但是构造函数被变成私有的了</span><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-comment">//因为我们把A 类型的构造函数变成一个私有的构造函数，所以他没有办法被使用，但是我们写了一个静态的成员函数就可以获得这个东西</span><br>    A aa=A::<span class="hljs-built_in">createobj</span>(<span class="hljs-number">10</span>);<span class="hljs-comment">//就可以这样把对象创建出来了</span><br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>c++ 11</p>
+<ol>
+<li><pre><code class="hljs">使用final 这个类就无法被继承
+</code></pre>
+</li>
+</ol>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">A</span> <span class="hljs-keyword">final</span><span class="hljs-comment">//不希望A 被继承</span><br><br>&#123;<br>    <span class="hljs-keyword">protected</span>:<br>    <span class="hljs-type">int</span> _a;<br>&#125;;<br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">B</span>:<span class="hljs-keyword">public</span> A<br>&#123;<br><br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<ol start="2">
+<li><pre><code class="hljs">使用final这个函数就无法被重写，放在父类中
+</code></pre>
+</li>
+</ol>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">C</span> <br>&#123;<br>    <span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">()</span> <span class="hljs-keyword">final</span><span class="hljs-comment">// 我不想他被重写</span></span><br><span class="hljs-function">    </span>&#123;<br>        cout&lt;&lt;<span class="hljs-string">&quot;hello &quot;</span>&lt;&lt;endl;<br>    &#125;<br>&#125;;<br><span class="hljs-keyword">class</span> <span class="hljs-title class_">D</span> :<span class="hljs-keyword">public</span> C<br>&#123;<br>    <span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">void</span> <span class="hljs-title">f</span><span class="hljs-params">()</span><span class="hljs-comment">//重写</span></span><br><span class="hljs-function">    </span>&#123;<br>        cout&lt;&lt;<span class="hljs-string">&quot;world&quot;</span>&lt;&lt;endl;<br>    &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="override"><a href="#override" class="headerlink" title="override"></a>override</h2><p>同样也是放在类的后面<br>放在子类重写的虚函数的后面，检查是否完成重写，如果没有完成重写就会报错</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">car</span> <br>&#123;<br>   <span class="hljs-keyword">public</span>:<br>   <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">void</span> <span class="hljs-title">drive</span><span class="hljs-params">()</span></span><br><span class="hljs-function">   </span>&#123;<br><br>   &#125;<br>&#125;;<br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">benz</span>: <span class="hljs-keyword">public</span> car<br>&#123;<br>   <span class="hljs-keyword">public</span>:<br>   <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">void</span> <span class="hljs-title">drive</span><span class="hljs-params">()</span>  <span class="hljs-keyword">override</span></span><br><span class="hljs-function">   </span>&#123;<br><br>   &#125;<br>&#125;;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>   <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/af33f3922c8046ff8f33016214177cb4.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>没加之后的报错</p>
+<h1 id="重载，覆盖，隐藏的对比"><a href="#重载，覆盖，隐藏的对比" class="headerlink" title="重载，覆盖，隐藏的对比"></a>重载，覆盖，隐藏的对比</h1><p>重载：</p>
+<ol>
+<li>两个函数在同一个作用域</li>
+<li>函数名相同，参数不同，返回值没有要求</li>
+</ol>
+<p>覆盖：<br>3. 两个函数分别在基类和派生类中的作用域中<br>4. 函数名&#x2F;参数&#x2F;返回值，都相同（协变除外）<br>5. 两个函数必须是虚函数</p>
+<p>重定义（隐藏）<br>6. 一个在基类一个在派生类<br>7. 函数名相同<br>8. 不构成重写就是隐藏</p>
+<h1 id="抽象类"><a href="#抽象类" class="headerlink" title="抽象类"></a>抽象类</h1><p>在虚函数的后面加上&#x3D;0，这个函数就叫做纯虚函数，<br>包含纯虚函数的类就叫做抽象类，不能实例化出对象，<br>派生类继承以后，也不能实例化出对象，只有子类<strong>重写这个虚函数，才能实例化出对象</strong>，</p>
+<h1 id="底层剖析"><a href="#底层剖析" class="headerlink" title="底层剖析"></a>底层剖析</h1><p><img src="https://img-blog.csdnimg.cn/aca761f897d74d40b4d69913988ae253.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>我们会发现子类和父类是不一样的虚表，下面继承的是重写的虚函数（覆盖）<br>父类对象是父类对象的虚函数，子类对象是子类对象的虚函数<br>重写是语法层面，覆盖是原理上<br>覆盖成我重写的虚函数，</p>
+<p>多态为什么必须是指针和引用呢？<br>指针和引用，虚表就是各自的，而用对象，那么虚表都是父类的，无法调用子类的，切片没有办法把虚表指针拷过去</p>
+<p>多态的原理：<br>基类的指针&#x2F;引用，指向谁就去谁的虚函数表中找到对应的虚函数进行调用，在父类里面找到父类的虚函数，在子类里面找到子类的虚函数，</p>
+<p>同类型的对象，他的虚表指针是一样的，指向同一张虚表，都是指向它的<br><img src="https://img-blog.csdnimg.cn/af74a865727743beb23968ad704ea26c.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>普通函数和虚函数都存储在代码段，只不过虚函数要把地址存一份到虚表，方便实现多态，</p>
+<p>多态就算是私有的也可以调用，因为它是从虚表里面去找的，所以没有影响，有了虚函数这一个，私有也都是可以调用的，</p>
+<p>总结：</p>
+<blockquote>
+<ol>
+<li>派生类对象d中也有一个虚表指针，d对象由两部分构成，一部分是父类继承下来的成员，虚表指针也就是存在部分的另一部分是自己的成员</li>
+<li>基类b对象，和派生类d对象虚表是不一样的，这里我们发现func完成了重写，覆盖是指虚表中虚函数的覆盖，重写是语法上的 叫法，覆盖是原理层的叫法</li>
+<li>子类继承下来没有重写的一部分，地址还是和父类的虚函数一样</li>
+<li>子类也写了虚函数，这个虚函数也会在需表里面，只不过我们不好看</li>
+</ol>
+</blockquote>
+<p>虚函数表在代码端（OS）&#x2F;常量区（c语言）里面<br>虚表里面存的地址不是函数真正的地址，而是要跳几次才可以跳到目的函数</p>
+<h1 id="多继承中的虚表"><a href="#多继承中的虚表" class="headerlink" title="多继承中的虚表"></a>多继承中的虚表</h1><h1 id="打印虚表"><a href="#打印虚表" class="headerlink" title="打印虚表"></a>打印虚表</h1><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">class</span> <span class="hljs-title class_">Base</span><br>&#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">void</span> <span class="hljs-title">func1</span><span class="hljs-params">()</span> </span>&#123; cout &lt;&lt; <span class="hljs-string">&quot;base1::func1&quot;</span> &lt;&lt; endl; &#125;<br>    <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">void</span> <span class="hljs-title">func2</span><span class="hljs-params">()</span> </span>&#123; cout &lt;&lt; <span class="hljs-string">&quot;base1::func2&quot;</span> &lt;&lt; endl; &#125;<br><br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">int</span> a;<br>&#125;;<br><br><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">driver</span> : <span class="hljs-keyword">public</span> Base<br>&#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">void</span> <span class="hljs-title">func1</span><span class="hljs-params">()</span></span><br><span class="hljs-function">    </span>&#123;<br>        cout &lt;&lt; <span class="hljs-string">&quot;driver func1&quot;</span> &lt;&lt; endl;<br>    &#125;<br>    <span class="hljs-function"><span class="hljs-keyword">virtual</span> <span class="hljs-type">void</span> <span class="hljs-title">func3</span><span class="hljs-params">()</span></span><br><span class="hljs-function">    </span>&#123;<br>        cout &lt;&lt; <span class="hljs-string">&quot;deriver func3&quot;</span> &lt;&lt; endl;<br>    &#125;<br>    <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">func4</span><span class="hljs-params">()</span></span><br><span class="hljs-function">    </span>&#123;<br>        cout &lt;&lt; <span class="hljs-string">&quot;derive func4&quot;</span> &lt;&lt; endl;<br>    &#125;<br><br><span class="hljs-keyword">private</span>:<br>    <span class="hljs-type">int</span> b;<br>&#125;;<br><br><br><span class="hljs-function"><span class="hljs-keyword">typedef</span> <span class="hljs-title">void</span><span class="hljs-params">(*vfptr)</span><span class="hljs-params">()</span> </span>;<span class="hljs-comment">//函数指针的typedef方式不一样，把名字定义在中间，重命名为vfptr</span><br><span class="hljs-comment">//对函数指针进行重命名</span><br><br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">printvftable</span><span class="hljs-params">(vfptr table[])</span><span class="hljs-comment">//函数指针数组</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">for</span>(<span class="hljs-type">int</span> i=<span class="hljs-number">0</span>;table[i]!=<span class="hljs-literal">nullptr</span>;i++)<span class="hljs-comment">//在windows下虚表最后一个元素是空</span><br>    &#123;   <br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;vft[%d] :%p\n&quot;</span>,i,table[i]);<br>        <span class="hljs-comment">//我们有了一个函数地址，那么就可以调用它</span><br>        vfptr f=table[i];<span class="hljs-comment">//f指向了函数指针的地址</span><br>        <span class="hljs-built_in">f</span>();<span class="hljs-comment">//调用了这个函数</span><br>        <span class="hljs-comment">//我们发现这个是可以调用的</span><br>        <span class="hljs-comment">//就算是私有的我们也可以调用到，因为我们这里不是通过直接调用，而是通过取出来了虚函数的地址，</span><br>        <span class="hljs-comment">//这里不是通过对象调的</span><br>        <span class="hljs-comment">//有了虚表就会有一些安全隐患</span><br><br>    &#125;<br>    cout&lt;&lt;endl;<br>&#125;<br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    person mike;<br>    student jason;<br>    <span class="hljs-built_in">func</span>(mike);  <span class="hljs-comment">//到mike里面找到虚函数指针，在虚函数指针里面找到对应的虚函数，然后调用它</span><br>    <span class="hljs-built_in">func</span>(jason); <span class="hljs-comment">//如果是子类，就会发生切割（切片），</span><br>    person &amp;r1 = jason;<br>    person r2 = jason;<br>    student s1;<br>    student s2;<br><br>    derive d; <span class="hljs-comment">//多继承之后，就有两个虚表，</span><br>    <span class="hljs-comment">//子类里面有两张虚表，它自己的虚函数只放一个虚表，放在第一个继承的虚表里面</span><br>    <span class="hljs-comment">// base1和base2里面都有func1，但是发现他们的地址不一样，只是jump指令，最后会jump到一个地方去了</span><br><br>    Base b;<span class="hljs-comment">//虚表的指针在初始化列表（构造函数）里面处理，内置类型不处理，自定义类型调用自己的构造函数处理</span><br>    <span class="hljs-comment">//vfptr(virtual function table pointer )</span><br><br>    <span class="hljs-built_in">printvftable</span>((vfptr*)(*(<span class="hljs-type">void</span>**)&amp;b));<span class="hljs-comment">//取虚表数组的首元素地址，在这个地方的头4个字节, 先转化成int* 再解引用就变成int了可以获得头4个字节了，但是类型不匹配, 所以还得再强转一下</span><br>    <span class="hljs-comment">//取一个对象里面的虚表（虚函数指针数组）</span><br>    <span class="hljs-comment">//这样就弄出来了虚表里面的两个函数</span><br>    <span class="hljs-comment">//不能直接转化的，不是所有类型都可以强制类型转化的（不相关的类型是不可以直接转化的，相关类型之间才可以直接转），要先取出来对应的地址</span><br>    driver s;<br>    <span class="hljs-built_in">printvftable</span>((vfptr*)(*(<span class="hljs-type">void</span>**)&amp;s));<span class="hljs-comment">//取虚表数组的首元素地址，在这个地方的头4个字节, 先转化成int* 再解引用就变成int了可以获得头4个字节了，但是类型不匹配, 所以还得再强转一下</span><br><br>    <span class="hljs-comment">//重写的func1，拷贝下来的func2，还有自己的func3</span><br>    <br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/7064d2c4ccb24bf5aeea1b2d18644c6c.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>打印成功<br><img src="https://img-blog.csdnimg.cn/063f4159687649fb905d06a26ec3800a.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/c/" class="category-chain-item">c++</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/c-%E5%BC%80%E5%8F%91%E8%AF%AD%E8%A8%80/">#c++ 开发语言</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>c++多态</div>
+      <div>http://example.com/2022/05/18/c++多态/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zevin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年5月18日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/05/25/%E7%BD%91%E7%BB%9C%E5%9F%BA%E7%A1%80%E8%83%8C%E6%99%AF%E5%85%A5%E9%97%A8/" title="网络基础背景入门">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">网络基础背景入门</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/05/14/%E4%BF%A1%E5%8F%B7%EF%BC%882)/" title="信号（2)">
+                        <span class="hidden-mobile">信号（2)</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","appKey":"javf3F1xk56WiY222ZrCxGt1","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

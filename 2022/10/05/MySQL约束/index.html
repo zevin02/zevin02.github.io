@@ -1,0 +1,865 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zevin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="文章目录 表的约束  空属性 默认值 列描述 zerofill 主键 自增长 唯一键 外键    MySQL为了让我们的表结构里面的数据完整性一致性非常强，mysql是给我们提供强约束的，在建表的时候就要把约束建立好 表的约束真正的约束字段是数据类型，但是数据类型约束很单一，需要一些额外的约束，mysql是和数据打交道的，mysql一定要尽量保证数据不要出现偏差， 空属性 两个属性：null和">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL约束">
+<meta property="og:url" content="http://example.com/2022/10/05/MySQL%E7%BA%A6%E6%9D%9F/index.html">
+<meta property="og:site_name" content="Zevin-Blog">
+<meta property="og:description" content="文章目录 表的约束  空属性 默认值 列描述 zerofill 主键 自增长 唯一键 外键    MySQL为了让我们的表结构里面的数据完整性一致性非常强，mysql是给我们提供强约束的，在建表的时候就要把约束建立好 表的约束真正的约束字段是数据类型，但是数据类型约束很单一，需要一些额外的约束，mysql是和数据打交道的，mysql一定要尽量保证数据不要出现偏差， 空属性 两个属性：null和">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/ab965227c1b940eead3867383587664d.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/dc11aa59c6774fb0a4f5444ec2194222.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/018e0667200440a48bd956210b897019.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/d3b2fbdb560245fc8d3e3ff03fda9a07.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/27aefab050754e2b83a66af9df87de0d.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/39e2395c634a42c3813e89d9abb3bb01.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/8d907830b2e845648a1399dfc8534abc.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/ef0ba04a0d7a498e8eb05299e07b21a2.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/ccfc6833258f486ebb5e6d1293f8674b.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/ccd6cdbfa99a473bbcf09b91351e8e81.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/3a9d342f46e94df1a81d2345ea1653bd.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/36923f7c454a4c94bc15c92d428c4888.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/b303b0f0d6dd4b50a6f8d708af3623d0.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/958409da3d954f939705283fcf30eeec.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/361ba5f9ebdb418ca87247bb0502abb6.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/e5283e2236634582becb3d7075da2477.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/821c9c27e38c4f23a45d0f6e1cfcb23a.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/b9507780cef443ce93182f33164d90cf.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/80803d01d2014dd6b53b6dfff80f8a1a.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/8b967a40f3d946e7989016b21f94b0dc.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/ce9ad1d857b04e369ef6588ce6a6e579.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/962226ba5ac44960b6e9953682fad1dc.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/cd35e217093746fda0fcc9bf19fb602f.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/32bfc0b557fd4d8aa7e637b712ee6078.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/d557f51ce0a2416180bfcfaf7b00c334.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/0454642ef4ce480f8b20f9cd63fa7d26.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/9504ce93cce54a68ab51767c8ea58685.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/91ecc56e3eb941bf97ee2898fc7ebbe9.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/d28b84da7fa24b70b93f3d002df02a40.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/e2c8c2df507f435dba90aa26cebd9441.png">
+<meta property="article:published_time" content="2022-10-05T13:17:19.000Z">
+<meta property="article:modified_time" content="2023-01-20T12:55:15.358Z">
+<meta property="article:author" content="Zevin">
+<meta property="article:tag" content="mysql 数据库 sql">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/ab965227c1b940eead3867383587664d.png">
+  
+  
+  
+  <title>MySQL约束 - Zevin-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","app_key":"javf3F1xk56WiY222ZrCxGt1","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zevin-Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="MySQL约束"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-10-05 21:17" pubdate>
+          2022年10月5日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          35 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">MySQL约束</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+
+<h3 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h3><ul>
+<li><a href="#_2">表的约束</a></li>
+<li><ul>
+<li><a href="#_5">空属性</a></li>
+<li><a href="#_24">默认值</a></li>
+<li><a href="#_41">列描述</a></li>
+<li><a href="#zerofill_54">zerofill</a></li>
+<li><a href="#_66">主键</a></li>
+<li><a href="#_107">自增长</a></li>
+<li><a href="#_121">唯一键</a></li>
+<li><a href="#_153">外键</a></li>
+</ul>
+</li>
+</ul>
+<p>MySQL为了让我们的表结构里面的数据完整性一致性非常强，mysql是给我们提供强约束的，在建表的时候就要把约束建立好</p>
+<h1 id="表的约束"><a href="#表的约束" class="headerlink" title="表的约束"></a>表的约束</h1><p>真正的约束字段是数据类型，但是数据类型约束很单一，需要一些额外的约束，<br>mysql是和数据打交道的，mysql一定要尽量保证数据不要出现偏差，</p>
+<h2 id="空属性"><a href="#空属性" class="headerlink" title="空属性"></a>空属性</h2><ul>
+<li>两个属性：null和not null</li>
+</ul>
+<p>c&#x2F;c++ :null,0,‘\0’<br>mysql:<strong>NULL</strong>为不存在（空）！&#x3D;0！&#x3D;‘’\0’，就是我们没填<br>显示出来NULL就说明这个字段没填<br>这边的NULL显示的是yes，说明可以为null，就是我们可以不填<br><img src="https://img-blog.csdnimg.cn/ab965227c1b940eead3867383587664d.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>有的时候我们希望插入的时候字段都要有，不能为空,要么就别写，要么就都要写</p>
+<p>添加约束not null</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> if <span class="hljs-keyword">not</span> <span class="hljs-keyword">exists</span> myclass(name <span class="hljs-type">varchar</span>(<span class="hljs-number">12</span>) <span class="hljs-keyword">not</span> <span class="hljs-keyword">null</span>,room <span class="hljs-type">varchar</span>(<span class="hljs-number">24</span>) <span class="hljs-keyword">not</span> <span class="hljs-keyword">null</span>);<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/dc11aa59c6774fb0a4f5444ec2194222.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>这样保证了在表里面的数据都是有值的<br><img src="https://img-blog.csdnimg.cn/018e0667200440a48bd956210b897019.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h2 id="默认值"><a href="#默认值" class="headerlink" title="默认值"></a>默认值</h2><p>如果我们没有填写的话，它就会填进去我们设置的默认值</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> friend (name <span class="hljs-type">varchar</span>(<span class="hljs-number">16</span>) <span class="hljs-keyword">not</span> <span class="hljs-keyword">null</span>,age <span class="hljs-type">int</span> <span class="hljs-keyword">default</span> <span class="hljs-number">18</span>,sex <span class="hljs-type">char</span>(<span class="hljs-number">1</span>) <span class="hljs-keyword">default</span> <span class="hljs-string">&#x27;男&#x27;</span>);<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/d3b2fbdb560245fc8d3e3ff03fda9a07.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>默认值最大的意义是允许为空，但是一旦为空的时候，就填入一个缺省值,这样也就是不会出现空值<br><img src="https://img-blog.csdnimg.cn/27aefab050754e2b83a66af9df87de0d.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>如果即用not null也有default，那么这个not null没有意义了，因为有default了，这个字段永远不为空</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> t11 (name <span class="hljs-type">varchar</span>(<span class="hljs-number">12</span>) <span class="hljs-keyword">not</span> <span class="hljs-keyword">null</span> <span class="hljs-keyword">default</span> <span class="hljs-string">&#x27;as&#x27;</span>);<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/39e2395c634a42c3813e89d9abb3bb01.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/8d907830b2e845648a1399dfc8534abc.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h2 id="列描述"><a href="#列描述" class="headerlink" title="列描述"></a>列描述</h2><p>comment 专门用来描述这个字段是什么意思的，给程序员来进行了解的,就是注释</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> if <span class="hljs-keyword">not</span> <span class="hljs-keyword">exists</span> t2 (name <span class="hljs-type">varchar</span>(<span class="hljs-number">12</span>) <span class="hljs-keyword">not</span> <span class="hljs-keyword">null</span>,age <span class="hljs-type">int</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">null</span> comment <span class="hljs-string">&#x27;这是用户的年纪&#x27;</span>);<br></code></pre></td></tr></table></figure>
+
+<p>查看列描述</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">show</span> <span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> t2\G;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/ef0ba04a0d7a498e8eb05299e07b21a2.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h2 id="zerofill"><a href="#zerofill" class="headerlink" title="zerofill"></a>zerofill</h2><p>显示宽度</p>
+<p>用0补位，int（5）zerofill,超过了正常位数，就正常显示，如果没有超过，前面就要用0来补位，满足5位,不影响数据的大小</p>
+<p><img src="https://img-blog.csdnimg.cn/ccfc6833258f486ebb5e6d1293f8674b.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/ccd6cdbfa99a473bbcf09b91351e8e81.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>我们再b那边再增加一个字段，zerofill这样它如果没有达到里面填写的位数的话，就会用0来补齐<br><img src="https://img-blog.csdnimg.cn/3a9d342f46e94df1a81d2345ea1653bd.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>如图，我们设置的5位，但是只填了3位，剩下的就用0来补齐<br><img src="https://img-blog.csdnimg.cn/36923f7c454a4c94bc15c92d428c4888.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h2 id="主键"><a href="#主键" class="headerlink" title="主键"></a>主键</h2><p>所有的表都要有主键</p>
+<p>数据库存入数据不是唯一目的，也要方便提取<br>一般而言，要求数据库表中的记录，有一个特定的唯一标识，来标定唯一性！</p>
+<p>主键：priority key用来唯一约束该字段里面的数据，不能重复，不能为空，一张表里面最多只有<strong>一个主键</strong>,主键对应的字段为唯一值</p>
+<ul>
+<li>创建表的时候，直接在字段上指定主键</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> t33 (id tinyint <span class="hljs-keyword">primary</span> key comment <span class="hljs-string">&#x27;这是用户的主键&#x27;</span>,name <span class="hljs-type">varchar</span>(<span class="hljs-number">12</span>));<br></code></pre></td></tr></table></figure>
+
+<p>这里的额外的字段<br><img src="https://img-blog.csdnimg.cn/b303b0f0d6dd4b50a6f8d708af3623d0.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>重复的插入一个id&#x3D;12，就会给我们报错<br><img src="https://img-blog.csdnimg.cn/958409da3d954f939705283fcf30eeec.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>这样之后id一定不会重复,以后我们就可以用主键来快速找到一个人的信息<br><img src="https://img-blog.csdnimg.cn/361ba5f9ebdb418ca87247bb0502abb6.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>我们可以用<strong>主键</strong>来筛选出我们要的东西<br><img src="https://img-blog.csdnimg.cn/e5283e2236634582becb3d7075da2477.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>主键的删除,只是删除主键约束,这个时候，就允许我们的id可以重复,因为我们只是把主键约束给删除掉，并没有删除其他的数据，</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">alter</span> <span class="hljs-keyword">table</span> t33 <span class="hljs-keyword">drop</span> <span class="hljs-keyword">primary</span> key;<br></code></pre></td></tr></table></figure>
+
+<p>添加主键，要我们明确是添加到哪一列上，<br>添加前有重复值，它就会报错,只能添加在那一列是唯一值的</p>
+<ul>
+<li>复合主键</li>
+</ul>
+<p>  设置多个主键,<br>  把主键的设置放在最后</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> t55 (id <span class="hljs-type">int</span>(<span class="hljs-number">3</span>) zerofill,course <span class="hljs-type">char</span>(<span class="hljs-number">10</span>) <span class="hljs-keyword">not</span> <span class="hljs-keyword">null</span> comment <span class="hljs-string">&#x27;课程&#x27;</span>,score <span class="hljs-type">decimal</span>(<span class="hljs-number">4</span>,<span class="hljs-number">2</span>) <span class="hljs-keyword">default</span> <span class="hljs-string">&#x27;60&#x27;</span> comment <span class="hljs-string">&#x27;这个是默认的得分&#x27;</span>,<span class="hljs-keyword">primary</span> key(id,course));<br></code></pre></td></tr></table></figure>
+
+<p>有一个值冲突，不算冲突，两个值都冲突才算冲突<br><img src="https://img-blog.csdnimg.cn/821c9c27e38c4f23a45d0f6e1cfcb23a.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h2 id="自增长"><a href="#自增长" class="headerlink" title="自增长"></a>自增长</h2><p><strong>auto_increment</strong> :当对应的字段，不给值，会自动被系统触发，系统自动会给你填入，会帮你最大值+1，<strong>通常必须搭配主键使用</strong>，必须使用整数，一张表只能有一个自增长，最开始我们没有设置就是从0开始增长，建议不要设置</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> t09 (id <span class="hljs-type">int</span> <span class="hljs-keyword">primary</span> key auto_increment comment<span class="hljs-string">&#x27;自增长&#x27;</span>,name <span class="hljs-type">varchar</span>(<span class="hljs-number">12</span>) <span class="hljs-keyword">default</span> <span class="hljs-string">&#x27;&#x27;</span>);<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/b9507780cef443ce93182f33164d90cf.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>我们发现，不给id设置，系统会自动对id进行给值，每次都是之前的+1，从最大值往后递增</p>
+<p><img src="https://img-blog.csdnimg.cn/80803d01d2014dd6b53b6dfff80f8a1a.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>我们设置自增的话，这个字段就不要我们自己设置<br>auto_increment 必须和主键进行搭配,否则就会报错</p>
+<h2 id="唯一键"><a href="#唯一键" class="headerlink" title="唯一键"></a>唯一键</h2><p>主键只能有一个，唯一键可以有很多个</p>
+<p>唯一键允许为空，主键不能为空，主键能标识唯一性，唯一键也能标识唯一键</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> tt (id <span class="hljs-type">int</span> <span class="hljs-keyword">unique</span> comment <span class="hljs-string">&#x27;唯一键&#x27;</span>,name <span class="hljs-type">char</span>(<span class="hljs-number">20</span>) <span class="hljs-keyword">not</span> <span class="hljs-keyword">null</span>);<br></code></pre></td></tr></table></figure>
+
+<p>null字段允许为空<br><img src="https://img-blog.csdnimg.cn/8b967a40f3d946e7989016b21f94b0dc.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>这里我们重复向唯一键中插入值，它不允许我们插入相同的值<br><img src="https://img-blog.csdnimg.cn/ce9ad1d857b04e369ef6588ce6a6e579.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>没有给id赋值，它允许为空，null，null代表的没有字段<br><img src="https://img-blog.csdnimg.cn/962226ba5ac44960b6e9953682fad1dc.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>在unique 前面加上not null，这个unique就变成了primary key，一旦变成非空，就变成了主键,所以不要取设置not null字段<br><img src="https://img-blog.csdnimg.cn/cd35e217093746fda0fcc9bf19fb602f.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>主键和唯一键有什么区别??</p>
+<blockquote>
+<p>主键和唯一键并不冲突，在一张表中，可以有一个主键，在其他列也可以同时有唯一键<br>表其实就是MySQL级别的，”类 or struct对象“的集合，表中保存的其实就是某些场景下的属性字段！<br>数据库本身是一个对数据约束很严格的技术<br>我们，身上不止有一个属性具有唯一性（学号）：qq，手机号，b站账号，这些都是具有唯一性的,<br>我们身上需要具有很多要有唯一性的列<br>当然，也有很多不具有唯一性的列，：名字，身高，成绩<br>主键不是设置了主键属性，你才成为了主键，而是对应的属性被选择成为了主键（从众多具有唯一性的属性中，选择了一个，它成为了主键，而没有被选择，依旧需要唯一性的列，就被成员了唯一键）</p>
+</blockquote>
+<p>主键和唯一键（互相补充，设计一个约束更强的表，不要插入不合理的数据）<br><img src="https://img-blog.csdnimg.cn/32bfc0b557fd4d8aa7e637b712ee6078.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> t43 (id <span class="hljs-type">int</span> <span class="hljs-keyword">primary</span> key comment <span class="hljs-string">&#x27;user school id&#x27;</span>,name <span class="hljs-type">varchar</span>(<span class="hljs-number">12</span>) <span class="hljs-keyword">not</span> <span class="hljs-keyword">null</span> comment <span class="hljs-string">&#x27;user name&#x27;</span>,qq <span class="hljs-type">varchar</span>(<span class="hljs-number">11</span>) <span class="hljs-keyword">unique</span> comment<span class="hljs-string">&#x27;user qq_id&#x27;</span>,telephone <span class="hljs-type">varchar</span>(<span class="hljs-number">11</span>) <span class="hljs-keyword">unique</span>);<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/d557f51ce0a2416180bfcfaf7b00c334.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>一般不要拿自己身上的属性做主键，因为万一某个变了，就失效了，用一个自增，与业务无关的东西，不影响表的整体结构</p>
+<h2 id="外键"><a href="#外键" class="headerlink" title="外键"></a>外键</h2><p>外键主要是为了关联两张表，一张表的数据和另一张表的数据进行关联起来<br>外键是定义主表和从表之间的关系，表和表之间存在的关系就是<br>学生和班级拆成哪张表，我们数据库最好把表拆分到不能拆<br>让两个不同的表产生关系</p>
+<p>外键一般是另一张表的主键，把外键当作主键的表叫做主表，包含外键的表叫做从表</p>
+<p>外键vs外键约束</p>
+<blockquote>
+<p>外键约束，再从表中插入一个主表中没有的值，是不被允许的<br>再主表中删除一个主键对应的值，从表中的数据全部删除了，这个才能被删除<br>表中产生的逻辑关系叫做外键，外键约束时逻辑上正确</p>
+</blockquote>
+<p>我们先创建一个主表</p>
+<p>再创建一个从表</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">foreign</span> key (哪一个字段) <span class="hljs-keyword">references</span> table_name (主键的字段)<br></code></pre></td></tr></table></figure>
+
+<p>创建了一个外键约束</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> stu (id <span class="hljs-type">int</span> <span class="hljs-keyword">primary</span> key, name <span class="hljs-type">varchar</span>(<span class="hljs-number">12</span>) <span class="hljs-keyword">not</span> <span class="hljs-keyword">null</span>, class_id <span class="hljs-type">int</span>, <span class="hljs-keyword">foreign</span> key (class_id) <span class="hljs-keyword">references</span> class(id) );<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/0454642ef4ce480f8b20f9cd63fa7d26.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>我们插入了class里面有的值，它就允许我们进行插入了<br><img src="https://img-blog.csdnimg.cn/9504ce93cce54a68ab51767c8ea58685.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>插入class 里面没有的值，就不允许我们进行插入了<br><img src="https://img-blog.csdnimg.cn/91ecc56e3eb941bf97ee2898fc7ebbe9.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>表和表之间数据完整性</p>
+<p>从主表中删除数据，不允许我们删除，因为从表里面还有id&#x3D;10的数据<br><img src="https://img-blog.csdnimg.cn/d28b84da7fa24b70b93f3d002df02a40.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>外键约束，可以保证强约束，只有添加了外键约束，mysql才能帮我们取维护表和表之间逻辑关系</p>
+<p>删除一个数据，把外键对应的数据都删除之后，才能把删除没对应的数据</p>
+<p>综合案例<br><img src="https://img-blog.csdnimg.cn/e2c8c2df507f435dba90aa26cebd9441.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br><strong>table goods</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-operator">&gt;</span> <span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> customer (<br>    <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> customer_id <span class="hljs-type">int</span> <span class="hljs-keyword">primary</span> key,<br>    <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> name <span class="hljs-type">varchar</span>(<span class="hljs-number">13</span>) <span class="hljs-keyword">not</span> <span class="hljs-keyword">null</span>,<br>    <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> address <span class="hljs-type">varchar</span>(<span class="hljs-number">30</span>) <span class="hljs-keyword">unique</span>,<br>    <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> email <span class="hljs-type">char</span>(<span class="hljs-number">16</span>) <span class="hljs-keyword">unique</span>,<br>    <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> sex enum(<span class="hljs-string">&#x27;男&#x27;</span>,<span class="hljs-string">&#x27;女&#x27;</span>),<br>    <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> card_id <span class="hljs-type">char</span>(<span class="hljs-number">11</span>)<br>    <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> );<br></code></pre></td></tr></table></figure>
+
+<p><strong>table customer</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-operator">&gt;</span> <span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> customer (<br>    <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> customer_id <span class="hljs-type">int</span> <span class="hljs-keyword">primary</span> key,<br>    <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> name <span class="hljs-type">varchar</span>(<span class="hljs-number">13</span>) <span class="hljs-keyword">not</span> <span class="hljs-keyword">null</span>,<br>    <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> address <span class="hljs-type">varchar</span>(<span class="hljs-number">30</span>) <span class="hljs-keyword">unique</span>,<br>    <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> email <span class="hljs-type">char</span>(<span class="hljs-number">16</span>) <span class="hljs-keyword">unique</span>,<br>    <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> sex enum(<span class="hljs-string">&#x27;男&#x27;</span>,<span class="hljs-string">&#x27;女&#x27;</span>),<br>    <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> card_id <span class="hljs-type">char</span>(<span class="hljs-number">11</span>)<br>    <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> );<br></code></pre></td></tr></table></figure>
+
+<p><strong>table purchases</strong></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-operator">&gt;</span>   <span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> purchases(<br><span class="hljs-operator">&gt;</span>   order_id <span class="hljs-type">int</span>(<span class="hljs-number">10</span>) zerofill <span class="hljs-keyword">primary</span> key, <br><span class="hljs-operator">&gt;</span>   customer_id <span class="hljs-type">int</span> <span class="hljs-keyword">unique</span>,<br><span class="hljs-operator">&gt;</span>   goods_id <span class="hljs-type">int</span> <span class="hljs-keyword">unique</span>, <br><span class="hljs-operator">&gt;</span>   nums <span class="hljs-type">int</span> <span class="hljs-keyword">default</span> <span class="hljs-number">0</span>,<br><span class="hljs-operator">&gt;</span>   <span class="hljs-keyword">foreign</span> key(goods_id) <span class="hljs-keyword">references</span> goods(goods_id),<br><span class="hljs-operator">&gt;</span>   <span class="hljs-keyword">foreign</span> key(customer_id) <span class="hljs-keyword">references</span> customer(customer_id)<br><span class="hljs-operator">&gt;</span>   );<br></code></pre></td></tr></table></figure>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/MySQL/" class="category-chain-item">MySQL</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/mysql-%E6%95%B0%E6%8D%AE%E5%BA%93-sql/">#mysql 数据库 sql</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>MySQL约束</div>
+      <div>http://example.com/2022/10/05/MySQL约束/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zevin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年10月5日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/10/05/MySQL%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/" title="MySQL数据类型">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">MySQL数据类型</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/10/03/MYSQL%E5%9F%BA%E7%A1%80%E7%9F%A5%E8%AF%86/" title="MYSQL基础知识">
+                        <span class="hidden-mobile">MYSQL基础知识</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","appKey":"javf3F1xk56WiY222ZrCxGt1","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

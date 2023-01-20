@@ -1,0 +1,831 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zevin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="文章目录 为什么需要写时拷贝呢？ page fault的执行流程 Copy-On-Write处理方法  PTE 引用计数 虚拟地址空间   核心代码  为什么需要写时拷贝呢？当 shell执行指令的时候会 fork()，而这个 fork()出来的进程首先会调用的就是 exec来执行对应的命令，如果我们将 fork()创建的进程对地址空间进行了完整的拷贝,那将是一个巨大的消耗 因为在实际应用中，">
+<meta property="og:type" content="article">
+<meta property="og:title" content="基于xv6的Copy-On-Write">
+<meta property="og:url" content="http://example.com/2022/12/10/%E5%9F%BA%E4%BA%8Exv6%E7%9A%84Copy-On-Write/index.html">
+<meta property="og:site_name" content="Zevin-Blog">
+<meta property="og:description" content="文章目录 为什么需要写时拷贝呢？ page fault的执行流程 Copy-On-Write处理方法  PTE 引用计数 虚拟地址空间   核心代码  为什么需要写时拷贝呢？当 shell执行指令的时候会 fork()，而这个 fork()出来的进程首先会调用的就是 exec来执行对应的命令，如果我们将 fork()创建的进程对地址空间进行了完整的拷贝,那将是一个巨大的消耗 因为在实际应用中，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/3f5070a60f4c48b99b920f7738889b96.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/3b7b1cf922934decbd87f4a751904492.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/3a721dc74439454cac5cf67f26f31722.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/c2bceea76d894e4b84cd890c35c34fcc.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/f556dfe7567b491ca2112f312f877069.png">
+<meta property="article:published_time" content="2022-12-10T07:15:58.000Z">
+<meta property="article:modified_time" content="2023-01-20T12:55:15.358Z">
+<meta property="article:author" content="Zevin">
+<meta property="article:tag" content="risc-v xv6 OS">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/3f5070a60f4c48b99b920f7738889b96.png">
+  
+  
+  
+  <title>基于xv6的Copy-On-Write - Zevin-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","app_key":"javf3F1xk56WiY222ZrCxGt1","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zevin-Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="基于xv6的Copy-On-Write"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-12-10 15:15" pubdate>
+          2022年12月10日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          59 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">基于xv6的Copy-On-Write</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+
+<h3 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h3><ul>
+<li><a href="#_1">为什么需要写时拷贝呢？</a></li>
+<li><a href="#page_fault_16">page fault的执行流程</a></li>
+<li><a href="#CopyOnWrite_32">Copy-On-Write处理方法</a></li>
+<li><ul>
+<li><a href="#PTE_49">PTE</a></li>
+<li><a href="#_61">引用计数</a></li>
+<li><a href="#_69">虚拟地址空间</a></li>
+</ul>
+</li>
+<li><a href="#_84">核心代码</a></li>
+</ul>
+<h1 id="为什么需要写时拷贝呢？"><a href="#为什么需要写时拷贝呢？" class="headerlink" title="为什么需要写时拷贝呢？"></a>为什么需要写时拷贝呢？</h1><p>当 <code>shell</code>执行指令的时候会 <code>fork()</code>，而这个 <code>fork()</code>出来的进程首先会调用的就是 <code>exec</code>来执行对应的命令，如果我们将 <code>fork()</code>创建的进程对地址空间进行了完整的拷贝,那将是一个巨大的消耗</p>
+<p>因为在实际应用中，<code>fork()</code>拷贝的大部分内存都是不会用到的,最典型的就是在UNIX系统中，通常调用 <code>fork()</code>后便会调用 <code>exec()</code>,而 <code>exec()</code>做的第一件事就是把原来的地址空间给舍弃掉，那么原来拷贝过来的数据就全没用了</p>
+<p>所以这个时候就需要copy-on-write机制</p>
+<ul>
+<li>这是一个系统级别的优化</li>
+<li>对于从 <code>fork()</code>-&gt;<code>exec()</code>的执行模式是一个很好的优化<ul>
+<li>避免 <code>fork()</code>会把父进程的进程地址空间进行完全的拷贝</li>
+<li>解决因为 <code>exec()</code>把拷贝完的地址空间给舍弃，而造成我们无效的操作</li>
+</ul>
+</li>
+<li>可以极大的减少拷贝<ul>
+<li>对于特定的页使用极少的内存就可以维护</li>
+</ul>
+</li>
+</ul>
+<h1 id="page-fault的执行流程"><a href="#page-fault的执行流程" class="headerlink" title="page fault的执行流程"></a>page fault的执行流程</h1><p>page fault的执行流程和系统调用类似，同样是需要从用户态进入到内核态，并在usertrap中判断是什么原因导致的进入内核,<br>后执行对应的page fault处理方法，执行完再返回回到用户态，继续原来的操作</p>
+<hr>
+<p>我们可以通过<code>scause</code>的值来判断是否为page fault导致的</p>
+<p>从图中可知，<code>scause</code>=12，13，15的时候分别是instruction page fault,load page fault,store page fault</p>
+<p><img src="https://img-blog.csdnimg.cn/3f5070a60f4c48b99b920f7738889b96.png" srcset="/img/loading.gif" lazyload alt="[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-xsULkO3b-1670655836900)(https://cdn.jsdelivr.net/gh/zevin02/picb@master/imgss/20221209190124.png)]"></p>
+<h1 id="Copy-On-Write处理方法"><a href="#Copy-On-Write处理方法" class="headerlink" title="Copy-On-Write处理方法"></a>Copy-On-Write处理方法</h1><ul>
+<li>fork之后，让子进程和父进程共享物理内存page,同时将对应的page设置为COW page</li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/3b7b1cf922934decbd87f4a751904492.png" srcset="/img/loading.gif" lazyload alt="[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-XzgtMaqw-1670655836901)(https://cdn.jsdelivr.net/gh/zevin02/picb@master/imgss/20221210145755.png)]"></p>
+<ul>
+<li>当我们需要修改某个进程对应的内存的时候，就会触发page fault</li>
+<li>page fault 处理方法<ul>
+<li>对于由于COW而导致的page fault的page 需要为其分配一个新的物理page</li>
+<li>将其和父进程共享的page内容拷贝到新的page中</li>
+<li>把新page的PTE标记为RW，取消COW</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/3a721dc74439454cac5cf67f26f31722.png" srcset="/img/loading.gif" lazyload alt="[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-p3cnstsA-1670655836902)(https://cdn.jsdelivr.net/gh/zevin02/picb@master/imgss/20221210145847.png)]"></p>
+<h2 id="PTE"><a href="#PTE" class="headerlink" title="PTE"></a>PTE</h2><p>在RISC-V中的PTE，第8，9位是给supervisor保留的，按需自由设置，所以我们可以选取其中的一个位设置为COW的标志位</p>
+<p><img src="https://img-blog.csdnimg.cn/c2bceea76d894e4b84cd890c35c34fcc.png" srcset="/img/loading.gif" lazyload alt="[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-kxNNIHV6-1670655836902)(https://cdn.jsdelivr.net/gh/zevin02/picb@master/imgss/20221210145939.png)]"></p>
+<p>我们可以使用PTE中的RSW bit来标记PTE为COW page</p>
+<p>我们可以定义<code>PTE_COW=1&lt;&lt;8</code></p>
+<h2 id="引用计数"><a href="#引用计数" class="headerlink" title="引用计数"></a>引用计数</h2><p><code>Copy-On-Write</code>是推迟为子进程开辟物理内存,最大程度减少拷贝的一个机制</p>
+<p>一个物理页可能被多个进程所引用，为了能够使某个物理内存能够被释放，就需要对每个物理页都添加一个引用计数，表示有多少个进程引用了该物理页，直到该物理页的引用计数为0的时候，该物理页才能够被释放</p>
+<p>在开辟物理页的时候，将其引用计数设置为1，当 <code>fork()</code>子进程的时候，增加引用计数，触发 <code>page fault</code>将对应的引用计数减1</p>
+<h2 id="虚拟地址空间"><a href="#虚拟地址空间" class="headerlink" title="虚拟地址空间"></a>虚拟地址空间</h2><p>进程地址空间</p>
+<p><img src="https://img-blog.csdnimg.cn/f556dfe7567b491ca2112f312f877069.png" srcset="/img/loading.gif" lazyload alt="[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-TXB7578T-1670655836903)(https://cdn.jsdelivr.net/gh/zevin02/picb@master/imgss/20221210150015.png)]"></p>
+<p>子进程拷贝完父进程的页表之后，将每个页的PTE都设置清空 <code>PTE_W</code>,设置 <code>PTE_COW</code></p>
+<p>而对于上述的操作，会影响<code>text</code><br>区，这一段也并没有 <code>PTE_W</code>,如果我们对其进行 <code>COW</code>操作就会出现问题</p>
+<p>因为用户虚拟地址中的 <code>text</code>区是保存存储代码的，这块的虚拟地址不能发生COW，所以对于 <code>va&lt;PGSIZE</code>，我们就需要直接拦截</p>
+<h1 id="核心代码"><a href="#核心代码" class="headerlink" title="核心代码"></a>核心代码</h1><p>设置COW 标志位</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">define</span> PTE_V (1L &lt;&lt; 0) <span class="hljs-comment">// valid</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PTE_R (1L &lt;&lt; 1)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PTE_W (1L &lt;&lt; 2)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PTE_X (1L &lt;&lt; 3)</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PTE_U (1L &lt;&lt; 4) <span class="hljs-comment">// user can access</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> PTE_COW (1L &lt;&lt; 8) <span class="hljs-comment">//判断COW page</span></span><br></code></pre></td></tr></table></figure>
+
+<p>修改fork的处理机制，修改 <code>uvmcopy</code>,使得fork的子进程印射到父进程的地址空间</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span><br><span class="hljs-title function_">uvmcopy</span><span class="hljs-params">(<span class="hljs-type">pagetable_t</span> old, <span class="hljs-type">pagetable_t</span> new, uint64 sz)</span><span class="hljs-comment">//将两个pagetable进行复制，两个不同的进程虚拟地址相同映射到页表的相同位置</span><br>&#123;<br>  <span class="hljs-type">pte_t</span> *pte;<br>  uint64 pa, i;<br>  uint flags;<br>  <span class="hljs-comment">// char *mem;</span><br><br>  <span class="hljs-keyword">for</span>(i = <span class="hljs-number">0</span>; i &lt; sz; i += PGSIZE)&#123;<br>    <span class="hljs-keyword">if</span>((pte = walk(old, i, <span class="hljs-number">0</span>)) == <span class="hljs-number">0</span>)<br>      panic(<span class="hljs-string">&quot;uvmcopy: pte should exist&quot;</span>);<br>    <span class="hljs-keyword">if</span>((*pte &amp; PTE_V) == <span class="hljs-number">0</span>)<br>      panic(<span class="hljs-string">&quot;uvmcopy: page not present&quot;</span>);<br>    *pte&amp;=(~PTE_W);<span class="hljs-comment">//把w权限给取消掉</span><br>    *pte|=PTE_COW;<span class="hljs-comment">//设置为cow页,这个操作并不会影响其父进程</span><br>    pa = PTE2PA(*pte);<br>    flags = PTE_FLAGS(*pte);<br>    <span class="hljs-comment">// if((mem = kalloc()) == 0)</span><br>      <span class="hljs-comment">// goto err;</span><br>    <span class="hljs-comment">// memmove(mem, (char*)pa, PGSIZE);</span><br><br>    <span class="hljs-keyword">if</span>(mappages(new, i, PGSIZE, pa, flags) != <span class="hljs-number">0</span>)&#123;<br>      <span class="hljs-comment">//  kfree((void*)pa);//减少引用计数</span><br><br>      <span class="hljs-keyword">goto</span> err;<br>    &#125;<br>    <span class="hljs-keyword">else</span><br>    &#123;<br>      refadd(pa);<span class="hljs-comment">//添加引用计数</span><br>    &#125;<br>  &#125;<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br><br> err:<br>  uvmunmap(new, <span class="hljs-number">0</span>, i / PGSIZE, <span class="hljs-number">1</span>);<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>修改 <code>usertrap</code>对 <code>page fault</code>进行识别与处理</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><code class="hljs c"><br><span class="hljs-type">void</span> <span class="hljs-title function_">usertrap</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span><br>&#123;<br>  <span class="hljs-type">int</span> which_dev = <span class="hljs-number">0</span>;<br><br>  <span class="hljs-keyword">if</span> ((r_sstatus() &amp; SSTATUS_SPP) != <span class="hljs-number">0</span>)<br>    panic(<span class="hljs-string">&quot;usertrap: not from user mode&quot;</span>);<br><br>  <span class="hljs-comment">// send interrupts and exceptions to kerneltrap(),</span><br>  <span class="hljs-comment">// since we&#x27;re now in the kernel.</span><br>  w_stvec((uint64)kernelvec);<br><br>  <span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">proc</span> *<span class="hljs-title">p</span> =</span> myproc();<br><br>  <span class="hljs-comment">// save user program counter.</span><br>  p-&gt;trapframe-&gt;epc = r_sepc();<br><br>  ……………<span class="hljs-comment">//省略</span><br>  <span class="hljs-comment">//--------&gt;begin</span><br>  <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (r_scause() == <span class="hljs-number">15</span> || r_scause() == <span class="hljs-number">13</span>||r_scause()==<span class="hljs-number">12</span>))<br>  &#123;<br>    uint64 va = r_stval(); <span class="hljs-comment">// 获得错误的虚拟地址</span><br>    <span class="hljs-keyword">if</span> (va &lt; PGSIZE)<span class="hljs-comment">//解决segment fault，这些va小于pgsize都是在text区</span><br>    &#123;<br>      p-&gt;killed = <span class="hljs-number">1</span>;<br>    &#125;<br>  <br>    <span class="hljs-keyword">else</span><br>    &#123;<br>      <span class="hljs-comment">// va=PGROUNDDOWN(va);//16进制向下取整</span><br>      <span class="hljs-keyword">if</span> (va &lt; p-&gt;sz &amp;&amp; iscow(p-&gt;pagetable, va)) <span class="hljs-comment">// 是因为cow引起的page fault</span><br>      &#123;<br>        <span class="hljs-keyword">if</span> (cowalloc(p-&gt;pagetable, PGROUNDDOWN(va)) == <span class="hljs-number">0</span>) <span class="hljs-comment">// 为新的页表分配内存</span><br>        &#123;<br>          p-&gt;killed = <span class="hljs-number">1</span>;<br>        &#125;<br>      &#125;<br>      <span class="hljs-keyword">else</span><br>      &#123;<br>        p-&gt;killed = <span class="hljs-number">1</span>;<br>      &#125;<br>    &#125;<br>  &#125;<br>  <span class="hljs-comment">//-------&gt;end</span><br>  …………<span class="hljs-comment">//省略</span><br>  usertrapret();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>标识COW page</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">iscow</span><span class="hljs-params">(<span class="hljs-type">pagetable_t</span> pagetable, uint64 va)</span></span><br><span class="hljs-function"></span>&#123;<br>  <span class="hljs-keyword">if</span> (va &gt;= MAXVA)<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>  <span class="hljs-type">pte_t</span> *pte = <span class="hljs-built_in">walk</span>(pagetable, va, <span class="hljs-number">0</span>);<br>  <span class="hljs-keyword">if</span> (pte == <span class="hljs-number">0</span>)<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>  <span class="hljs-keyword">if</span> ((*pte &amp; PTE_V) == <span class="hljs-number">0</span>)<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>  <span class="hljs-keyword">if</span> ((*pte &amp; PTE_U) == <span class="hljs-number">0</span>)<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>  <span class="hljs-keyword">if</span> (*pte &amp; PTE_COW)<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>  <span class="hljs-keyword">else</span><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>对产生 <code>page fault</code>的 <code>va</code>进行分配物理页</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">cowalloc</span><span class="hljs-params">(<span class="hljs-type">pagetable_t</span> pagetable, uint64 va)</span> <span class="hljs-comment">//为page fault的虚拟地址进行拷贝新的物理地址，内容从父进程里面全部拷贝过来</span></span><br><span class="hljs-function"></span>&#123;<br>  <span class="hljs-keyword">if</span> (va &gt;= MAXVA)<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>  <span class="hljs-type">pte_t</span> *pte = <span class="hljs-built_in">walk</span>(pagetable, va, <span class="hljs-number">0</span>);<br>  <span class="hljs-keyword">if</span> (pte == <span class="hljs-number">0</span>)<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>  <span class="hljs-keyword">if</span> ((*pte &amp; PTE_V) == <span class="hljs-number">0</span>)<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>  <span class="hljs-keyword">if</span> ((*pte &amp; PTE_U) == <span class="hljs-number">0</span>)<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>  <span class="hljs-comment">//这个函数就是用来进行分配物理空间的</span><br>  uint64 pa = <span class="hljs-built_in">PTE2PA</span>(*pte);<br>  <span class="hljs-keyword">if</span> (((uint64)pa % PGSIZE) != <span class="hljs-number">0</span> || (<span class="hljs-type">char</span> *)pa &lt; end || (uint64)pa &gt;= PHYSTOP) <span class="hljs-comment">//所有的物理地址大小都是4096字节，对齐，end是内核物理地址的最底段，PHYSTOP是内核物理地址的最顶端</span><br>    <span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;cowalloc&quot;</span>);<br>  <span class="hljs-keyword">if</span> (ref.refcnt[(uint64)pa / PGSIZE] == <span class="hljs-number">1</span>)<span class="hljs-comment">//引用计数为1的话，就说明已经没有人使用该page了，就可以直接使用了</span><br>  &#123;<br>    *pte |= PTE_W;<br>    *pte &amp;= ~PTE_COW;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>  &#125;<br>  <span class="hljs-keyword">else</span><br>  &#123;<br><br>    uint64 ka = (uint64)<span class="hljs-built_in">kalloc</span>(); <span class="hljs-comment">//引用计数初始化</span><br>    <span class="hljs-keyword">if</span> (ka == <span class="hljs-number">0</span>)                  <span class="hljs-comment">//物理内存已经满了，这里我们采取简单的方法，直接将这个进程给杀掉,但是实际上在课上讲过，可以使用LRU的方法，把最近一直没有使用的页表给释放出来，然后新的进程去使用这个页表，可以提高效率</span><br>    &#123;<br>      <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br>    <span class="hljs-built_in">memmove</span>((<span class="hljs-type">void</span> *)ka, (<span class="hljs-type">void</span> *)pa, PGSIZE); <span class="hljs-comment">//把他原来对应物理内存的地址进行拷贝过来，都是4096字节</span><br>    *pte &amp;= (~PTE_COW);                      <span class="hljs-comment">//取消他的cow标志位</span><br>    *pte |= PTE_W;                           <span class="hljs-comment">//添加写权限</span><br>     *pte&amp;=(~PTE_V);<br>    uint flag = <span class="hljs-built_in">PTE_FLAGS</span>(*pte);<br>    <span class="hljs-comment">// uvmunmap(pagetable, va, 1, 1);                      //这个地方因为是取消映射，也就是之前映射对应的物理地址对应的引用计数要减1</span><br>    <span class="hljs-keyword">if</span> (<span class="hljs-built_in">mappages</span>(pagetable, va, PGSIZE, ka, flag) != <span class="hljs-number">0</span>) <span class="hljs-comment">//进行新的映射</span><br>    &#123;<br>      <span class="hljs-comment">//映射失败，同时页需要减少引用计数</span><br>      <span class="hljs-built_in">kfree</span>((<span class="hljs-type">void</span> *)ka);<br>      *pte|=(PTE_V);<span class="hljs-comment">//添加这个有效的标志位</span><br>      <span class="hljs-comment">// uvmunmap(pagetable, va, 1, 1);</span><br>      <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>    &#125;<br>    <span class="hljs-built_in">kfree</span>((<span class="hljs-type">void</span>*)<span class="hljs-built_in">PGROUNDDOWN</span>(pa));<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br>  &#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>修改 <code>copyout</code>,有些COW页操作不是来自用户空间而是来自内核空间，因为 <code>copyout</code>是从内核态拷贝到用户态，是会对用户页产生写操作，而内核进程不会触发 <code>usertrap</code>，所以我们需要进行对其进行处理</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">int</span></span><br><span class="hljs-function"><span class="hljs-title">copyout</span><span class="hljs-params">(<span class="hljs-type">pagetable_t</span> pagetable, uint64 dstva, <span class="hljs-type">char</span> *src, uint64 len)</span></span><br><span class="hljs-function"></span>&#123;<br>  uint64 n, va0, pa0;<br><br>  <span class="hljs-keyword">while</span>(len &gt; <span class="hljs-number">0</span>)&#123;<br>    va0 = <span class="hljs-built_in">PGROUNDDOWN</span>(dstva);<br>    <span class="hljs-keyword">if</span>(<span class="hljs-built_in">iscow</span>(pagetable,va0))<span class="hljs-comment">//每次都需要对这个va进行判断是否为cow page</span><br>    &#123;<br>      <span class="hljs-keyword">if</span>(<span class="hljs-built_in">cowalloc</span>(pagetable,va0)==<span class="hljs-number">0</span>)<br>      &#123;<br>        <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>;<br>      &#125;<br>    &#125;<br>    ...<span class="hljs-comment">//省略</span><br>  &#125;<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>添加引用计数的结构体</p>
+<p>每个页的起始地址都是4096对齐，所以都是可以被4096整除</p>
+<p>这里的 <code>KERNBASE</code>和 <code>PHYSTOP</code>代表这内存物理地址的起始和结束，而 <code>end</code>是 <code>Free memory的</code>起始地址，这个 <code>end</code>是动态变化的，内核自己的代码和数据都是存在 <code>kernel text</code>和 <code>kernel data</code>中,所以这个结构体是存在 <code>kernel data</code>中</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span><br>&#123;<br>  <span class="hljs-keyword">struct</span> <span class="hljs-title class_">spinlock</span> lock;<br>  <span class="hljs-type">int</span> refcnt[PHYSTOP / PGSIZE];<span class="hljs-comment">//每个物理地址都是PGSIZE对齐</span><br>&#125; ref;<br></code></pre></td></tr></table></figure>
+
+<p>修改 <code>kinit</code>，初始化ref结构体,kalloc只会分配 <code>end~PHYSTOP</code>间的内存，所以我们使用的物理内存都在这个范围内</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">kinit</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>  <span class="hljs-built_in">initlock</span>(&amp;kmem.lock, <span class="hljs-string">&quot;kmem&quot;</span>);<br>  <span class="hljs-built_in">initlock</span>(&amp;ref.lock, <span class="hljs-string">&quot;ref&quot;</span>);<br>  <span class="hljs-built_in">freerange</span>(end, (<span class="hljs-type">void</span> *)PHYSTOP);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>修改 <code>freerange</code>，初始化空闲内存</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">freerange</span><span class="hljs-params">(<span class="hljs-type">void</span> *pa_start, <span class="hljs-type">void</span> *pa_end)</span></span><br><span class="hljs-function"></span>&#123;<br>  <span class="hljs-type">char</span> *p;<br>  p = (<span class="hljs-type">char</span> *)<span class="hljs-built_in">PGROUNDUP</span>((uint64)pa_start);<br>  <span class="hljs-keyword">for</span> (; p + PGSIZE &lt;= (<span class="hljs-type">char</span> *)pa_end; p += PGSIZE)<br>  &#123;<br>    ref.refcnt[(uint64)p / PGSIZE] = <span class="hljs-number">1</span>; <span class="hljs-comment">//因为下面调用kfree要把每个物理地址上的引用计数都减少1,为0才能够释放空间，所以这里我们先给每个初始化成1,保证能够释放空间成功</span><br>    <span class="hljs-built_in">kfree</span>(p);<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>修改 <code>kalloc</code>，初始化引用计数</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> *</span><br><span class="hljs-function"><span class="hljs-title">kalloc</span><span class="hljs-params">(<span class="hljs-type">void</span>)</span></span><br><span class="hljs-function"></span>&#123;<br>  <span class="hljs-keyword">struct</span> <span class="hljs-title class_">run</span> *r;<br><br>  <span class="hljs-built_in">acquire</span>(&amp;kmem.lock);<br>  r = kmem.freelist;<br>  <span class="hljs-keyword">if</span> (r)<br>  &#123;<br>    kmem.freelist = r-&gt;next;<br>    <span class="hljs-built_in">acquire</span>(&amp;ref.lock);<br>    ref.refcnt[(uint64)r / PGSIZE] = <span class="hljs-number">1</span>;<br>    <span class="hljs-built_in">release</span>(&amp;ref.lock);<br>  &#125;<br><br>  <span class="hljs-built_in">release</span>(&amp;kmem.lock);<br><br>  <span class="hljs-keyword">if</span> (r)<br>    <span class="hljs-built_in">memset</span>((<span class="hljs-type">char</span> *)r, <span class="hljs-number">5</span>, PGSIZE); <span class="hljs-comment">// fill with junk</span><br>  <span class="hljs-keyword">return</span> (<span class="hljs-type">void</span> *)r;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>修改 <code>kfree</code>，减少引用计数，直到引用计数为0时，才能把该物理页释放</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">kfree</span><span class="hljs-params">(<span class="hljs-type">void</span> *pa)</span></span><br><span class="hljs-function"></span>&#123;<br><br>  <span class="hljs-keyword">if</span> (((uint64)pa % PGSIZE) != <span class="hljs-number">0</span> || (<span class="hljs-type">char</span> *)pa &lt; end || (uint64)pa &gt;= PHYSTOP)<br>    <span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;kfree&quot;</span>);<br>  <span class="hljs-keyword">struct</span> <span class="hljs-title class_">run</span> *r;<br>  <span class="hljs-built_in">acquire</span>(&amp;ref.lock);<br>  --ref.refcnt[(uint64)pa / PGSIZE];<br>  <span class="hljs-comment">// release(&amp;ref.lock);</span><br>  <span class="hljs-comment">// Fill with junk to catch dangling refs.</span><br>  <span class="hljs-keyword">if</span> (ref.refcnt[(uint64)pa / PGSIZE] == <span class="hljs-number">0</span>)<br>  &#123;<br>    <span class="hljs-built_in">release</span>(&amp;ref.lock);<br>    <span class="hljs-built_in">memset</span>(pa, <span class="hljs-number">1</span>, PGSIZE); <span class="hljs-comment">//当引用计数为0的时候，才把这个空间释放，同时添加到空闲链表里面</span><br>    r = (<span class="hljs-keyword">struct</span> run *)pa;<br>    <span class="hljs-built_in">acquire</span>(&amp;kmem.lock);<br>    r-&gt;next = kmem.freelist;<br>    kmem.freelist = r;<br>    <span class="hljs-built_in">release</span>(&amp;kmem.lock);<br>  &#125;<br>  <span class="hljs-keyword">else</span><br>  &#123;<br>    <span class="hljs-built_in">release</span>(&amp;ref.lock);<br>  &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>增加引用计数</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">refadd</span><span class="hljs-params">(uint64 pa)</span> <span class="hljs-comment">//添加引用计数</span></span><br><span class="hljs-function"></span>&#123;<br>  <span class="hljs-keyword">if</span> (((uint64)pa % PGSIZE) != <span class="hljs-number">0</span> || (<span class="hljs-type">char</span> *)pa &lt; end || (uint64)pa &gt;= PHYSTOP)<br>    <span class="hljs-built_in">panic</span>(<span class="hljs-string">&quot;refadd&quot;</span>);<br>  <span class="hljs-built_in">acquire</span>(&amp;ref.lock); <span class="hljs-comment">//添加的时候要上锁，避免出现多线程同时操作同一个数的情况</span><br>  ref.refcnt[pa / PGSIZE]++;<br>  <span class="hljs-built_in">release</span>(&amp;ref.lock);<br>&#125;<br></code></pre></td></tr></table></figure>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/mit6-1810/" class="category-chain-item">mit6.1810</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/risc-v-xv6-OS/">#risc-v xv6 OS</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>基于xv6的Copy-On-Write</div>
+      <div>http://example.com/2022/12/10/基于xv6的Copy-On-Write/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zevin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年12月10日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/12/14/mmap/" title="mmap">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">mmap</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/11/05/%E6%B1%87%E7%BC%96%E5%87%BD%E6%95%B0%E7%9A%84%E8%B0%83%E7%94%A8%E7%BA%A6%E5%AE%9A/" title="汇编函数的调用约定">
+                        <span class="hidden-mobile">汇编函数的调用约定</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","appKey":"javf3F1xk56WiY222ZrCxGt1","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

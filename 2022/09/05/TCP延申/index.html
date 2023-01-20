@@ -1,0 +1,807 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zevin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="文章目录 粘包问题 TCP 异常处理 用UDP实现可靠传输 TCP相关实验  理解Listen的第二个参数    粘包问题粘包问题中的”包“，指的是应用层的数据包TCP是基于字节流的，只维护发送出去多少，确认了多少，并不会维护消息和消息的边界，这就导致了粘包问题，他在应用层取数据的时候，不知道从哪里到哪里是一个完整的应用层数据包，面向字节流读文件都会有这种问题 数据就变得混乱了 怎么解决呢？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TCP延申">
+<meta property="og:url" content="http://example.com/2022/09/05/TCP%E5%BB%B6%E7%94%B3/index.html">
+<meta property="og:site_name" content="Zevin-Blog">
+<meta property="og:description" content="文章目录 粘包问题 TCP 异常处理 用UDP实现可靠传输 TCP相关实验  理解Listen的第二个参数    粘包问题粘包问题中的”包“，指的是应用层的数据包TCP是基于字节流的，只维护发送出去多少，确认了多少，并不会维护消息和消息的边界，这就导致了粘包问题，他在应用层取数据的时候，不知道从哪里到哪里是一个完整的应用层数据包，面向字节流读文件都会有这种问题 数据就变得混乱了 怎么解决呢？">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/c0f342c23ef74cdf8b057d600b6bf1bc.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/f5b90044b4474d329d9c25fcb91b691a.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/b375bf16d3d441fb94cde35da35a90f6.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/fc55a9ae21b14ae28a422829bffb08b8.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/571d1462387d4994b49b4e47fd138bad.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/5d0c9ba731e04237898580e92928ccd2.png">
+<meta property="article:published_time" content="2022-09-05T08:03:09.000Z">
+<meta property="article:modified_time" content="2023-01-20T12:55:15.358Z">
+<meta property="article:author" content="Zevin">
+<meta property="article:tag" content="网络 tcp&#x2F;ip 服务器">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/c0f342c23ef74cdf8b057d600b6bf1bc.png">
+  
+  
+  
+  <title>TCP延申 - Zevin-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","app_key":"javf3F1xk56WiY222ZrCxGt1","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zevin-Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="TCP延申"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-09-05 16:03" pubdate>
+          2022年9月5日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          16 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">TCP延申</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+
+<h3 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h3><ul>
+<li><a href="#_1">粘包问题</a></li>
+<li><a href="#TCP__41">TCP 异常处理</a></li>
+<li><a href="#UDP_56">用UDP实现可靠传输</a></li>
+<li><a href="#TCP_65">TCP相关实验</a></li>
+<li><ul>
+<li><a href="#Listen_66">理解Listen的第二个参数</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="粘包问题"><a href="#粘包问题" class="headerlink" title="粘包问题"></a>粘包问题</h1><p>粘包问题中的”包“，指的是应用层的数据包<br>TCP是基于字节流的，只维护发送出去多少，确认了多少，并不会维护消息和消息的边界，这就导致了粘包问题，他在应用层取数据的时候，不知道从哪里到哪里是一个完整的应用层数据包，面向字节流读文件都会有这种问题</p>
+<p><img src="https://img-blog.csdnimg.cn/c0f342c23ef74cdf8b057d600b6bf1bc.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>数据就变得混乱了</p>
+<p>怎么解决呢？</p>
+<blockquote>
+<p>由于找不到应用层的数据始末，所以去TCP 上面做功夫肯定是不行的，所以解决这个问题就是要在应用层协议中加上包和包之间边界，比如在应用层数据报的结尾加上一个**;**这样在读取的时候，就能区分出一个完整的应用层数据报了，</p>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/f5b90044b4474d329d9c25fcb91b691a.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p><img src="https://img-blog.csdnimg.cn/b375bf16d3d441fb94cde35da35a90f6.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>读取http请求的</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">char</span> buff[<span class="hljs-number">1024</span>];<br><span class="hljs-keyword">while</span>(<span class="hljs-literal">true</span>)<br>&#123;<br>	<span class="hljs-built_in">getline</span>(sock,buffer);<span class="hljs-comment">//按行读</span><br>	<span class="hljs-keyword">if</span>(buff==<span class="hljs-string">&quot;\n&quot;</span>)<br>	&#123;<br>	<span class="hljs-keyword">break</span>;<span class="hljs-comment">//报头读完了</span><br>	&#125;<br>&#125;<br><span class="hljs-comment">//在包头里面找到content-length=80</span><br><span class="hljs-built_in">recv</span>(sck,buffer,<span class="hljs-number">80</span>)<br></code></pre></td></tr></table></figure>
+
+<ol>
+<li>定长发送，缓冲区大小都是1024</li>
+<li>特殊字符，遇到这个字符就分离</li>
+<li>自描述，自己进行定制协议</li>
+</ol>
+<h1 id="TCP-异常处理"><a href="#TCP-异常处理" class="headerlink" title="TCP 异常处理"></a>TCP 异常处理</h1><p>TCP协议传输时会出现以下几种情况<br>连接崩溃的情况</p>
+<ul>
+<li>机器关机&#x2F;重启：会<strong>释放文件描述符</strong>，发送<code>FIN</code>，和正常关闭一样，和进程终止是一样的</li>
+<li>进程终止：和机器重启一样,底层会自动4次挥手，文件描述符自动关</li>
+</ul>
+<blockquote>
+<p>在进程毫无准备的情况下，突然结束进程，<br>我们知道TCP 连接是通过socket进行的，socket本质就是打开了一个文件，文件就存在于PCB的文件描述符表之中，每次打开一个socket文件都会在文件描述符表添加一项，删除会减少的一项<br>当强制结束进程时，PCB没了，里面的文件描述符表也没了，就相当于自动关闭了，也依然会执行四次挥手的过程</p>
+</blockquote>
+<ul>
+<li><p>网线断开&#x2F;机器断电：断电时没有时间给操作系统去反应，来不及四次挥手，如果客户端断电，客户端不会给服务器发送任何数据，服务器会尝试重新连接，重连一定次数的话，就会放弃连接，接收端的连接还在，当接收端对我进行写入，会收到一个<code>reset</code>然后TCP 内不设置一个<code>保活定时器</code>（比较鸡肋），询问对方是否还在，不在就释放连接  </p>
+<p>但是最好不要把保活定时器作为一个应用层的工具，因为不同的应用层对于连接是否需要关闭是不一样的，比如QQ，在断线之后，也会定期尝试重新连接</p>
+</li>
+</ul>
+<h1 id="用UDP实现可靠传输"><a href="#用UDP实现可靠传输" class="headerlink" title="用UDP实现可靠传输"></a>用UDP实现可靠传输</h1><blockquote>
+<ul>
+<li>引入序列号：保证数据的顺序型</li>
+<li>引入确认应答机制：对端收到的数据都要进行应答</li>
+<li>超时重传：数据隔一段时间没收到进行重新传</li>
+<li>校验和：使用校验和，避免发送错误</li>
+<li>流量控制：对发送的数据进行管理</li>
+</ul>
+</blockquote>
+<p>TCP 太重了，udp比较轻量化</p>
+<h1 id="TCP相关实验"><a href="#TCP相关实验" class="headerlink" title="TCP相关实验"></a>TCP相关实验</h1><h2 id="理解Listen的第二个参数"><a href="#理解Listen的第二个参数" class="headerlink" title="理解Listen的第二个参数"></a>理解Listen的第二个参数</h2><p>listen第二个参数+1&#x3D;在TCP层建立正常连接的个数，不是只能在服务器段维护几个连接</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> *argv[])</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">if</span> (argc != <span class="hljs-number">2</span>)<br>    &#123;<br>        cout &lt;&lt; <span class="hljs-string">&quot;port&quot;</span> &lt;&lt; endl;<br>        <span class="hljs-built_in">exit</span>(<span class="hljs-number">1</span>);<br>    &#125;<br>    <span class="hljs-type">uint16_t</span> port = <span class="hljs-built_in">atoi</span>(argv[<span class="hljs-number">1</span>]);<br>    <span class="hljs-type">int</span> sockfd = Sock::<span class="hljs-built_in">Socket</span>();<br>    Sock::<span class="hljs-built_in">Setoptsocket</span>(sockfd);<br>    Sock::<span class="hljs-built_in">Bind</span>(sockfd, port);<br>    Sock::<span class="hljs-built_in">Listen</span>(sockfd);<br>    <span class="hljs-keyword">while</span> (<span class="hljs-number">1</span>)<br>    &#123;<br>	<span class="hljs-comment">//这里我们没有调用accept</span><br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/fc55a9ae21b14ae28a422829bffb08b8.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p><img src="https://img-blog.csdnimg.cn/571d1462387d4994b49b4e47fd138bad.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>Linux内核协议栈为一个TCP连接管理使用两个队列</p>
+<ol>
+<li><code>半连接队列</code>（用来保存处于SYN_RECV和SYN_SEND状态的请求），握手之中</li>
+<li><code>全连接队列</code>（acceptd队列）（用来保存处于established状态，但是应用层<strong>没有调用accept取走</strong>的请求，暂时没有被读取），握手成功</li>
+</ol>
+<p>全连接队列长度会受listen第二个参数影响（n+1）：长度至少为1</p>
+<p><strong>为什么要维护队列（全链接）？为什么这个队列不能过长？为什么这个队列不能没有？</strong></p>
+<p><img src="https://img-blog.csdnimg.cn/5d0c9ba731e04237898580e92928ccd2.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<blockquote>
+<ol>
+<li>上层的服务太忙了， 服务打满了，来不及去接收新的服务，只能让它在队列里面（避免内部资源没有被充分利用）</li>
+<li>当内部满的时候，一旦有人退出，就可以立马把队列里面的取走，保证内部资源被100%利用</li>
+<li>如果把队列弄太长了，维护队列也是有成本的，成本太高了，长时间链接没有反应，客户就会把服务关掉，把省出来的，让服务去使用，让服务以较高的效率提供服务</li>
+<li>listen就相等于在门口叫号的</li>
+</ol>
+</blockquote>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" class="category-chain-item">网络编程</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%BD%91%E7%BB%9C-tcp-ip-%E6%9C%8D%E5%8A%A1%E5%99%A8/">#网络 tcp/ip 服务器</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>TCP延申</div>
+      <div>http://example.com/2022/09/05/TCP延申/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zevin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年9月5日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/09/07/IP%E5%9F%BA%E7%A1%80%EF%BC%881%EF%BC%89/" title="IP基础（1）">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">IP基础（1）</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/09/05/TCP%E7%9A%84%E7%AE%A1%E7%90%86%E6%9C%BA%E5%88%B6%EF%BC%883%EF%BC%89/" title="TCP的管理机制（3）">
+                        <span class="hidden-mobile">TCP的管理机制（3）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","appKey":"javf3F1xk56WiY222ZrCxGt1","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

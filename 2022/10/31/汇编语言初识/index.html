@@ -1,0 +1,820 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zevin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="文章目录 汇编语言初始 缺点 优点 应用场景 汇编语言语言语法介绍  label operation comment   汇编指令操作对象  汇编指令编码格式    汇编语言初始汇编语言是一种低级的语言,这个语言更加接近硬件，可以绕开编译器的优化 缺点难移植：我们为x86写的汇编语言无法使用在ARM架构下，但是对于高级语言不存在这个问题，高级的语言可以适配在任何底层硬件架构之下 优点灵活：对于">
+<meta property="og:type" content="article">
+<meta property="og:title" content="汇编语言初识">
+<meta property="og:url" content="http://example.com/2022/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E5%88%9D%E8%AF%86/index.html">
+<meta property="og:site_name" content="Zevin-Blog">
+<meta property="og:description" content="文章目录 汇编语言初始 缺点 优点 应用场景 汇编语言语言语法介绍  label operation comment   汇编指令操作对象  汇编指令编码格式    汇编语言初始汇编语言是一种低级的语言,这个语言更加接近硬件，可以绕开编译器的优化 缺点难移植：我们为x86写的汇编语言无法使用在ARM架构下，但是对于高级语言不存在这个问题，高级的语言可以适配在任何底层硬件架构之下 优点灵活：对于">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/fc5d8382700049e2b91d1b6a758fe16a.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/9f0c1fa5dbb5435a905e3d8e0b949eed.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/992d680325e944fe86b04a9873861313.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/ad90fa38a4114b819baa76dd70bbffd5.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/29c359a177a348cb967618a299b3401b.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/5464506fd44e4555991e83e72ae0f399.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/8c65b5c7169f40cda1ee1230add7073a.jpg?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAWmV2aW5-,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="article:published_time" content="2022-10-31T01:56:06.000Z">
+<meta property="article:modified_time" content="2023-01-20T12:55:15.358Z">
+<meta property="article:author" content="Zevin">
+<meta property="article:tag" content="1024程序员节">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/fc5d8382700049e2b91d1b6a758fe16a.png">
+  
+  
+  
+  <title>汇编语言初识 - Zevin-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","app_key":"javf3F1xk56WiY222ZrCxGt1","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zevin-Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="汇编语言初识"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-10-31 09:56" pubdate>
+          2022年10月31日 上午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          1.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          16 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">汇编语言初识</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+
+<h3 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h3><ul>
+<li><a href="#_1">汇编语言初始</a></li>
+<li><a href="#_3">缺点</a></li>
+<li><a href="#_6">优点</a></li>
+<li><a href="#_10">应用场景</a></li>
+<li><a href="#_14">汇编语言语言语法介绍</a></li>
+<li><ul>
+<li><a href="#label_24">label</a></li>
+<li><a href="#operation_33">operation</a></li>
+<li><a href="#comment_50">comment</a></li>
+</ul>
+</li>
+<li><a href="#_53">汇编指令操作对象</a></li>
+<li><ul>
+<li><a href="#_71">汇编指令编码格式</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="汇编语言初始"><a href="#汇编语言初始" class="headerlink" title="汇编语言初始"></a>汇编语言初始</h1><p>汇编语言是一种<strong>低级</strong>的语言,这个语言更加接近硬件，可以绕开编译器的优化</p>
+<h1 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h1><p><code>难移植</code>：我们为<code>x86</code>写的汇编语言无法使用在<code>ARM</code>架构下，但是对于高级语言不存在这个问题，高级的语言可以适配在任何<strong>底层硬件架构</strong>之下</p>
+<h1 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h1><p><code>灵活</code>：对于高级语言，都要受限制于底层的编译器，<code>编译器</code>会对指令进行优化，但是因为汇编语言和硬件打交道，所以可以绕开编译器，做各种自己需要做的事情，不经过编译器的处理<br><code>强大</code>：可以直接对底层硬件进行控制</p>
+<h1 id="应用场景"><a href="#应用场景" class="headerlink" title="应用场景"></a>应用场景</h1><ul>
+<li>直接访问底层硬件的地方：如写一个操作系统驱动，操作硬件</li>
+<li>对性能极致的优化，不需要借助编译器进行优化</li>
+</ul>
+<h1 id="汇编语言语言语法介绍"><a href="#汇编语言语言语法介绍" class="headerlink" title="汇编语言语言语法介绍"></a>汇编语言语言语法介绍</h1><ul>
+<li>一个完整的RISC-V汇编程序有多条语法（statement）组成</li>
+<li>一条典型的RISC-V汇编语句包含<strong>3部分</strong>组成</li>
+</ul>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">[label:]  [operation] [comment]<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>.S</strong>里面会保护一些预处理的指令<br><strong>.s</strong>里面包含的就是纯粹的汇编指令<br><strong>.asm</strong>里面会有一些注释，其他内容都一样</p>
+</blockquote>
+<h2 id="label"><a href="#label" class="headerlink" title="label"></a>label</h2><p><code>label</code>可以理解为一个<strong>地址</strong>，不过给那个地址起了一个名字,任何以“**:<strong>”结尾都是label<br>例如：看下面的代码<br>我们在汇编里面没有</strong>函数名<strong>这个概念，函数名对应的就是该函数所在的地址，我们把这个地址命名为</strong>label**，所以我们用这个函数名就能够定位到我们需要的函数体里面<br><img src="https://img-blog.csdnimg.cn/fc5d8382700049e2b91d1b6a758fe16a.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>_start:<br>stop:<br>这两个都是label，其实都是对地址起了别名</p>
+<h2 id="operation"><a href="#operation" class="headerlink" title="operation"></a>operation</h2><p><strong>instruction(指令)</strong>：直接对应二进制机器指令的字符串<br><strong>pseudo-instruction（伪指令）</strong>：为了提高编写代码的效率，可以用一条伪指令指示汇编器产生的多条实际指令（instruction）</p>
+<blockquote>
+<p>伪指令，方便我们使用，类似就是把一个复杂的指令起了一个别名，汇编器能把他进行分解转化成真正的机器指令进行处理,<br>类似linux中alias ll&#x3D;ls -l<br>还有li，sw，lw这些其实都是把一些指令起了一个别名，方便我们使用，提高效率</p>
+</blockquote>
+<p><strong>directive（指示&#x2F;伪操作）</strong>：通过类似指令的形式（以“.”开头），通知汇编器如何控制代码的产生，不对应任何具体的指令，只是<strong>汇编器</strong>里面的东西<br><img src="https://img-blog.csdnimg.cn/9f0c1fa5dbb5435a905e3d8e0b949eed.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述">  </p>
+<p>.macro<br>.endm<br>.text<br>这些都是一个<strong>directive</strong></p>
+<p><strong>macro</strong>：采用.macro&#x2F;.endm自定义的宏，就类似于C语言的宏</p>
+<h2 id="comment"><a href="#comment" class="headerlink" title="comment"></a>comment</h2><p>#开头往后的所有内容都是注释</p>
+<h1 id="汇编指令操作对象"><a href="#汇编指令操作对象" class="headerlink" title="汇编指令操作对象"></a>汇编指令操作对象</h1><p><strong>寄存器</strong></p>
+<ul>
+<li>32个通用寄存器，x0～x31（RV32I（risc-v32位下的整数指令集）通用寄存器组），这里的每个寄存器都是32位</li>
+<li>在risc-v中hart在执行算术逻辑运算时所操作的数据必须来自寄存器<br><img src="https://img-blog.csdnimg.cn/992d680325e944fe86b04a9873861313.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></li>
+</ul>
+<blockquote>
+<p><strong>xlen&#x3D;32</strong>,因为是32位risc-v器，所以最低位为0,最高位为31<br><strong>x0</strong>这个寄存器是一个特殊寄存器，不能对他进行写操作，我们读取出来的数据一定是<strong>0</strong><br>其他寄存器都是可读可写的<br>pc寄存器，是不能进行访问的，内部是原来保存当前程序执行到哪个位置 的概念program counter，程序计算器</p>
+</blockquote>
+<blockquote>
+<p><strong>hart</strong>在执行算术逻辑运算时所操作的数据必须来自寄存器，处理完数据之后，先放到寄存器里面，保存下来，也要从寄存器里面再搬出去，放到别的地方去</p>
+</blockquote>
+<p><strong>内存</strong></p>
+<ul>
+<li>Hart可以执行在寄存器和内存之间的数据读写的操作</li>
+<li>读写操作使用字节为基本单位进行寻址</li>
+<li>rv32最多可以访问2^32个字节的内存空间</li>
+</ul>
+<h2 id="汇编指令编码格式"><a href="#汇编指令编码格式" class="headerlink" title="汇编指令编码格式"></a>汇编指令编码格式</h2><p><img src="https://img-blog.csdnimg.cn/ad90fa38a4114b819baa76dd70bbffd5.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<blockquote>
+<ol>
+<li>指令长度：<strong>ILEN1</strong>=32bits</li>
+<li>指令对齐：<strong>IALIGN</strong>=32bits</li>
+<li>32个bit划分成不同的<strong>域（field）</strong></li>
+<li>func3&#x2F;func7和opcode共同决定了最终的指令类型</li>
+<li>指令在内存中按照<strong>小端序</strong>排列</li>
+</ol>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/29c359a177a348cb967618a299b3401b.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>这个是对opcode7个bit位的描述</p>
+<blockquote>
+<p>opcode最后两位都是11<br>[2,4]位为一组<br>[5,6]为一组<br>我们观察上面add的opcode[2,4]&#x3D;100,[5,6]&#x3D;01,对比下面的指令，我们发现他对应的就是OP，说明ADD是一个基本指令<br><img src="https://img-blog.csdnimg.cn/5464506fd44e4555991e83e72ae0f399.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>6种指令格式</p>
+<ul>
+<li>R-TYPE：每条指令中有<strong>3个field</strong>*，用于指定<strong>3个寄存器参数</strong>，rs，rd</li>
+</ul>
+<blockquote>
+<p>rs:register source ,rd:register destination,例如a+b&#x3D;c，则rs里面存放a，b；rd里面存放的是c，使用5个bit，代表是32位</p>
+</blockquote>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/8c65b5c7169f40cda1ee1230add7073a.jpg?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAWmV2aW5-,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>常见的伪指令可以查看risc-v：25章</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/RISC-V%E6%B1%87%E7%BC%96/" class="category-chain-item">RISC_V汇编</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/1024%E7%A8%8B%E5%BA%8F%E5%91%98%E8%8A%82/">#1024程序员节</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>汇编语言初识</div>
+      <div>http://example.com/2022/10/31/汇编语言初识/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zevin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年10月31日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/10/31/%E6%B1%87%E7%BC%96%E8%AF%AD%E8%A8%80%E6%8C%87%E4%BB%A4/" title="汇编语言指令">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">汇编语言指令</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/10/25/MySQL%E8%A1%A5%E5%85%85%E7%9F%A5%E8%AF%86/" title="MySQL补充知识">
+                        <span class="hidden-mobile">MySQL补充知识</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","appKey":"javf3F1xk56WiY222ZrCxGt1","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

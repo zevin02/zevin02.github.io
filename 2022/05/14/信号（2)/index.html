@@ -1,0 +1,864 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zevin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="文章目录 递达-阻塞-未决 信号表 sigset_t sig函数  sigprocmask   sigpending 信号发送后  sigaction   volatile  递达-阻塞-未决 实际执行信号的处理动作叫做信号递达（delivery）   信号处理方式  自定义 默认 忽略    信号从产生到递达之间的状态叫做信号未决（pending）   本质上就是这个信号被暂存在task_s">
+<meta property="og:type" content="article">
+<meta property="og:title" content="信号（2)">
+<meta property="og:url" content="http://example.com/2022/05/14/%E4%BF%A1%E5%8F%B7%EF%BC%882)/index.html">
+<meta property="og:site_name" content="Zevin-Blog">
+<meta property="og:description" content="文章目录 递达-阻塞-未决 信号表 sigset_t sig函数  sigprocmask   sigpending 信号发送后  sigaction   volatile  递达-阻塞-未决 实际执行信号的处理动作叫做信号递达（delivery）   信号处理方式  自定义 默认 忽略    信号从产生到递达之间的状态叫做信号未决（pending）   本质上就是这个信号被暂存在task_s">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/690f0d03dab44bc2ac22c2a0f4b84238.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/7bc83271c5b14863a28d7fc7e505d919.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/60d23978367647a3b92a6a0446a91097.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/e90a37ac0c5043aa827423806b9392b8.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/b3de7266a24746c8b61b00e2ae573c12.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/23bc5eaa8b7e4324981e7b4fc69047d6.png">
+<meta property="article:published_time" content="2022-05-14T14:50:05.000Z">
+<meta property="article:modified_time" content="2023-01-20T12:55:15.358Z">
+<meta property="article:author" content="Zevin">
+<meta property="article:tag" content="网络 linux c语言 服务器">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/690f0d03dab44bc2ac22c2a0f4b84238.png">
+  
+  
+  
+  <title>信号（2) - Zevin-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","app_key":"javf3F1xk56WiY222ZrCxGt1","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zevin-Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="信号（2)"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-05-14 22:50" pubdate>
+          2022年5月14日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.5k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          55 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">信号（2)</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+
+<h3 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h3><ul>
+<li><a href="#_1">递达-阻塞-未决</a></li>
+<li><a href="#_24">信号表</a></li>
+<li><a href="#sigset_t_71">sigset_t</a></li>
+<li><a href="#sig_74">sig函数</a></li>
+<li><ul>
+<li><a href="#sigprocmask_83">sigprocmask</a></li>
+</ul>
+</li>
+<li><a href="#sigpending_140">sigpending</a></li>
+<li><a href="#_237">信号发送后</a></li>
+<li><ul>
+<li><a href="#sigaction_266">sigaction</a></li>
+</ul>
+</li>
+<li><a href="#volatile_324">volatile</a></li>
+</ul>
+<h1 id="递达-阻塞-未决"><a href="#递达-阻塞-未决" class="headerlink" title="递达-阻塞-未决"></a>递达-阻塞-未决</h1><ul>
+<li>实际执行信号的处理动作叫做信号递达（delivery）</li>
+</ul>
+<blockquote>
+<p>信号处理方式</p>
+<ol>
+<li>自定义</li>
+<li>默认</li>
+<li>忽略</li>
+</ol>
+</blockquote>
+<ul>
+<li>信号从产生到递达之间的状态叫做信号未决（pending）</li>
+</ul>
+<blockquote>
+<p>本质上就是这个信号被暂存在task_struct 信号位图里面，未决<br>我先不知道咋搞，先保存着</p>
+</blockquote>
+<ul>
+<li>进程可以阻塞（block）某个信号</li>
+</ul>
+<blockquote>
+<p>本质是OS允许进程暂时<strong>屏蔽</strong>指定的信号，<br>阻塞过程中</p>
+<ol>
+<li>该信号依旧是未决的</li>
+<li>该信号不会被递达，直到解除阻塞，才可以递达</li>
+</ol>
+</blockquote>
+<p>忽略和阻塞有区别吗？</p>
+<blockquote>
+<p>区别特别大，忽略是递达的一种方式<br>阻塞是没有被递达，一个独立状态，解除阻塞后可以被忽略、</p>
+</blockquote>
+<h1 id="信号表"><a href="#信号表" class="headerlink" title="信号表"></a>信号表</h1><p>在信号当中是有3张表格的<br>分别是handler，pending，block</p>
+<p>pending表:确认一个进程是否收到信号<br>handler表</p>
+<blockquote>
+<p>void (*handler[32])(int):函数指针数组，里面放的就是一个一个的函数指针</p>
+</blockquote>
+<ul>
+<li><p>pending ：比特位的位置代表是哪一个信号，比特位位置的0，1代表是否收到了信号<br>1代表收到了信号但处于未决状态(还未递达)，0代表没收到信号，或者已经递达了</p>
+</li>
+<li><p>block表：本质上也是叫做位图结构，uint32_t block:（也叫做<strong>信号屏蔽字</strong>），比特位的位置代表信号的编号，比特位的内容代表信号是否被屏蔽阻塞，阻塞的信号无法被递达，</p>
+</li>
+</ul>
+<p>伪代码如下：</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">bool</span> <span class="hljs-title function_">ishandler</span><span class="hljs-params">(<span class="hljs-type">int</span> signo)</span><br>&#123;<br><span class="hljs-keyword">if</span>(block&amp;sig)<br>&#123;<br><span class="hljs-comment">//根本就不看是否收到该型号</span><br>&#125;<br><span class="hljs-keyword">else</span><br>&#123;<br><span class="hljs-comment">//该信号没有被block</span><br><span class="hljs-keyword">if</span>(signo&amp;pending)<br>&#123;<br><span class="hljs-comment">//说明没有被 blockl，而且已经收到了，可以调用这个型号了</span><br>handler_arr[signo](signo);<span class="hljs-comment">//执行对应的回调方法</span><br><span class="hljs-keyword">return</span> <span class="hljs-literal">true</span>;<br>&#125;<br>&#125;<br><br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>进程通过这三张表是可以识别信号的，<br><img src="https://img-blog.csdnimg.cn/690f0d03dab44bc2ac22c2a0f4b84238.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>不要认为只有接口才可以算是system call 的接口<br>我们也要意识到，OS 也会给用户提供数据类型，</p>
+<h1 id="sigset-t"><a href="#sigset-t" class="headerlink" title="sigset_t"></a>sigset_t</h1><p>信号集，未决和阻塞标志可以使用相同的数据类型<strong>sigset_t</strong> 来存储，这个类型可以标识每个信号状态处于何种状态（阻塞还是未决），阻塞信号集也叫当前进程的信号屏蔽字，这里的屏蔽应该是阻塞而不是忽略</p>
+<h1 id="sig函数"><a href="#sig函数" class="headerlink" title="sig函数"></a>sig函数</h1><blockquote>
+<p>int sigemptyset(sigset_t * set); 把所有的比特位全部置0，<br>int sigfillset(sigset_t * set)把所有的比特位全部置1<br>int sigaddset(sigset_t* set,int signo )把特定的信号加入到位图当中<br>int sigdelset(sigset_t *set,int signo)把特定的信号在位图当中去掉<br>int sigismember(const sigset_t *set,int signo)检查在位图当中是否有这个信号（成功放回1，失败放回0）</p>
+</blockquote>
+<h2 id="sigprocmask"><a href="#sigprocmask" class="headerlink" title="sigprocmask"></a>sigprocmask</h2><p>统一修改的是block位图</p>
+<blockquote>
+<p>int sigprocmask(int how,sigset* set,sigset* oset)<br>成功返回0，失败返回-1</p>
+</blockquote>
+<blockquote>
+<p>set是一个输入型参数（把我们要的数据传进去），我们自己设置好的<br>oset是一个输出型参数（返回老的信号屏蔽字—block位图），没有修改之前的屏蔽字</p>
+</blockquote>
+<p>how(修改的方法)：</p>
+<ul>
+<li>SIG_UNBLOCK：set里面包含了我们希望当前信号屏蔽字中解除的信号，相当于mask&#x3D;mask&amp;~set</li>
+<li>SIG_BLOCK:set里面包含了我们希望添加到信号屏蔽字中的信号</li>
+<li>SIG_SETMASK:设置当前信号屏蔽字为set所指向的值，相当于mask&#x3D;set</li>
+</ul>
+<p>9号信号没有被屏蔽掉</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;unistd.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;signal.h&gt;</span></span><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-comment">//虽然sigset_t  是一个位图结构，但是不同的OS 实现是不一样的，不能让用户使用直接修改该变量，</span><br>    <span class="hljs-comment">//需要使用特定的函数，</span><br><br>    <span class="hljs-comment">//这里的set是一个变量，所以这个set在哪里保存着呢</span><br>    <span class="hljs-comment">//set是一个变量，也是在栈空间保存着</span><br>    <span class="hljs-comment">//用户栈上保存（地址空间）    </span><br>    <span class="hljs-type">sigset_t</span> iset,oset;<span class="hljs-comment">//有了这个类型</span><br>    <span class="hljs-comment">// set | =1;</span><br>    <span class="hljs-comment">//外面必须使用set对应的接口函数</span><br>    <span class="hljs-built_in">sigemptyset</span>(&amp;iset);<span class="hljs-comment">//清空</span><br>    <span class="hljs-built_in">sigemptyset</span>(&amp;oset);<br><br>    <span class="hljs-comment">//外面想对2，5，6三个信号做屏蔽</span><br>    <span class="hljs-built_in">sigaddset</span>(&amp;iset,<span class="hljs-number">2</span>);<span class="hljs-comment">//把2号信号添加进去</span><br>    <span class="hljs-built_in">sigaddset</span>(&amp;iset,<span class="hljs-number">9</span>);<span class="hljs-comment">//把2号信号添加进去,9号信号无法被屏蔽掉的</span><br><br>    <span class="hljs-comment">//设置当前信号的屏蔽字</span><br>    <span class="hljs-comment">//获取当前进程老的屏蔽字</span><br>    <span class="hljs-comment">// sigprocmask(SIG_SETMASK,&amp;iset,&amp;oset);//把2号信号给屏蔽掉了</span><br>    <span class="hljs-built_in">sigprocmask</span>(SIG_UNBLOCK,&amp;iset,&amp;oset);<span class="hljs-comment">//把2号信号给屏蔽掉了</span><br>    <span class="hljs-built_in">sigprocmask</span>(SIG_BLOCK,&amp;iset,&amp;oset);<span class="hljs-comment">//把2号信号给屏蔽掉了</span><br>    <span class="hljs-comment">//ctrl c 给屏蔽掉了，不会被递达的</span><br>     <br>    <span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>)<br>    &#123;<br>        cout&lt;&lt;<span class="hljs-string">&quot;hello&quot;</span>&lt;&lt;endl;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h1 id="sigpending"><a href="#sigpending" class="headerlink" title="sigpending"></a>sigpending</h1><p>int sigpending(set_t *set)<br>,输出型参数<br>不对pending位图进行修改，而只是单纯的获得pending位图<br>（类似waitpid里的status）<br>pendind位图不是让我们修改的，而是OS，我们只需要获取就可以了</p>
+<p>如果我们的进程先屏蔽掉2号信号，再不断的获取当前进程的pending表，然后手动发送2号信号，因为2号信号不会被递达，所以，不会的获取当前进程的pending位图，打印出（00000010），发送后不能被递达就会永远保留再pending位图里面</p>
+<p>signal就是修改handler表</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;unistd.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;iostream&gt;</span></span><br><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;signal.h&gt;</span></span><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><br><br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">showpend</span><span class="hljs-params">(<span class="hljs-type">sigset_t</span>&amp; pending)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-comment">//检测一下信号是否存在在里面</span><br>    <span class="hljs-type">int</span> i=<span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">for</span>(i=<span class="hljs-number">1</span>;i&lt;<span class="hljs-number">32</span>;i++)<br>    &#123;<br>        <span class="hljs-keyword">if</span>(<span class="hljs-built_in">sigismember</span>(&amp;pending,i))<span class="hljs-comment">//成功放回1，失败放回0，</span><br>        &#123;<br>            <span class="hljs-comment">//检查信号是否存在pending位图里面</span><br>            cout&lt;&lt;<span class="hljs-string">&quot;1&quot;</span>;<br>        &#125;<br>        <span class="hljs-keyword">else</span><br>        &#123;<br>            cout&lt;&lt;<span class="hljs-string">&quot;0&quot;</span>;<br>        &#125;<br>    &#125;<br>    cout&lt;&lt;endl;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">handler</span><span class="hljs-params">(<span class="hljs-type">int</span> signo)</span></span><br><span class="hljs-function"></span>&#123;<br>    cout&lt;&lt;<span class="hljs-string">&quot;2号信号被递达了，已经完成了处理 &quot;</span>&lt;&lt;signo&lt;&lt;endl;<br>&#125;<br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-comment">//虽然sigset_t  是一个位图结构，但是不同的OS 实现是不一样的，不能让用户使用直接修改该变量，</span><br>    <span class="hljs-comment">//需要使用特定的函数，</span><br><br>    <span class="hljs-comment">//这里的set是一个变量，所以这个set在哪里保存着呢</span><br>    <span class="hljs-comment">//set是一个变量，也是在栈空间保存着</span><br>    <span class="hljs-comment">//用户栈上保存（地址空间）  </span><br><br><br>    <span class="hljs-built_in">signal</span>(<span class="hljs-number">2</span>,handler);<span class="hljs-comment">//捕捉一下2号信号  </span><br>    <span class="hljs-type">sigset_t</span> iset,oset;<span class="hljs-comment">//有了这个类型</span><br>    <span class="hljs-comment">// set | =1;</span><br>    <span class="hljs-comment">//外面必须使用set对应的接口函数</span><br>    <span class="hljs-built_in">sigemptyset</span>(&amp;iset);<span class="hljs-comment">//清空</span><br>    <span class="hljs-built_in">sigemptyset</span>(&amp;oset);<br><br>    <span class="hljs-comment">//外面想对2，5，6三个信号做屏蔽</span><br>    <span class="hljs-built_in">sigaddset</span>(&amp;iset,<span class="hljs-number">2</span>);<span class="hljs-comment">//把2号信号添加进去</span><br>    <span class="hljs-comment">// sigaddset(&amp;iset,9);//把2号信号添加进去,9号信号无法被屏蔽掉的</span><br><br>    <span class="hljs-comment">//设置当前信号的屏蔽字</span><br>    <span class="hljs-comment">//获取当前进程老的屏蔽字</span><br>    <span class="hljs-built_in">sigprocmask</span>(SIG_SETMASK,&amp;iset,&amp;oset);<span class="hljs-comment">//把2号信号给屏蔽掉了</span><br>    <span class="hljs-comment">// sigprocmask(SIG_UNBLOCK,&amp;iset,&amp;oset);//把2号信号给解除屏蔽了</span><br>    <span class="hljs-comment">// sigprocmask(SIG_BLOCK,&amp;iset,&amp;oset);//把2号信号给屏蔽掉了</span><br>    <span class="hljs-comment">//ctrl c 给屏蔽掉了，不会被递达的</span><br>    <span class="hljs-type">sigset_t</span> pending;<br>    <span class="hljs-type">int</span> cnt=<span class="hljs-number">0</span>;<br>    <span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>)<br>    &#123;<br>        <br>        <span class="hljs-built_in">sigemptyset</span>(&amp;pending);<span class="hljs-comment">//把他里面的数据都给他清空一下</span><br>        <span class="hljs-built_in">sleep</span>(<span class="hljs-number">1</span>);<br>        <span class="hljs-built_in">sigpending</span>(&amp;pending);<span class="hljs-comment">//获取了pending位图</span><br>        <span class="hljs-built_in">showpend</span>(pending);<br>        cout&lt;&lt;<span class="hljs-string">&quot;hello&quot;</span>&lt;&lt;endl;<br>        cnt++;<br>        <span class="hljs-keyword">if</span>(cnt==<span class="hljs-number">10</span>)<br>        &#123;<br>            <span class="hljs-comment">//把2号信号解除屏蔽</span><br>            <span class="hljs-comment">//老的屏蔽字没有对2号进行屏蔽</span><br>            <span class="hljs-comment">//在这之前2号信号都已经被屏蔽掉了，所以前面用ctrl c是没什么用的</span><br>            <span class="hljs-built_in">sigprocmask</span>(SIG_SETMASK,&amp;oset,<span class="hljs-literal">NULL</span>);<span class="hljs-comment">//在这里之后才可以有用的</span><br>            cout&lt;&lt;<span class="hljs-string">&quot;恢复对2号屏蔽字的使用,可以被递达了&quot;</span>&lt;&lt;endl;<br>            <span class="hljs-comment">//被递达了之后，又会,我们无法看到恢复屏蔽，2号信号的默认动作是终止进程，所以看不到现象</span><br>        &#125;<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h1 id="信号发送后"><a href="#信号发送后" class="headerlink" title="信号发送后"></a>信号发送后</h1><p>信号是在合适的时候处理，因为信号的产生是异步的，也就意味着当前进程可能正在做更重要的事情，<br>信号可以延时处理（取决于OS和进程）</p>
+<p>什么是”合适“的时候，因为信号是保存在进程的PCB中，pending位图里面，检测，处理（检测，忽略，自定义）<br>当进程从<strong>内核态</strong>放回到<strong>用户态</strong>的时候，进行上面的检测并处理工作</p>
+<blockquote>
+<ul>
+<li>内核态：执行OS 的代码和数据时候，计算机所处于的状态就叫做内核态，OS的代码的执行全部都是在内核态</li>
+<li>用户态：用户代码和数据被访问或者执行的时候，所处于的状态，我们自己写的代码全部都是在用户态中执行的，</li>
+</ul>
+</blockquote>
+<p>主要是权限大小的区别</p>
+<p>我们很经常在用户态调到内核态，再从内核态转移到用户态：系统调用（open），从普通用户变成了一个<br>用户调用系统函数的时候，除了进入函数，还有身份的变化，从用户的身份变成内核的身份。</p>
+<p><img src="https://img-blog.csdnimg.cn/7bc83271c5b14863a28d7fc7e505d919.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>死循环：也有可能进入内核态，因为死循环太久了，就被OS 给回收了，这个之后就执行了进程替换，一定会有用户到内核，内核到用户<br>信号的处理流程</p>
+<p><img src="https://img-blog.csdnimg.cn/60d23978367647a3b92a6a0446a91097.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p><img src="https://img-blog.csdnimg.cn/e90a37ac0c5043aa827423806b9392b8.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>为何一定要切换成为用户态，才能执行信号捕捉方法，<br>OS 是可以执行用户的代码，但是OS 不相信任何人，轻易不执行别人的代码，身份特殊，不能直接执行用户的代码<br>（用户做了不合理的动作，那OS 也能搞它的代码，很危险）</p>
+<h2 id="sigaction"><a href="#sigaction" class="headerlink" title="sigaction"></a>sigaction</h2><p>和signal差不多<br>修改的是handler函数指针数组（handler表）<br>信号捕捉，注册信号，对特定的信号进行处理</p>
+<blockquote>
+<p>#include&lt;signal.h&gt;<br>int sigaction(int signo,const struct sigaction* act,struct sigaction* oact)</p>
+</blockquote>
+<p>act 是一个输入型参数（把动作方法填到这里面）<br>oact是一个输出型参数（带回老的信号，不想要的设置位nullptr）</p>
+<blockquote>
+<p>struct sigaction {<!-- --><br>void (*sa_handler)(int);&#x2F;&#x2F;方法<br><del>void (*sa_sigaction)(int, siginfo_t *, void *);&#x2F;&#x2F;实时信号</del><br>sigset_t sa_mask;<br><del>int sa_flags;&#x2F;&#x2F;选项</del><br><del>void (*sa_restorer)(void);&#x2F;&#x2F;实时信号</del><br>};</p>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;signal.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;unistd.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;cstring&gt;</span></span><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><br><br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">handler</span><span class="hljs-params">(<span class="hljs-type">int</span> signo)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-comment">//信号捕捉动作</span><br>    cout&lt;&lt;<span class="hljs-string">&quot;signo=&quot;</span>&lt;&lt;signo&lt;&lt;endl;<br>&#125;<br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">struct</span> <span class="hljs-title class_">sigaction</span> act;<span class="hljs-comment">//定义了一个sigaction类型</span><br>    <span class="hljs-built_in">memset</span>(&amp;act,<span class="hljs-number">0</span>,<span class="hljs-built_in">sizeof</span>(act));<br>    act.sa_handler=handler;<br>    <span class="hljs-built_in">sigaction</span>(<span class="hljs-number">2</span>,&amp;act,<span class="hljs-literal">nullptr</span>);<span class="hljs-comment">//对2号信号进行注册了</span><br>    <span class="hljs-comment">//本质是修改当前进程的handler函数指针数组特定的内容</span><br>    <span class="hljs-keyword">while</span>(<span class="hljs-literal">true</span>)<br>    &#123;<br>        cout&lt;&lt;<span class="hljs-string">&quot;hello &quot;</span>&lt;&lt;endl;<br>        <span class="hljs-built_in">sleep</span>(<span class="hljs-number">1</span>);<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/b3de7266a24746c8b61b00e2ae573c12.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>信号捕捉特性</p>
+<blockquote>
+<ol>
+<li>当我们处理某一个函数调用的时候，首先要把要执行的信号先加到屏蔽字里面，当信号处理函数返回的时候就自动恢复原来的信号屏蔽字，这样就保证了再处理信号时，如果这种信号再次产生，它就会被阻塞到处理完为止。（<strong>如果我们收到一个信号但是不屏蔽它，再信号处理函数内部，再收到信号，handler方法就会被不断的被调用，处理完才能处理下一个</strong>）</li>
+<li>如果再调用信号处理函数时，除了当前信号被自动屏蔽之外，<strong>还希望自动屏蔽另外的一些信号</strong>，则用sa_mask字段说明这些需要额外屏蔽的信号，当信号处理函数返回时，会自动恢复</li>
+</ol>
+</blockquote>
+<h1 id="volatile"><a href="#volatile" class="headerlink" title="volatile"></a>volatile</h1><p>gcc volatile.c -O3( 编译器优化 )</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;signal.h&gt;</span></span><br><span class="hljs-keyword">volatile</span> <span class="hljs-type">int</span> flag=<span class="hljs-number">0</span>;<span class="hljs-comment">//内存里面读取flag，来检测flag</span><br><br><br><span class="hljs-type">void</span> <span class="hljs-title function_">handler</span><span class="hljs-params">(<span class="hljs-type">int</span> signo)</span><br>&#123;<br>    flag=<span class="hljs-number">1</span>;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;change flag 0 to 1\n&quot;</span>);<br>&#125;<br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span><br>&#123;<br>    signal(<span class="hljs-number">2</span>,handler);<br>    <span class="hljs-keyword">while</span>(!flag);<span class="hljs-comment">//发送2号信号之后就会停止循环</span><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;这个进程是正常退出的\n&quot;</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>编译器优化之后，直接把flag放到了cpu寄存器上面，不在内存里面了<br>但是在signal调用函数的时候修改了flag，这个是对内存当中的flag修改<br>cpu检测都不是内存，所以我们无论怎么ctrl c都不会退出<br>cpu访问内存就被屏蔽掉了</p>
+<p>而我们加入volatile之后，<br>作用：告诉编译器，不要对我这个变量做任何优化，读取必须是贯穿模式的从内存到cpu，不要读取中间缓冲区寄存器中的数据，永远都能看到内存，<br>保持内存的可见性</p>
+<p><img src="https://img-blog.csdnimg.cn/23bc5eaa8b7e4324981e7b4fc69047d6.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%BD%91%E7%BB%9C-linux-c%E8%AF%AD%E8%A8%80-%E6%9C%8D%E5%8A%A1%E5%99%A8/">#网络 linux c语言 服务器</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>信号（2)</div>
+      <div>http://example.com/2022/05/14/信号（2)/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zevin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年5月14日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/05/18/c++%E5%A4%9A%E6%80%81/" title="c++多态">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">c++多态</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/05/05/C++%E7%BB%A7%E6%89%BF/" title="C++继承">
+                        <span class="hidden-mobile">C++继承</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","appKey":"javf3F1xk56WiY222ZrCxGt1","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

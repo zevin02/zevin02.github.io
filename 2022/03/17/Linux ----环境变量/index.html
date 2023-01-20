@@ -1,0 +1,846 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zevin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="文章目录 进程的相关概念 环境变量  常见的环境变量 获得环境变量 环境变量通常具有全局属性    进程的相关概念 竞争性：系统进程数目众多，而CPU 资源只有少量，甚至1个，所以进程之间具有竞争属性，为了高效的完成任务，就有了优先级 独立性：进程本身具有独立性，打开如何软件其他软件都不会受影响，需要独享资源，多个进程之间互不干扰 并行：多个进程再多个CPU 下分别，同时运行 并发：多个进程在">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux ----环境变量">
+<meta property="og:url" content="http://example.com/2022/03/17/Linux%20----%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/index.html">
+<meta property="og:site_name" content="Zevin-Blog">
+<meta property="og:description" content="文章目录 进程的相关概念 环境变量  常见的环境变量 获得环境变量 环境变量通常具有全局属性    进程的相关概念 竞争性：系统进程数目众多，而CPU 资源只有少量，甚至1个，所以进程之间具有竞争属性，为了高效的完成任务，就有了优先级 独立性：进程本身具有独立性，打开如何软件其他软件都不会受影响，需要独享资源，多个进程之间互不干扰 并行：多个进程再多个CPU 下分别，同时运行 并发：多个进程在">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/0c618f9274eb410db05c3232d4a1223e.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_17,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/46c73704cc4b4fd3a183c0d796006c49.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/1cfe05d6ef4a4171b6454bc6bec12ecf.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/1c2d04a3863e4e30ae112905cd18e0ae.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/d60b5951ce934debbae35504a2f05f08.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/58cd078b76474504bee50140aa63ab9e.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/d08da37af75b430f8ae322017b10913d.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/35b10088e3824d339ef8408a291498c7.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/4ba3795297a2457aac9bffeb720a1727.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/0070fecfa1f648cc9c22f9a8c85ed57c.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/9941130722cf4d4eaf735d7775e27b4e.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/6746a9c74d794b33b91e4d7d12e730ee.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/b6f3c4a075714fc38e5d9442a84fd716.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/3eff0b0f38214ff4a8e004dcce94e921.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/138f6b28690e42c8b1d5d05a45b255ce.png">
+<meta property="article:published_time" content="2022-03-17T08:00:19.000Z">
+<meta property="article:modified_time" content="2023-01-20T12:55:15.358Z">
+<meta property="article:author" content="Zevin">
+<meta property="article:tag" content="linux 运维 服务器">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/0c618f9274eb410db05c3232d4a1223e.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_17,color_FFFFFF,t_70,g_se,x_16">
+  
+  
+  
+  <title>Linux ----环境变量 - Zevin-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","app_key":"javf3F1xk56WiY222ZrCxGt1","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zevin-Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Linux ----环境变量"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-03-17 16:00" pubdate>
+          2022年3月17日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          18 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Linux ----环境变量</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+
+<h3 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h3><ul>
+<li><a href="#_3">进程的相关概念</a></li>
+<li><a href="#_10">环境变量</a></li>
+<li><ul>
+<li><a href="#_48">常见的环境变量</a></li>
+<li><a href="#_139">获得环境变量</a></li>
+<li><a href="#_200">环境变量通常具有全局属性</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="进程的相关概念"><a href="#进程的相关概念" class="headerlink" title="进程的相关概念"></a>进程的相关概念</h1><ul>
+<li><strong>竞争性</strong>：系统进程数目众多，而CPU 资源只有少量，甚至1个，所以进程之间具有竞争属性，为了高效的完成任务，就有了优先级</li>
+<li><strong>独立性</strong>：进程本身具有独立性，打开如何软件其他软件都不会受影响，需要独享资源，多个进程之间互不干扰</li>
+<li><strong>并行</strong>：多个进程再多个CPU 下分别，同时运行</li>
+<li><strong>并发</strong>：多个进程在一个CPU 下采用切换的方式，在一个时间段，多个进程都得以推进</li>
+</ul>
+<h1 id="环境变量"><a href="#环境变量" class="headerlink" title="环境变量"></a>环境变量</h1><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs cpp">  <span class="hljs-number">1</span> <span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdio.h&gt;</span></span><br>  <span class="hljs-number">2</span> <span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;unistd.h&gt;</span></span><br>  <span class="hljs-number">3</span> <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function">  4 </span>&#123;<br>  <span class="hljs-number">5</span>   <span class="hljs-type">int</span> cnt=<span class="hljs-number">5</span>;<br>  <span class="hljs-number">6</span>   <span class="hljs-keyword">while</span>(cnt--)<br>  <span class="hljs-number">7</span>   &#123;<br>  <span class="hljs-number">8</span>   ¦<span class="hljs-comment">// printf(&quot;I am a process ,pid %d,ppid %d\n&quot;,getpid(),getppid());</span><br>  <span class="hljs-number">9</span>   ¦ <span class="hljs-built_in">sleep</span>(<span class="hljs-number">1</span>);<br> <span class="hljs-number">10</span>   ¦ <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;I am a cmd --&gt;process\n&quot;</span>);<br> <span class="hljs-number">11</span>                                                                                                                    <br> <span class="hljs-number">12</span>   &#125;<br> <span class="hljs-number">13</span>   <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br> <span class="hljs-number">14</span> &#125;<br>~<br><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/0c618f9274eb410db05c3232d4a1223e.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_17,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<blockquote>
+<p>这些命令，程序工……本质上都是可执行的文件</p>
+<p>那么我们运行的时候，为何要.&#x2F;???</p>
+</blockquote>
+<blockquote>
+<p>.&#x2F;可以帮助系统确认对应的程序在哪里</p>
+<p>那么为什么系统的命令不需要带路径呢？</p>
+<blockquote>
+<p>就是因为有环境变量</p>
+</blockquote>
+</blockquote>
+<h2 id="常见的环境变量"><a href="#常见的环境变量" class="headerlink" title="常见的环境变量"></a>常见的环境变量</h2><ul>
+<li>PATH ：指定命令的搜索路径</li>
+</ul>
+<p>echo $PATH</p>
+<p>显示某个环境变量值，在这个环境变量里面的可执行文件就可以直接运行执行</p>
+<p><img src="https://img-blog.csdnimg.cn/46c73704cc4b4fd3a183c0d796006c49.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>export</p>
+<p><strong>添加设置一个新的环境变量</strong>，这样我们自己写的myproc就可以直接运行了<br><img src="https://img-blog.csdnimg.cn/1cfe05d6ef4a4171b6454bc6bec12ecf.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p><img src="https://img-blog.csdnimg.cn/1c2d04a3863e4e30ae112905cd18e0ae.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>将本地变量导成环境变量</p>
+<ul>
+<li><p>set</p>
+<p>显示本地定义的shell命令和环境变量</p>
+</li>
+<li><p>unset</p>
+<p>清除环境变量<br><img src="https://img-blog.csdnimg.cn/d60b5951ce934debbae35504a2f05f08.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+</li>
+<li><p>HOME</p>
+<p>指定用户的主目录<br><img src="https://img-blog.csdnimg.cn/58cd078b76474504bee50140aa63ab9e.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+</li>
+<li><p>env</p>
+</li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/d08da37af75b430f8ae322017b10913d.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>显示所有的环境变量</p>
+<ul>
+<li>echo 显示某个环境变量的值</li>
+</ul>
+<p>语言上面定义变量：本质上是在内存中开辟一个空间</p>
+<blockquote>
+<p>环境变量本质上，<strong>OS</strong> 在<strong>内存&#x2F;磁盘文件</strong>中<strong>给自己开辟的空间</strong>，用来<strong>保存系统相关的数据</strong></p>
+</blockquote>
+<p>环境变量</p>
+<p>：变量名+变量内容（a，10）</p>
+<p>系统上还有一种变量，是与本次登录有关的变量，只在本次登录有效，叫做本地变量</p>
+<p>以空格为分隔符，每个都看作字符串，argv[0]&#x3D;当前目录，程序的名字，最后一个元素指向NULL</p>
+<p>argc决定有几个有效的元素</p>
+<p><img src="https://img-blog.csdnimg.cn/35b10088e3824d339ef8408a291498c7.png" srcset="/img/loading.gif" lazyload alt="[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-eduG3KHr-1647503602595)(E:/Typora%E4%BA%91%E7%AC%94%E8%AE%B0%E6%9C%AC/picture/image-20220316130008181.png)]"></p>
+<h2 id="获得环境变量"><a href="#获得环境变量" class="headerlink" title="获得环境变量"></a>获得环境变量</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-number">1</span> <span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdio.h&gt;</span></span><br> <span class="hljs-number">2</span> <span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;unistd.h&gt;</span></span><br> <span class="hljs-number">3</span> <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc ,<span class="hljs-type">char</span>* argv[],<span class="hljs-type">char</span> *env[])</span><span class="hljs-comment">//可以获得环境变量的字符串数组，和argv相类似</span></span><br><span class="hljs-function"> 4   <span class="hljs-comment">//argv是一个字符串数组，有argc个变量</span></span><br><span class="hljs-function"> 5 </span>&#123;<br> <span class="hljs-number">6</span>   <span class="hljs-type">int</span> j=<span class="hljs-number">0</span>;<br> <span class="hljs-number">7</span>   <span class="hljs-keyword">for</span>(j=<span class="hljs-number">0</span>;env[j];j++)<span class="hljs-comment">//这个是系统自动给我们添加的，所以不带数字的参数</span><br> <span class="hljs-number">8</span>   &#123;                                                                                                                                                                                              <br> <span class="hljs-number">9</span>   ? <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%s &quot;</span>,env[j]);<span class="hljs-comment">//因为最后一个数据是NULL</span><br><span class="hljs-number">10</span>   &#125;<br><span class="hljs-number">11</span>   <span class="hljs-type">int</span> i=<span class="hljs-number">0</span>;<br><span class="hljs-number">12</span>   <span class="hljs-keyword">for</span>(i=<span class="hljs-number">0</span>;i&lt;argc;i++)<br><span class="hljs-number">13</span>   &#123;<br><span class="hljs-number">14</span>   ? <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;argv[%d]=%s\n&quot;</span>,i,argv[i]);<br><span class="hljs-number">15</span>   &#125;<br><span class="hljs-number">16</span> <span class="hljs-comment">//  int cnt=5;</span><br><span class="hljs-number">17</span> <span class="hljs-comment">//  while(cnt--)</span><br><span class="hljs-number">18</span> <span class="hljs-comment">//  &#123;</span><br><span class="hljs-number">19</span> <span class="hljs-comment">//   // printf(&quot;I am a process ,pid %d,ppid %d\n&quot;,getpid(),getppid());</span><br><span class="hljs-number">20</span> <span class="hljs-comment">//    sleep(1);                                                                                                  </span><br><span class="hljs-number">21</span> <span class="hljs-comment">//    printf(&quot;I am a cmd --&gt;process\n&quot;);                 </span><br><span class="hljs-number">22</span> <span class="hljs-comment">//                                                                </span><br><span class="hljs-number">23</span> <span class="hljs-comment">//  &#125;             </span><br><span class="hljs-number">24</span>   <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;                                         <br><span class="hljs-number">25</span> &#125; <br></code></pre></td></tr></table></figure>
+
+<p>函数如果没有参数，可以传参吗</p>
+<blockquote>
+<p>是可以的，只不过获取数据的参数</p>
+</blockquote>
+<p>常见的获得环境变量的方式</p>
+<p>getenv（char *name）</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span><br>&#123;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;PATH: %s &quot;</span>,getenv(<span class="hljs-string">&quot;PATH&quot;</span>));<span class="hljs-comment">//获得PATH 的环境变量</span><br>    <br><span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>但是我们也很少获取环境变量</p>
+<h2 id="环境变量通常具有全局属性"><a href="#环境变量通常具有全局属性" class="headerlink" title="环境变量通常具有全局属性"></a>环境变量通常具有全局属性</h2><p>父进程一直都不会变</p>
+<p>父进程是命令行解释器</p>
+<p>命令行上启动的进程，父进程都是bash（以及把系统的环境变量都导入的，，也可以继承给子进程），也是用fork启动的，</p>
+<p><img src="https://img-blog.csdnimg.cn/4ba3795297a2457aac9bffeb720a1727.png" srcset="/img/loading.gif" lazyload alt="[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-LRgbApwk-1647503602596)(E:/Typora%E4%BA%91%E7%AC%94%E8%AE%B0%E6%9C%AC/picture/image-20220317152931780.png)]"></p>
+<p>my_env是一个本地变量</p>
+<p>也可以被子进程继承</p>
+<p><img src="https://img-blog.csdnimg.cn/0070fecfa1f648cc9c22f9a8c85ed57c.png" srcset="/img/loading.gif" lazyload alt="[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-oRO2hW5m-1647503602596)(E:/Typora%E4%BA%91%E7%AC%94%E8%AE%B0%E6%9C%AC/picture/image-20220317153254465.png)]"></p>
+<p>但是不是环境变量</p>
+<p><img src="https://img-blog.csdnimg.cn/9941130722cf4d4eaf735d7775e27b4e.png" srcset="/img/loading.gif" lazyload alt="[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-IzeFqVkn-1647503602597)(E:/Typora%E4%BA%91%E7%AC%94%E8%AE%B0%E6%9C%AC/picture/image-20220317153351778.png)]"></p>
+<p><img src="https://img-blog.csdnimg.cn/6746a9c74d794b33b91e4d7d12e730ee.png" srcset="/img/loading.gif" lazyload alt="[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-hEksAeOI-1647503602598)(E:/Typora%E4%BA%91%E7%AC%94%E8%AE%B0%E6%9C%AC/picture/image-20220317153715456.png)]"></p>
+<p>我们在命令行上写的也是环境变量（是父进程的）</p>
+<p><img src="https://img-blog.csdnimg.cn/b6f3c4a075714fc38e5d9442a84fd716.png" srcset="/img/loading.gif" lazyload alt="[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-pUCf5Wue-1647503602598)(E:/Typora%E4%BA%91%E7%AC%94%E8%AE%B0%E6%9C%AC/picture/image-20220317153807734.png)]"></p>
+<p>将这个变量导成环境变量，实际上是导给了bash的环境变量列表</p>
+<p><img src="https://img-blog.csdnimg.cn/3eff0b0f38214ff4a8e004dcce94e921.png" srcset="/img/loading.gif" lazyload alt="[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-WdWNHsvz-1647503602598)(E:/Typora%E4%BA%91%E7%AC%94%E8%AE%B0%E6%9C%AC/picture/image-20220317153915422.png)]"></p>
+<p>导入之后就可以执行了</p>
+<p><img src="https://img-blog.csdnimg.cn/138f6b28690e42c8b1d5d05a45b255ce.png" srcset="/img/loading.gif" lazyload alt="[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-2HuDkpUI-1647503602598)(E:/Typora%E4%BA%91%E7%AC%94%E8%AE%B0%E6%9C%AC/picture/image-20220317154021128.png)]"></p>
+<blockquote>
+<p>环境变量具有全局属性，本质上我们的环境变量可以被子进程继承下去，一个bash被设置那么所有的子进程都可以继承下去bash的内容</p>
+<p>我们定义的本地变量就无法继承，只能自己用，自己bash使用这个变量，子进程无法使用这个本地变量</p>
+</blockquote>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/linux-%E8%BF%90%E7%BB%B4-%E6%9C%8D%E5%8A%A1%E5%99%A8/">#linux 运维 服务器</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Linux ----环境变量</div>
+      <div>http://example.com/2022/03/17/Linux ----环境变量/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zevin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年3月17日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/03/17/stl-string/" title="stl-string">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">stl-string</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/03/03/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E8%BF%9B%E7%A8%8B%EF%BC%881%EF%BC%89/" title="操作系统与进程（1）">
+                        <span class="hidden-mobile">操作系统与进程（1）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","appKey":"javf3F1xk56WiY222ZrCxGt1","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

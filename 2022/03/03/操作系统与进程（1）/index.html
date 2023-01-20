@@ -1,0 +1,1097 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zevin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="文章目录 冯诺依曼体系结构 操作系统  是什么 为什么 怎么办   进程（软件）  PCB 如 进程vs程序 PCB的内部构成 查看进程的方案   fork  如何理解fork创建子进程 fork的返回值 对多进程的控制   进程状态  具体的状态 状态代码验证  R S + z  孤儿进程     进程优先级 查看进程的方案  优先级设置      冯诺依曼体系结构冯诺依曼体系结构  1.输">
+<meta property="og:type" content="article">
+<meta property="og:title" content="操作系统与进程（1）">
+<meta property="og:url" content="http://example.com/2022/03/03/%E6%93%8D%E4%BD%9C%E7%B3%BB%E7%BB%9F%E4%B8%8E%E8%BF%9B%E7%A8%8B%EF%BC%881%EF%BC%89/index.html">
+<meta property="og:site_name" content="Zevin-Blog">
+<meta property="og:description" content="文章目录 冯诺依曼体系结构 操作系统  是什么 为什么 怎么办   进程（软件）  PCB 如 进程vs程序 PCB的内部构成 查看进程的方案   fork  如何理解fork创建子进程 fork的返回值 对多进程的控制   进程状态  具体的状态 状态代码验证  R S + z  孤儿进程     进程优先级 查看进程的方案  优先级设置      冯诺依曼体系结构冯诺依曼体系结构  1.输">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/88d988efcff5488ba4c19e5397f3ac49.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/6725f24a9a2c44bd85db91aee161d644.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/a779c12f3b404525b32c598d887fc0a6.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/f157da24ee06426ab6a22173c5b7e78f.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_13,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/96b8441b859b41238ca9b86bf8b15ecc.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/4340816fb4194245af3dd531a5260c69.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/b9e3855bfe084bb5b4e4490db91f81f4.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/1ee78da007a64127b1bf1b486d9616ae.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/e8d6a5bf81e74625832fca695ac99c6f.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/60b7f0dbbc314a32bb519abb0e3bb507.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/4ec0f76deb794e8b947066ac8fde4805.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_17,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/989ac926f94548a8a37917240c20480f.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/d58e4f877c7544419672ba39d8b4cf19.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/0cf4cad7b58a4e2bb68a927baf867dd8.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/b5c73184c6904691874cc7fd8f97d06b.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/a158abe80a3f4d119d9b74d772f43c5d.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/81acc03ae5c34e588a1389e8f044ba35.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/9e0e5c8501c64af482e8dfc50721dbfc.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_15,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/44a200d8ba844383b107a46411ba138b.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/61c02e9d39b94976ad20d613e8247797.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/f3e2b94a47584af08b44211457a6380b.png#pic_center">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/0932e104a1084a58a2a23c77449129d4.png#pic_center">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/e4f98f27ffd0545cd51bb54b5e8aec79.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/127f153ba86c6066cf94fe6b5b71db1b.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/aef691ce3611944417e58e18c8b31de1.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/e94c02036508e9f388ac207b67fb7e7c.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/a2b3474591e579a18d58b45c3f9d1d92.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/05e150fa957b664e423420db6e0bc646.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/0fd60e0184c37a45e9311815f6c07797.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/727a41d2d438641b94cbe380176374b0.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/e5ef9ff7dbe3a0452e417cca19218788.png">
+<meta property="article:published_time" content="2022-03-02T16:36:55.000Z">
+<meta property="article:modified_time" content="2023-01-20T12:55:15.354Z">
+<meta property="article:author" content="Zevin">
+<meta property="article:tag" content="c++ 开发语言 后端">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/88d988efcff5488ba4c19e5397f3ac49.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16">
+  
+  
+  
+  <title>操作系统与进程（1） - Zevin-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","app_key":"javf3F1xk56WiY222ZrCxGt1","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zevin-Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="操作系统与进程（1）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-03-03 00:36" pubdate>
+          2022年3月3日 凌晨
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          7.9k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          67 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">操作系统与进程（1）</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+
+<h3 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h3><ul>
+<li><a href="#_2">冯诺依曼体系结构</a></li>
+<li><a href="#_22">操作系统</a></li>
+<li><ul>
+<li><a href="#_25">是什么</a></li>
+<li><a href="#_29">为什么</a></li>
+<li><a href="#_33">怎么办</a></li>
+</ul>
+</li>
+<li><a href="#_48">进程（软件）</a></li>
+<li><ul>
+<li><a href="#PCB_55">PCB</a></li>
+<li><a href="#_61">如</a></li>
+<li><a href="#vs_72">进程vs程序</a></li>
+<li><a href="#PCB_83">PCB的内部构成</a></li>
+<li><a href="#_116">查看进程的方案</a></li>
+</ul>
+</li>
+<li><a href="#fork_125">fork</a></li>
+<li><ul>
+<li><a href="#fork_156">如何理解fork创建子进程</a></li>
+<li><a href="#fork_186">fork的返回值</a></li>
+<li><a href="#_248">对多进程的控制</a></li>
+</ul>
+</li>
+<li><a href="#_287">进程状态</a></li>
+<li><ul>
+<li><a href="#_298">具体的状态</a></li>
+<li><a href="#_401">状态代码验证</a></li>
+<li><ul>
+<li><a href="#R_403">R</a></li>
+<li><a href="#S_424">S</a></li>
+<li><a href="#_480">+</a></li>
+<li><a href="#z_488">z</a></li>
+<li><ul>
+<li><a href="#_525">孤儿进程</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#_562">进程优先级</a></li>
+<li><a href="#_570">查看进程的方案</a></li>
+<li><ul>
+<li><a href="#_614">优先级设置</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="冯诺依曼体系结构"><a href="#冯诺依曼体系结构" class="headerlink" title="冯诺依曼体系结构"></a>冯诺依曼体系结构</h1><p>冯诺依曼体系结构</p>
+<p><img src="https://img-blog.csdnimg.cn/88d988efcff5488ba4c19e5397f3ac49.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>1.输入设备：键盘，磁盘（外设，读取文件（没读的时候就在磁盘）），网卡，显卡，话筒，摄像头(效率是s,ms级别)<br>2.输出设备：显示器，打印机，磁盘（写文件，就是把数据写到磁盘上），网卡，显卡，音箱等<br>3.存储器（内存）：离cpu越近的设备存储效率越高也越贵，有了内存，cpu就不用直接和外设打交道，存储器的快慢决定快慢（<strong>内存是体系结构的核心设备</strong>）<br>4.运算器&amp;&amp;控制器（CPU）：运算器（算术运算与逻辑运算）<br>控制器（读取指令，分析指令，执行指令）（效率ns级别）</p>
+<p>如<br>a和b通过qq发消息<br><img src="https://img-blog.csdnimg.cn/6725f24a9a2c44bd85db91aee161d644.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>任何的外设，在数据层面，基本都是有限和内存打交道！，<br>cpu，在数据层面上，也直接和内存打交道</p>
+<h1 id="操作系统"><a href="#操作系统" class="headerlink" title="操作系统"></a>操作系统</h1><p>启动的（将软件数据与代码，加载到内存中）操作系统，才有意义</p>
+<h2 id="是什么"><a href="#是什么" class="headerlink" title="是什么"></a>是什么</h2><p><strong>OS</strong> 是一款<strong>软件</strong>，专门针对<strong>软硬件</strong>资源进行管理工作的<strong>软件</strong><br>（核心工作就是做管理的）</p>
+<h2 id="为什么"><a href="#为什么" class="headerlink" title="为什么"></a>为什么</h2><p><strong>对下</strong>：管理好软硬件资源。对上：给用户提供<strong>稳定高效安全</strong>的运行环境<br><strong>方式</strong> <strong>目的</strong></p>
+<h2 id="怎么办"><a href="#怎么办" class="headerlink" title="怎么办"></a>怎么办</h2><p>核心在<strong>管理</strong>，管理是对人的属性数据进行管理，描述属性结合的就是<strong>结构体</strong>，里面就有被管理者的全部数据，再加个联系指针<strong>连接</strong>起来（链表，哈希，树等），对<strong>学生</strong>的管理就变成了对链表的管理，对<strong>学生的褒奖工作</strong>就变成了对链表的<strong>增删查改</strong></p>
+<p>本质（<strong>先描述再组织</strong>）</p>
+<blockquote>
+<p>管理理念：先描述，再组织，<br>可以转化成对目标的管理，<br>转化成对数据的管理</p>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/a779c12f3b404525b32c598d887fc0a6.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h1 id="进程（软件）"><a href="#进程（软件）" class="headerlink" title="进程（软件）"></a>进程（软件）</h1><p><strong>加载到内存</strong>的程序就叫做<strong>进程</strong><br>系统中可能存在大量的进程，操作系统要<strong>管理</strong>进程<br>如何管理进程？</p>
+<blockquote>
+<p>先描述，再组织<br>任何进程在形成的时候，操作系统要为该进程创建PCB，进程控制块（ 先描述，struct PCB 里面就是进程的所有属性，结构体描述），</p>
+</blockquote>
+<h2 id="PCB"><a href="#PCB" class="headerlink" title="PCB"></a>PCB</h2><p>OS 上面，PCB 进程控制块，就是一个结构体类型<br>在Linux系统中，PCB -&gt;struct task_struct{ &#x2F;&#x2F;进程的所有属性 }</p>
+<blockquote>
+<p>类比shell和bash的关系<br>类比媒婆和王婆的关系</p>
+</blockquote>
+<h2 id="如"><a href="#如" class="headerlink" title="如"></a>如</h2><p>我们所有<strong>启动的程序</strong>的过程都是在系统上面<strong>创建进程</strong></p>
+<p><img src="https://img-blog.csdnimg.cn/f157da24ee06426ab6a22173c5b7e78f.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_13,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/96b8441b859b41238ca9b86bf8b15ecc.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>把程序运行起来，就是把程序加载到内存，就是把程序由磁盘加载到内存中变成一个进程<br><img src="https://img-blog.csdnimg.cn/4340816fb4194245af3dd531a5260c69.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述">进程的属性<br><img src="https://img-blog.csdnimg.cn/b9e3855bfe084bb5b4e4490db91f81f4.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述">程序运行结束进程就结束了<br><img src="https://img-blog.csdnimg.cn/1ee78da007a64127b1bf1b486d9616ae.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h2 id="进程vs程序"><a href="#进程vs程序" class="headerlink" title="进程vs程序"></a>进程vs程序</h2><p><img src="https://img-blog.csdnimg.cn/e8d6a5bf81e74625832fca695ac99c6f.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16#pic_center" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/60b7f0dbbc314a32bb519abb0e3bb507.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>有了进程控制块，所有进程管理任务与进程对于的程序毫无关系！！！<br>与进程对应的内核创建的进程的 PCB 强相关</p>
+<p>进程&#x3D;程序+操作系统维护进程的相关数据结构（更多的数据结构）（进程控制块）</p>
+<h2 id="PCB的内部构成"><a href="#PCB的内部构成" class="headerlink" title="PCB的内部构成"></a>PCB的内部构成</h2><ul>
+<li>pid：描述本进程的唯一标识符，原来区别其他进程</li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/4ec0f76deb794e8b947066ac8fde4805.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_17,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/989ac926f94548a8a37917240c20480f.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>结束进程<br>kill -9 pid<br><img src="https://img-blog.csdnimg.cn/d58e4f877c7544419672ba39d8b4cf19.png" srcset="/img/loading.gif" lazyload alt="5"><br><img src="https://img-blog.csdnimg.cn/0cf4cad7b58a4e2bb68a927baf867dd8.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<ul>
+<li>ppid:获得其父的pid（在命令行上运行的命令，基本上其父进程都是-bash）</li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/b5c73184c6904691874cc7fd8f97d06b.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<ul>
+<li><p>状态：任务状态，退出代码，退出信号等。<br><img src="https://img-blog.csdnimg.cn/a158abe80a3f4d119d9b74d772f43c5d.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述">0<br>输出离他最近执行命令的退出码<br><img src="https://img-blog.csdnimg.cn/81acc03ae5c34e588a1389e8f044ba35.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+</li>
+<li><p>优先级：相对于其他进程的优先级，CPU 只有1个，进程有非常多个，确认先后的问题，</p>
+</li>
+<li><p>程序计数器：程序中即将被执行的<strong>下一条指令</strong>的<strong>地址</strong></p>
+</li>
+<li><p>内存指针：可以通过PCB 找到对应的代码和数据</p>
+</li>
+<li><p>IO状态信息：进程可能要进行的IO，（从输入设备读入）（输出设备读出），进程在进行IO，</p>
+</li>
+<li><p>记账信息：进程被os调度器调度的信息（os为了较为均衡的调用每个进程（获得cpu的资源（进程被执行））），有处理器时间总和，使用的时间限制，记帐号</p>
+</li>
+<li><p>上下文数据：（进程执行时处理器的寄存器中的数据）<strong>寄存器</strong>（当前正在运行的进程的临时数据）<br><strong>时间片</strong>（单次运行每个进程的最大时间10ms，没跑完，排到最后等待继续运行），在cpu情况下，用户感受到多个进程都在运行（靠cpu快速切换完成的），进程在运行期间是由切换的，进程可能存在大量的临时数据—-》暂时在cpu的寄存器中保存，</p>
+</li>
+</ul>
+<blockquote>
+<p>保护上下文<br>恢复上下文<br>虽然寄存器硬件只有一份，但是寄存器里面的数据是你这个进程的，走的时候，把寄存器里面的数据返回pcb里面，进入下一个进程，等待下一次使用，再进入时，再把之前的临时数据放回cpu</p>
+</blockquote>
+<p>通过上下文的保护和恢复，我们可以感受到进程被切换的</p>
+<h2 id="查看进程的方案"><a href="#查看进程的方案" class="headerlink" title="查看进程的方案"></a>查看进程的方案</h2><p>ls &#x2F;proc<br><img src="https://img-blog.csdnimg.cn/9e0e5c8501c64af482e8dfc50721dbfc.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_15,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/44a200d8ba844383b107a46411ba138b.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>exe就是当前执行的文件路径<br>cwd就是当前工作路径</p>
+<p><img src="https://img-blog.csdnimg.cn/61c02e9d39b94976ad20d613e8247797.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h1 id="fork"><a href="#fork" class="headerlink" title="fork"></a>fork</h1><p>fork就是用来创建子进程的</p>
+<hr>
+<p>演示</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-number">1</span> <span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br>  <span class="hljs-number">2</span> <span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span>  std;<br>  <span class="hljs-number">3</span> <span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;unistd.h&gt;</span></span><br>  <span class="hljs-number">4</span>  <br>  <span class="hljs-number">5</span> <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function">  6 </span>&#123;                                                                 <br>  <span class="hljs-number">7</span>     fork();<span class="hljs-comment">//创建子进程</span><br>  <span class="hljs-number">8</span>     cout&lt;&lt;<span class="hljs-string">&quot;hello proc &quot;</span>&lt;&lt;<span class="hljs-built_in">getpid</span>()&lt;&lt;<span class="hljs-string">&quot;hello parent &quot;</span>&lt;&lt;<span class="hljs-built_in">getppid</span>()&lt;&lt;endl;<br>  <span class="hljs-number">9</span>     <span class="hljs-built_in">sleep</span>(<span class="hljs-number">1</span>);                                                                                   <br> <span class="hljs-number">10</span>     <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;                                                                                    <br>      <br> <span class="hljs-number">11</span> &#125;    <br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>上面的代码我们fork后，只写了一行的打印，但是运行结果是有两条的内容</p>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/f3e2b94a47584af08b44211457a6380b.png#pic_center" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h2 id="如何理解fork创建子进程"><a href="#如何理解fork创建子进程" class="headerlink" title="如何理解fork创建子进程"></a>如何理解fork创建子进程</h2><blockquote>
+<ol>
+<li><p>有我们在命令行里面.&#x2F;cmd or run command(执行指令) ,与<strong>fork</strong>相比：在操作系统角度上，创建进程的方式都是没有差别的，只不过fork创建的进程间有<strong>父子关系</strong></p>
+</li>
+<li><p>fork本质是<strong>创建进程</strong> -—&gt; 系统里面<strong>多了一个进程</strong> —&gt;在系统里面多了一份与进程相关的内核数据结构 （task_struct） + 进程的代码和数据(我们只是fork了，创建了子进程，但是子进程对应的代码和数据)———》</p>
+</li>
+</ol>
+<ul>
+<li>默认情况下，会继承父进程的代码和数据</li>
+<li>内核数据结构task_struct 也会以父进程为模板，初始化子进程的task_struct</li>
+</ul>
+<blockquote>
+<p>例如父亲是做鞋的工厂老板，那么你就会继承父亲的基因（数据结构），同时你也会子承父业继续做鞋（继承代码和数据）</p>
+</blockquote>
+<blockquote>
+<hr>
+</blockquote>
+<p><strong>进程具有独立性</strong></p>
+<blockquote>
+<ol>
+<li>代码</li>
+</ol>
+</blockquote>
+<blockquote>
+<ul>
+<li>fork之后子进程和父进程代码是共享的</li>
+<li>代码是不可以被修改的</li>
+<li>父子代码只有一份</li>
+</ul>
+</blockquote>
+<blockquote>
+<ol start="2">
+<li>数据</li>
+</ol>
+</blockquote>
+<blockquote>
+<ul>
+<li><strong>默认情况</strong>下“数据也是共享的”，不过因为进程具有独立性，所以也要考虑修改的情况</li>
+<li>可以通过“写时拷贝”来完成进程数据的独立性</li>
+</ul>
+</blockquote>
+</blockquote>
+<h2 id="fork的返回值"><a href="#fork的返回值" class="headerlink" title="fork的返回值"></a>fork的返回值</h2><p>我们创建的子进程，就是为了和父进程干一样的事情？？？</p>
+<p>一般是没有意义的，我们一般还是希望要让父进程和子进程做不一样的事</p>
+<p>我们通常是用fork的返回值来完成</p>
+<blockquote>
+<ul>
+<li>失败: &lt;0</li>
+<li>成功:<ul>
+<li>给父进程返回子进程的pid</li>
+<li>给子进程返回0</li>
+</ul>
+</li>
+</ul>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-number">1</span> <span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span>                                                       </span><br> <span class="hljs-number">2</span> <span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span>  std;             <br> <span class="hljs-number">3</span> <span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;unistd.h&gt;</span>  </span><br> <span class="hljs-number">4</span> <span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;sys/types.h&gt;</span>  </span><br> <span class="hljs-number">5</span> <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span>  </span><br><span class="hljs-function"> 6 </span>&#123;  <br> <span class="hljs-number">7</span>     <span class="hljs-type">pid_t</span> id=fork();<span class="hljs-comment">//获得其返回值 </span><br> <span class="hljs-number">8</span>     cout&lt;&lt;<span class="hljs-string">&quot;hello proc &quot;</span>&lt;&lt;<span class="hljs-built_in">getpid</span>()&lt;&lt; <span class="hljs-string">&quot; hello parent &quot;</span>&lt;&lt;<span class="hljs-built_in">getppid</span>()&lt;&lt;<span class="hljs-string">&quot; ret: &quot;</span>&lt;&lt; id &lt;&lt;endl;  <br> <span class="hljs-number">9</span>     <span class="hljs-built_in">sleep</span>(<span class="hljs-number">1</span>);                                                                                            <br><span class="hljs-number">10</span>     <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;                                                                      <br><span class="hljs-number">11</span> &#125;    <br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/0932e104a1084a58a2a23c77449129d4.png#pic_center" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<ol>
+<li><p>如何理解有两个返回值？</p>
+<blockquote>
+<p>如果一行函数已经执行return，那么函数的核心功能执行完了</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-function"><span class="hljs-type">pid_t</span> <span class="hljs-title">fork</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br><span class="hljs-comment">//创建子进程的逻辑</span><br><br> <span class="hljs-keyword">return</span> XXX;<span class="hljs-comment">//也是语句，父子共享return</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>到return的时候，他创建子进程的逻辑也完了，所以子进程已经有了，父进程要return，子进程也要return</p>
+</blockquote>
+<ul>
+<li>返回的是数据吗？return的时候也会写入吗？</li>
+</ul>
+<blockquote>
+<p>返回的也是数据，会，发生了写时拷贝</p>
+</blockquote>
+</li>
+<li><p>如何理解两个返回值的设置</p>
+<blockquote>
+<p>父：子&#x3D;1：n，</p>
+<p>子进程的父进程只有1个，而父进程可以有很多的子进程，所以要得到其子进程的pid来控制子进程，而子进程通过ppid就可以找到父进程</p>
+</blockquote>
+</li>
+</ol>
+<h2 id="对多进程的控制"><a href="#对多进程的控制" class="headerlink" title="对多进程的控制"></a>对多进程的控制</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;unistd.h&gt;</span></span><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">pid_t</span> id=fork();<br>    <span class="hljs-keyword">if</span>(id==<span class="hljs-number">0</span>)<span class="hljs-comment">//利用if else，进行分流，实现父子进程完成不同的事</span><br>    &#123;<br><span class="hljs-comment">//child</span><br>        <span class="hljs-keyword">while</span>(<span class="hljs-literal">true</span>)<br>        &#123;<br>			cout&lt;&lt;<span class="hljs-string">&quot;I am 子进程 pid=&quot;</span>&lt;&lt;<span class="hljs-built_in">getpid</span>()&lt;&lt;<span class="hljs-string">&quot; ppid=&quot;</span>&lt;&lt;<span class="hljs-built_in">getppid</span>()&lt;&lt;endl;<br>            <span class="hljs-built_in">sleep</span>(<span class="hljs-number">1</span>);<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(id&gt;<span class="hljs-number">0</span>)<br>    &#123;<br>		<span class="hljs-keyword">while</span>(<span class="hljs-literal">true</span>)<br>        &#123;<br>			cout&lt;&lt;<span class="hljs-string">&quot;I am 父进程 pid=&quot;</span>&lt;&lt;<span class="hljs-built_in">getpid</span>()&lt;&lt;<span class="hljs-string">&quot; ppid=&quot;</span>&lt;&lt;<span class="hljs-built_in">getppid</span>()&lt;&lt;endl;<br>            <span class="hljs-built_in">sleep</span>(<span class="hljs-number">2</span>);<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">else</span><br>    &#123;<br>		<span class="hljs-comment">//todo</span><br>    &#125;<br>    <span class="hljs-built_in">sleep</span>(<span class="hljs-number">1</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>fork之后谁先跑呢？？</p>
+<p>不确定</p>
+<h1 id="进程状态"><a href="#进程状态" class="headerlink" title="进程状态"></a>进程状态</h1><p>进程的状态信息在哪里呢？？<br>在 task_struct(PCB)</p>
+<p>进程状态的意义：</p>
+<p>方便OS 快速判断进程，完成特定的功能，比如调度，本质是一种分类</p>
+<h2 id="具体的状态"><a href="#具体的状态" class="headerlink" title="具体的状态"></a>具体的状态</h2><ul>
+<li><p>R：<strong>运行态</strong>，不一定正在CPU上面正在运行，但是如果处于<strong>运行的队列</strong>（<strong>等待CPU</strong>）中，那么这些状态都可以称为<strong>R状态</strong>，随时都可以被CPU进行调度</p>
+<p>[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-p20zfQoB-1647504125418)(picture&#x2F;image-20220310140329017.png)]</p>
+</li>
+<li><p>S&#x2F;D：<strong>睡眠状态</strong>，当我们想要完成某种任务的时候，任务条件不具备，需要进程进行某种等待时，就S，D，<strong>等待资源就绪</strong></p>
+<p>如：今天想打游戏，但是电脑没开，那么我们就要开机等待电脑开机，那么此时我们就是S，D</p>
+<hr>
+<blockquote>
+<p>所谓的进程，在运行的时候可能会因为运行的需要，可以会在不同的队列里，</p>
+<p>在不同的队列里面，所处的状态是不一样的</p>
+</blockquote>
+<p>[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-3K13Q8eR-1647504125419)(picture&#x2F;image-20220310141732027.png)]</p>
+</li>
+</ul>
+<blockquote>
+<p>如果资源就绪了那么S状态就变成了R状态，放到运行队列里，</p>
+<p>如果这个进程突然卡死了，那OS就会把他从运行队列放到等待队列里面去</p>
+</blockquote>
+<blockquote>
+<p>我们把，从运行状态的task_struct（run_queue）,放到等待队列中，就叫做挂起等待（阻塞）</p>
+<p>从等待队列，放到运行队列，被CPU调度，就叫做唤醒进程</p>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;unist.h&gt;</span></span><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-built_in">sleep</span>(<span class="hljs-number">10</span>);<br>    cout&lt;&lt;<span class="hljs-string">&quot;hello &quot;</span>&lt;&lt;endl;<br><span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-0vxSbIJj-1647504125420)(picture&#x2F;image-20220310144349978.png)]</p>
+<p>[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-uAi5lsGD-1647504125420)(picture&#x2F;image-20220310143310732.png)]</p>
+<blockquote>
+<p>等待我们设定的10s就绪，那么他就处于S状态，</p>
+<p>可以直接立即终止（可中断睡眠）</p>
+</blockquote>
+<ul>
+<li><p><strong>深度睡眠</strong> ；不可中断睡眠，</p>
+<blockquote>
+<p>假设进程发出了一个命令，要将1t数据（数据量非常大）都放到磁盘里面，让磁盘去读写，之后磁盘就开始工作了，这个时候进程就开始等待</p>
+<p>等待磁盘把任务完成，这个时候，OS来了发现进程在休息，就把他给杀掉了，</p>
+<p>磁盘读写完了，要把失败与否的结论告诉进程，但是发现进程不见了，</p>
+<p>进程：是OS把我杀掉的</p>
+<p>磁盘：是进程不见的</p>
+<p>没有办法解决问题</p>
+<hr>
+<p>本质上是因为操作系统把正在等待的进程给杀掉的</p>
+</blockquote>
+<p>[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-JH3pVRNg-1647504125421)(picture&#x2F;image-20220310153558797.png)]</p>
+</li>
+</ul>
+<p>所以为了解决这个问题，就有了深度睡眠的D状态，</p>
+<p><strong>进程进入了D状态，不可被杀掉</strong></p>
+<ul>
+<li><p>T :<strong>暂停状态</strong>，完全暂停不会因为某种条件达成变成R,做某些任务的时候，进程需要暂停</p>
+</li>
+<li><p>t（trace stop）：经常调试程序的时候，在调试的时候，进程所处的状态，打个断点，就停下来了，临时查看很多资源数据</p>
+</li>
+<li><p>x（dead）：<strong>死亡状态</strong>，回收进程资源&#x3D;进程相关的数据结构+你的代码和数据（和创建的操作是一样的），死亡状态无法查到</p>
+</li>
+<li><p>z（zombie）：<strong>僵尸状态</strong>，先进入僵尸状态再进入死亡状态</p>
+<hr>
+<ul>
+<li><p>为什么要有僵尸状态</p>
+<blockquote>
+<p>为了辨别退出<strong>死亡</strong>原因，进程退出时要暂时保存退出的信息</p>
+<p>在task_struct存了进程退出的所有信息</p>
+</blockquote>
+</li>
+</ul>
+</li>
+</ul>
+<p>[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-VWpdwoVG-1647504125421)(<a target="_blank" rel="noopener" href="https://raw.githubusercontent.com/zevin02/image/master//%20202203121022560.png/)/]">https://raw.githubusercontent.com/zevin02/image/master/\%20202203121022560.png\)\]</a></p>
+<h2 id="状态代码验证"><a href="#状态代码验证" class="headerlink" title="状态代码验证"></a>状态代码验证</h2><h3 id="R"><a href="#R" class="headerlink" title="R"></a>R</h3><p>：没有IO ，所以就不用等待</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-number">1</span> <span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-number">2</span> <span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><span class="hljs-number">3</span> <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function">4 </span>&#123;<br><span class="hljs-number">5</span>     <span class="hljs-keyword">while</span>(<span class="hljs-literal">true</span>);<br><span class="hljs-number">6</span>     <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;                                                                                            <br><span class="hljs-number">7</span> &#125;<br><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/img_convert/e4f98f27ffd0545cd51bb54b5e8aec79.png" srcset="/img/loading.gif" lazyload alt="image-20220311102359163"></p>
+<h3 id="S"><a href="#S" class="headerlink" title="S"></a>S</h3><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs cpp">  <span class="hljs-number">1</span> <span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;iostream&gt;</span></span><br>  <span class="hljs-number">2</span> <span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br>  <span class="hljs-number">3</span> <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function">  4 </span>&#123;<br>  <span class="hljs-number">5</span>     <span class="hljs-keyword">while</span>(<span class="hljs-literal">true</span>)<br>  <span class="hljs-number">6</span>     &#123;<br>  <span class="hljs-number">7</span>        cout&lt;&lt;<span class="hljs-string">&quot;hello&quot;</span>&lt;&lt;endl;<br>  <span class="hljs-number">8</span>     &#125;                                                                                              <br>  <span class="hljs-number">9</span>     <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;         <br> <span class="hljs-number">10</span> &#125;                     <br>~         <br></code></pre></td></tr></table></figure>
+
+<p>[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-RYSD1QuG-1647504125422)(<a target="_blank" rel="noopener" href="https://raw.githubusercontent.com/zevin02/image/master//%20202203111201188.png/)/]">https://raw.githubusercontent.com/zevin02/image/master/\%20202203111201188.png\)\]</a></p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/127f153ba86c6066cf94fe6b5b71db1b.png" srcset="/img/loading.gif" lazyload alt="image-20220311102847664"></p>
+<p>[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-w6blxo0h-1647504125423)(<a target="_blank" rel="noopener" href="https://raw.githubusercontent.com/zevin02/image/master//%20202203121024675.png/)/]">https://raw.githubusercontent.com/zevin02/image/master/\%20202203121024675.png\)\]</a></p>
+<p>有可能还能检测到r状态</p>
+<blockquote>
+<p>打印，是往显示器打印，外设慢，IO，实际上等待外设就绪是很慢的，所以大部分状态都是S状态，CPU太快了</p>
+</blockquote>
+<p>[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-NWVrfyha-1647504125423)(<a target="_blank" rel="noopener" href="https://raw.githubusercontent.com/zevin02/image/master//%20202203121028603.png/)/]">https://raw.githubusercontent.com/zevin02/image/master/\%20202203121028603.png\)\]</a></p>
+<p>暂停进程</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/aef691ce3611944417e58e18c8b31de1.png" srcset="/img/loading.gif" lazyload alt="image-20220311104417143"></p>
+<p>继续进程</p>
+<p>后面没有+号，在后台运行</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/e94c02036508e9f388ac207b67fb7e7c.png" srcset="/img/loading.gif" lazyload alt="image-20220311104606124"></p>
+<p>但是按ctrl c无法结束进程</p>
+<p>结束进程</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/a2b3474591e579a18d58b45c3f9d1d92.png" srcset="/img/loading.gif" lazyload alt="image-20220311104640401"></p>
+<h3 id=""><a href="#" class="headerlink" title="+"></a>+</h3><p>：带了+，说明是在前台运行，在命令行输入任何内容都是没有用的，但是ctrl c来干掉进程</p>
+<p>后台进程.&#x2F;myproc &amp;，就变成后台进程，可以在命令行中输入命令，无法用ctrl c来结束进程，只能用kill -9 pid来结束进程</p>
+<h3 id="z"><a href="#z" class="headerlink" title="z"></a>z</h3><p>如果没有人检测回收进程（父进程），该进程退出或进入z</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-number">1</span> <span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span>                                                                                </span><br>  <span class="hljs-number">2</span> <span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;unistd.h&gt;</span></span><br>  <span class="hljs-number">3</span> <span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br>  <span class="hljs-number">4</span> <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span>                                       </span><br><span class="hljs-function">  5 </span>&#123;                 <br>  <span class="hljs-number">6</span>     <span class="hljs-type">pid_t</span> id=fork();<br>  <span class="hljs-number">7</span>     <span class="hljs-keyword">if</span>(id==<span class="hljs-number">0</span>)<br>  <span class="hljs-number">8</span>     &#123;                 <br>  <span class="hljs-number">9</span>        <span class="hljs-comment">//child       </span><br> <span class="hljs-number">10</span>        <span class="hljs-keyword">while</span>(<span class="hljs-literal">true</span>)<br> <span class="hljs-number">11</span>       &#123;                <br> <span class="hljs-number">12</span>          cout&lt;&lt;<span class="hljs-string">&quot;I am child,running&quot;</span>&lt;&lt;endl;<br> <span class="hljs-number">13</span>           <span class="hljs-built_in">sleep</span>(<span class="hljs-number">2</span>);<br> <span class="hljs-number">14</span>        &#125;                                   <br> <span class="hljs-number">15</span>     &#125;                                       <br> <span class="hljs-number">16</span>     <span class="hljs-keyword">else</span>           <br> <span class="hljs-number">17</span>     &#123;  <br> <span class="hljs-number">18</span>        <span class="hljs-comment">//father</span><br> <span class="hljs-number">19</span>        cout&lt;&lt;<span class="hljs-string">&quot;I am father ,doing nothing&quot;</span>&lt;&lt;endl;<br> <span class="hljs-number">20</span>        <span class="hljs-built_in">sleep</span>(<span class="hljs-number">50</span>); <br> <span class="hljs-number">21</span>     &#125;  <br>       <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br> <span class="hljs-number">22</span> &#125;<br>      <br></code></pre></td></tr></table></figure>
+
+<p>把<strong>子进程给终止掉</strong>，但是父进程没有回收，就变成了僵尸进程</p>
+<p>（子进程先死了，父进程还在运行）</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/05e150fa957b664e423420db6e0bc646.png" srcset="/img/loading.gif" lazyload alt="image-20220311111949238"></p>
+<h4 id="孤儿进程"><a href="#孤儿进程" class="headerlink" title="孤儿进程"></a>孤儿进程</h4><p>被1号进程领养，1号进程也叫做操作系统OS</p>
+<p>父进程终止了，子进程还在运行</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><code class="hljs cpp"> <span class="hljs-number">1</span> <span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span>                                                                                </span><br> <span class="hljs-number">2</span> <span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;unistd.h&gt;</span></span><br> <span class="hljs-number">3</span> <span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br> <span class="hljs-number">4</span> <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span>                                       </span><br><span class="hljs-function"> 5 </span>&#123;                 <br> <span class="hljs-number">6</span>     <span class="hljs-type">pid_t</span> id=fork();<br> <span class="hljs-number">7</span>     <span class="hljs-keyword">if</span>(id==<span class="hljs-number">0</span>)<br> <span class="hljs-number">8</span>     &#123;                 <br> <span class="hljs-number">9</span>        <span class="hljs-comment">//child       </span><br><span class="hljs-number">10</span>        <span class="hljs-keyword">while</span>(<span class="hljs-literal">true</span>)<br><span class="hljs-number">11</span>       &#123;                <br><span class="hljs-number">12</span>          cout&lt;&lt;<span class="hljs-string">&quot;I am child,running&quot;</span>&lt;&lt;endl;<br><span class="hljs-number">13</span>           <span class="hljs-built_in">sleep</span>(<span class="hljs-number">2</span>);<br><span class="hljs-number">14</span>        &#125;                                   <br><span class="hljs-number">15</span>     &#125;                                       <br><span class="hljs-number">16</span>     <span class="hljs-keyword">else</span>           <br><span class="hljs-number">17</span>     &#123;  <br><span class="hljs-number">18</span>        <span class="hljs-comment">//father</span><br><span class="hljs-number">19</span>        cout&lt;&lt;<span class="hljs-string">&quot;I am father ,doing nothing&quot;</span>&lt;&lt;endl;<br><span class="hljs-number">20</span>        <span class="hljs-built_in">sleep</span>(<span class="hljs-number">10</span>);<br>    <span class="hljs-built_in">exit</span>(<span class="hljs-number">-1</span>);<br><span class="hljs-number">21</span>     &#125;  <br>      <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br><span class="hljs-number">22</span> &#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/img_convert/0fd60e0184c37a45e9311815f6c07797.png" srcset="/img/loading.gif" lazyload alt="image-20220311112302660"></p>
+<h2 id="进程优先级"><a href="#进程优先级" class="headerlink" title="进程优先级"></a>进程优先级</h2><p>为什么会有优先级？</p>
+<p>本质上是资源太少的问题，优先级本质是获得资源，分配资源的一种方式</p>
+<h2 id="查看进程的方案-1"><a href="#查看进程的方案-1" class="headerlink" title="查看进程的方案"></a>查看进程的方案</h2><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs cpp">  <span class="hljs-number">1</span> <span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdio.h&gt;</span></span><br>  <span class="hljs-number">2</span> <span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;unistd.h&gt;</span></span><br>  <span class="hljs-number">3</span> <span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function">  4 </span>&#123;<br>  <span class="hljs-number">5</span>   <span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>)<br>  <span class="hljs-number">6</span>   &#123;<br>  <span class="hljs-number">7</span>   ¦ <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;I am a process ,pid %d,ppid %d\n&quot;</span>,<span class="hljs-built_in">getpid</span>(),<span class="hljs-built_in">getppid</span>());                           <br>  <span class="hljs-number">8</span>   ¦ <span class="hljs-built_in">sleep</span>(<span class="hljs-number">1</span>);<br>  <span class="hljs-number">9</span>   &#125;<br> <span class="hljs-number">10</span>   <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br> <span class="hljs-number">11</span> &#125;<br>~<br><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p><strong>UID</strong> 相当于我的名字，不过他是以数字来标识（类似身份证号码）</p>
+<p><strong>PRI</strong>就是优先级数据</p>
+<p>NI优先级的修正数据，</p>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/727a41d2d438641b94cbe380176374b0.png" srcset="/img/loading.gif" lazyload alt="image-20220314163706374"></p>
+<blockquote>
+<p>linux中的优先级数据，值越小，优先级越高，</p>
+<p>就尽快的享受到某种资源</p>
+</blockquote>
+<p>PRI vs NI</p>
+<blockquote>
+<p>加入nice值，PRI（new）&#x3D;PRI（old）+nice</p>
+<p>所以nice为正，优先级变满，</p>
+<p>反之亦然</p>
+</blockquote>
+<p>特别不建议自己修改优先级</p>
+<h3 id="优先级设置"><a href="#优先级设置" class="headerlink" title="优先级设置"></a>优先级设置</h3><p>nice值（-20~19）</p>
+<p><img src="https://img-blog.csdnimg.cn/img_convert/e5ef9ff7dbe3a0452e417cca19218788.png" srcset="/img/loading.gif" lazyload alt="image-20220314165836267"></p>
+<p>old不会因为之前的改变而改变，还是一开始的值</p>
+<p>nice值为什么是一个相对小的范围</p>
+<blockquote>
+<p>优先级再怎么设置，也只能是一种相对的优先级，不能出现绝对的优先级，避免有的进程出现饥饿问题，而我们的调度器</p>
+<p>就是为了较为均衡的让每个进程享受到CPU资源，</p>
+</blockquote>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/c-%E5%BC%80%E5%8F%91%E8%AF%AD%E8%A8%80-%E5%90%8E%E7%AB%AF/">#c++ 开发语言 后端</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>操作系统与进程（1）</div>
+      <div>http://example.com/2022/03/03/操作系统与进程（1）/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zevin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年3月3日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/03/17/Linux%20----%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F/" title="Linux ----环境变量">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">Linux ----环境变量</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/02/25/git%EF%BC%883%EF%BC%89/" title="git（3）">
+                        <span class="hidden-mobile">git（3）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","appKey":"javf3F1xk56WiY222ZrCxGt1","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

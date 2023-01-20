@@ -1,0 +1,830 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zevin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="文章目录 makefile语法格式 生成qemu可执行文件  生成kernel可执行文件  生成kernel下的OBJS kernel.ld build OBJS_KCSAN build initcode   生成一个fs.img文件系统  mkfs 用户程序的编译     配置工具  makefile语法格式makefile就是一个深搜的过程，最上面的语句是顶级目标，顶级目标还有依赖 如果依">
+<meta property="og:type" content="article">
+<meta property="og:title" content="xv6 makefile详解">
+<meta property="og:url" content="http://example.com/2022/12/17/xv6%20makefile%E8%AF%A6%E8%A7%A3/index.html">
+<meta property="og:site_name" content="Zevin-Blog">
+<meta property="og:description" content="文章目录 makefile语法格式 生成qemu可执行文件  生成kernel可执行文件  生成kernel下的OBJS kernel.ld build OBJS_KCSAN build initcode   生成一个fs.img文件系统  mkfs 用户程序的编译     配置工具  makefile语法格式makefile就是一个深搜的过程，最上面的语句是顶级目标，顶级目标还有依赖 如果依">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/bd6752861632e20f2b31a68479f9ba36.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/ca4b755ab83ce2b96a63adbe24fea7b3.jpeg">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/img_convert/6d3eb0726d2b2af0a59030718ceaf31e.png">
+<meta property="article:published_time" content="2022-12-17T14:01:52.000Z">
+<meta property="article:modified_time" content="2023-01-20T12:55:15.358Z">
+<meta property="article:author" content="Zevin">
+<meta property="article:tag" content="网络">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/img_convert/bd6752861632e20f2b31a68479f9ba36.png">
+  
+  
+  
+  <title>xv6 makefile详解 - Zevin-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","app_key":"javf3F1xk56WiY222ZrCxGt1","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zevin-Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="xv6 makefile详解"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-12-17 22:01" pubdate>
+          2022年12月17日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          56 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">xv6 makefile详解</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+
+<h3 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h3><ul>
+<li><a href="#makefile_1">makefile语法格式</a></li>
+<li><a href="#qemu_9">生成qemu可执行文件</a></li>
+<li><ul>
+<li><a href="#kernel_41">生成kernel可执行文件</a></li>
+<li><ul>
+<li><a href="#kernelOBJS_55">生成kernel下的OBJS</a></li>
+<li><a href="#kernelld_112">kernel.ld</a></li>
+<li><a href="#build_OBJS_KCSAN_174">build OBJS_KCSAN</a></li>
+<li><a href="#build_initcode_193">build initcode</a></li>
+</ul>
+</li>
+<li><a href="#fsimg_224">生成一个fs.img文件系统</a></li>
+<li><ul>
+<li><a href="#mkfs_238">mkfs</a></li>
+<li><a href="#_249">用户程序的编译</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#_290">配置工具</a></li>
+</ul>
+<h1 id="makefile语法格式"><a href="#makefile语法格式" class="headerlink" title="makefile语法格式"></a>makefile语法格式</h1><p>makefile就是一个深搜的过程，最上面的语句是顶级目标，顶级目标还有依赖</p>
+<p>如果依赖不存在，下面我们还要写，</p>
+<p>所以就是上面没有的，要在下面实现，再下面都实现了，上面的顶级目标才能实现</p>
+<h1 id="生成qemu可执行文件"><a href="#生成qemu可执行文件" class="headerlink" title="生成qemu可执行文件"></a>生成qemu可执行文件</h1><p><code>make qemu</code></p>
+<p><code>qemu</code> 依赖于<code>kernel</code> 和<code>fs.img</code>，把内核加载进去，文件系统挂载进去，之后一个操作系统就可以跑起来了</p>
+<p>模拟risc-v指令集的CPU，比较关键的就是-kernel $K&#x2F;kernel和-driver file&#x3D;fs.img</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><br>QEMU = qemu-system-riscv64	<span class="hljs-comment"># 指定QEMU版本risc-v 的CPU</span><br><span class="hljs-comment"># --》 指定了使用的操作内核是kernel/kernel,-m 模拟了操作系统使用的内存128M，使用了3个cpu个数，</span><br>QEMUOPTS = -machine virt -bios none -kernel $K/kernel -m 128M -smp <span class="hljs-variable">$(CPUS)</span> -nographic<br><span class="hljs-comment"># </span><br>QEMUOPTS += -global virtio-mmio.force-legacy=false<br><span class="hljs-comment"># 把文件系统挂载上去，最终就是模拟出来的一个计算机</span><br>QEMUOPTS += -drive file=fs.img,if=none,format=raw,id=x0<br>QEMUOPTS += -device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0<br><br><span class="hljs-keyword">ifeq</span> (<span class="hljs-variable">$(LAB)</span>,net)<br>QEMUOPTS += -netdev user,id=net0,hostfwd=udp::<span class="hljs-variable">$(FWDPORT)</span>-:2000 -object filter-dump,id=net0,netdev=net0,file=packets.pcap<br>QEMUOPTS += -device e1000,netdev=net0,bus=pcie.0<br><span class="hljs-keyword">endif</span><br><br><span class="hljs-comment"># qemu依赖于kernel， fs.img  </span><br><span class="hljs-section">qemu: $K/kernel fs.img</span><br>	<span class="hljs-variable">$(QEMU)</span> <span class="hljs-variable">$(QEMUOPTS)</span>-------&gt;这里有了操作系统和用户程序还缺少硬件<br><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/img_convert/bd6752861632e20f2b31a68479f9ba36.png" srcset="/img/loading.gif" lazyload></p>
+<h2 id="生成kernel可执行文件"><a href="#生成kernel可执行文件" class="headerlink" title="生成kernel可执行文件"></a>生成kernel可执行文件</h2><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-section">$K/kernel: <span class="hljs-variable">$(OBJS)</span> <span class="hljs-variable">$(OBJS_KCSAN)</span> $K/kernel.ld $U/initcode</span><br><span class="hljs-comment"># 把所有.o文件用kernel.ld配置的链接器进行链接起来,生成一个kernel</span><br>	<span class="hljs-variable">$(LD)</span> <span class="hljs-variable">$(LDFLAGS)</span> -T $K/kernel.ld -o $K/kernel <span class="hljs-variable">$(OBJS)</span> <span class="hljs-variable">$(OBJS_KCSAN)</span><br><span class="hljs-comment"># 把kernel反汇编成kernel.asm，让我们能够进行debug</span><br>	<span class="hljs-variable">$(OBJDUMP)</span> -S $K/kernel &gt; $K/kernel.asm<br><span class="hljs-comment"># 把asm中的一些数据进行过滤，方便进行查找  </span><br>	<span class="hljs-variable">$(OBJDUMP)</span> -t $K/kernel | sed &#x27;1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d&#x27; &gt; $K/kernel.sym<br><br></code></pre></td></tr></table></figure>
+
+<h3 id="生成kernel下的OBJS"><a href="#生成kernel下的OBJS" class="headerlink" title="生成kernel下的OBJS"></a>生成kernel下的OBJS</h3><p>kernel下的许多程序函数，都需要在 <code>kernel/main.c</code>函数中使用</p>
+<p>(1)编译目标定义</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><br><span class="hljs-comment"># 展开kernel/entry.o</span><br><span class="hljs-comment"># s\换行符</span><br><span class="hljs-comment"># 我们可以把OBJS这个变量别名理解为一个string</span><br><span class="hljs-comment"># 这里是编译内核态的代码，kernel依赖于这些代码</span><br><span class="hljs-comment"># 所以这下面的要一个一个开始生成</span><br>OBJS = \<br>  $K/entry.o \<br>  $K/kalloc.o \<br>  $K/string.o \<br>  $K/main.o \<br>  $K/vm.o \<br>  $K/proc.o \<br>  $K/swtch.o \<br>  $K/trampoline.o \<br>  $K/trap.o \<br>  $K/syscall.o \<br>  $K/sysproc.o \<br>  $K/bio.o \<br>  $K/fs.o \<br>  $K/log.o \<br>  $K/sleeplock.o \<br>  $K/file.o \<br>  $K/pipe.o \<br>  $K/exec.o \<br>  $K/sysfile.o \<br>  $K/kernelvec.o \<br>  $K/plic.o \<br>  $K/virtio_disk.o<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>%.o就是一个通配符，所有的.o都依赖于.c文件,这些都是kernel下的程序</p>
+</blockquote>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-section">$K/%.o: $K/%.c</span><br>	<span class="hljs-variable">$(CC)</span> <span class="hljs-variable">$(CFLAGS)</span> <span class="hljs-variable">$(EXTRAFLAG)</span> -c -o <span class="hljs-variable">$@</span> <span class="hljs-variable">$&lt;</span><br></code></pre></td></tr></table></figure>
+
+<p>.S汇编都是下面这样生成的</p>
+<blockquote>
+<p>riscv64-linux-gnu-gcc -c -o kernel&#x2F;entry.o kernel&#x2F;entry.S</p>
+</blockquote>
+<p>.c就是下面这样编译的，规则是不一样的</p>
+<blockquote>
+<p>riscv64-linux-gnu-gcc -Wall -Werror -O -fno-omit-frame-pointer -ggdb -gdwarf-2 -DSOL_PGTBL -DLAB_PGTBL -MD -mcmodel&#x3D;medany -ffreestanding -fno-common -nostdlib -mno-relax -I. -fno-stack-protector -fno-pie -no-pie -c -o kernel&#x2F;kalloc.o kernel&#x2F;kalloc.c</p>
+</blockquote>
+<p>到这里整个 <code>kernel</code>的 <code>OBJS</code> 都被build</p>
+<hr>
+<h3 id="kernel-ld"><a href="#kernel-ld" class="headerlink" title="kernel.ld"></a>kernel.ld</h3><p>这是kernel目录底下的链接脚本，指导着我们把kernel的依赖文件链接成一个目标文件</p>
+<p>链接器 <code>ld</code> 将按照脚本内的指令将 <code>.o</code>文件生成可执行文件</p>
+<p>主要描述的就是处理链接脚本的方式，以及生成可执行文件的内容布局</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><code class="hljs ld">OUTPUT_ARCH( &quot;riscv&quot; )<br>ENTRY( _entry )虚拟地址的路口<br>这下面都是虚拟地址，这个就是kernel的虚拟地址空间<br>SECTIONS<br>&#123;<br>  /*<br>   * ensure that entry.S / _entry is at 0x80000000,<br>   * where qemu&#x27;s -kernel jumps.<br>   */<br>  . = 0x80000000;这个就是设置entry入口为0x80000000，“.&quot;就是当前位置<br>  /*<br>   * 这里text里面存放的就是用户的代码<br><br>  */<br>  .text : &#123;<br>    *(.text .text.*)把目标文件中的所有.o文件中的text节都拿出来，生成一个全新的text节<br>    . = ALIGN(0x1000);做一个4KB对齐<br>    _trampoline = .;保存trampoline代码，记录当前位置<br>    *(trampsec)	保存trampoline代码<br>    . = ALIGN(0x1000);<br>    ASSERT(. - _trampoline == 0x1000, &quot;error: trampoline larger than one page&quot;);<br>    PROVIDE(etext = .);<br>  &#125;<br><br>  .rodata : &#123;<br>    . = ALIGN(16);<br>    *(.srodata .srodata.*) /* do not need to distinguish this from .rodata */<br>    . = ALIGN(16);<br>    *(.rodata .rodata.*)<br>  &#125;<br><br>  .data : &#123;<br>    . = ALIGN(16);<br>    *(.sdata .sdata.*) /* do not need to distinguish this from .data */<br>    . = ALIGN(16);<br>    *(.data .data.*)<br>  &#125;<br><br>  .bss : &#123;<br>    . = ALIGN(16);<br>    *(.sbss .sbss.*) /* do not need to distinguish this from .bss */<br>    . = ALIGN(16);<br>    *(.bss .bss.*)<br>  &#125;<br><br>  PROVIDE(end = .);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/img_convert/ca4b755ab83ce2b96a63adbe24fea7b3.jpeg" srcset="/img/loading.gif" lazyload><br><img src="https://img-blog.csdnimg.cn/img_convert/6d3eb0726d2b2af0a59030718ceaf31e.png" srcset="/img/loading.gif" lazyload></p>
+<h3 id="build-OBJS-KCSAN"><a href="#build-OBJS-KCSAN" class="headerlink" title="build OBJS_KCSAN"></a>build OBJS_KCSAN</h3><p>这些程序都是处理和硬件中断相关的程序</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs makefile">OBJS_KCSAN = \<br>  $K/start.o \<br>  $K/console.o \<br>  $K/printf.o \<br>  $K/uart.o \<br>  $K/spinlock.o<br><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-section">$K/%.o: $K/%.c</span><br>	<span class="hljs-variable">$(CC)</span> <span class="hljs-variable">$(CFLAGS)</span> <span class="hljs-variable">$(EXTRAFLAG)</span> -c -o <span class="hljs-variable">$@</span> <span class="hljs-variable">$&lt;</span><br></code></pre></td></tr></table></figure>
+
+<h3 id="build-initcode"><a href="#build-initcode" class="headerlink" title="build initcode"></a>build initcode</h3><p>用户空间初始化程序</p>
+<p>在 <code>kernel/main.c</code>中使用到了这个程序，执行<strong>第一个用户</strong>程序 <code>&quot;init&quot;</code>程序,这一段可加可不加，kernel编译中只加了这一部分</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-comment">// a user program that calls exec(&quot;/init&quot;)</span><br><span class="hljs-comment">// assembled from ../user/initcode.S</span><br><span class="hljs-comment">// od -t xC ../user/initcode</span><br>uchar initcode[] = &#123;<br>    <span class="hljs-number">0x17</span>, <span class="hljs-number">0x05</span>, <span class="hljs-number">0x00</span>, <span class="hljs-number">0x00</span>, <span class="hljs-number">0x13</span>, <span class="hljs-number">0x05</span>, <span class="hljs-number">0x45</span>, <span class="hljs-number">0x02</span>,<br>    <span class="hljs-number">0x97</span>, <span class="hljs-number">0x05</span>, <span class="hljs-number">0x00</span>, <span class="hljs-number">0x00</span>, <span class="hljs-number">0x93</span>, <span class="hljs-number">0x85</span>, <span class="hljs-number">0x35</span>, <span class="hljs-number">0x02</span>,<br>    <span class="hljs-number">0x93</span>, <span class="hljs-number">0x08</span>, <span class="hljs-number">0x70</span>, <span class="hljs-number">0x00</span>, <span class="hljs-number">0x73</span>, <span class="hljs-number">0x00</span>, <span class="hljs-number">0x00</span>, <span class="hljs-number">0x00</span>,<br>    <span class="hljs-number">0x93</span>, <span class="hljs-number">0x08</span>, <span class="hljs-number">0x20</span>, <span class="hljs-number">0x00</span>, <span class="hljs-number">0x73</span>, <span class="hljs-number">0x00</span>, <span class="hljs-number">0x00</span>, <span class="hljs-number">0x00</span>,<br>    <span class="hljs-number">0xef</span>, <span class="hljs-number">0xf0</span>, <span class="hljs-number">0x9f</span>, <span class="hljs-number">0xff</span>, <span class="hljs-number">0x2f</span>, <span class="hljs-number">0x69</span>, <span class="hljs-number">0x6e</span>, <span class="hljs-number">0x69</span>,<br>    <span class="hljs-number">0x74</span>, <span class="hljs-number">0x00</span>, <span class="hljs-number">0x00</span>, <span class="hljs-number">0x24</span>, <span class="hljs-number">0x00</span>, <span class="hljs-number">0x00</span>, <span class="hljs-number">0x00</span>, <span class="hljs-number">0x00</span>,<br>    <span class="hljs-number">0x00</span>, <span class="hljs-number">0x00</span>, <span class="hljs-number">0x00</span>, <span class="hljs-number">0x00</span>&#125;;<br><br></code></pre></td></tr></table></figure>
+
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><br><span class="hljs-section">$U/initcode: $U/initcode.S</span><br>	<span class="hljs-variable">$(CC)</span> <span class="hljs-variable">$(CFLAGS)</span> -march=rv64g -nostdinc -I. -Ikernel -c $U/initcode.S -o $U/initcode.o<br>	<span class="hljs-variable">$(LD)</span> <span class="hljs-variable">$(LDFLAGS)</span> -N -e start -Ttext 0 -o $U/initcode.out $U/initcode.o<br>	<span class="hljs-variable">$(OBJCOPY)</span> -S -O binary $U/initcode.out $U/initcode<br>	<span class="hljs-variable">$(OBJDUMP)</span> -S $U/initcode.o &gt; $U/initcode.asm<br></code></pre></td></tr></table></figure>
+
+<h2 id="生成一个fs-img文件系统"><a href="#生成一个fs-img文件系统" class="headerlink" title="生成一个fs.img文件系统"></a>生成一个fs.img文件系统</h2><p>这个就是生成一个文件系统,相当于一个硬盘的镜像（用来存放用户程序的)</p>
+<blockquote>
+<p>这里的mkfs&#x2F;mkfs程序，就是将后面的 ( U P R O G S ) , (UPROGS), (UPROGS),(UEXTRA)用户编译好的程序,写入 <code>fs.img</code>这个文件系统中</p>
+</blockquote>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-comment"># 这些都是伪目标，可以直接使用</span><br><span class="hljs-section">fs.img: mkfs/mkfs README <span class="hljs-variable">$(UEXTRA)</span> <span class="hljs-variable">$(UPROGS)</span></span><br>	mkfs/mkfs fs.img README <span class="hljs-variable">$(UEXTRA)</span> <span class="hljs-variable">$(UPROGS)</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>mkfs&#x2F;mkfs fs.img README user&#x2F;_cat user&#x2F;_echo user&#x2F;_forktest user&#x2F;_grep user&#x2F;_init user&#x2F;_kill user&#x2F;_ln user&#x2F;_ls user&#x2F;_mkdir user&#x2F;_rm user&#x2F;_sh user&#x2F;_stressfs user&#x2F;_usertests user&#x2F;_grind user&#x2F;_wc user&#x2F;_zombie user&#x2F;_pgtbltest</p>
+</blockquote>
+<h3 id="mkfs"><a href="#mkfs" class="headerlink" title="mkfs"></a>mkfs</h3><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-section">mkfs/mkfs: mkfs/mkfs.c $K/fs.h $K/param.h</span><br>	gcc <span class="hljs-variable">$(XCFLAGS)</span> -Werror -Wall -I. -o mkfs/mkfs mkfs/mkfs.c<br></code></pre></td></tr></table></figure>
+
+<p><code>mkfs/mkfs</code>就是往文件系统中写文件的程序</p>
+<blockquote>
+<p>gcc -DSOL_PGTBL -DLAB_PGTBL -Werror -Wall -I. -o mkfs&#x2F;mkfs mkfs&#x2F;mkfs.c</p>
+</blockquote>
+<h3 id="用户程序的编译"><a href="#用户程序的编译" class="headerlink" title="用户程序的编译"></a>用户程序的编译</h3><figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><code class="hljs makefile">UPROGS=\<br>	$U/_cat\<br>	$U/_echo\<br>	$U/_forktest\<br>	$U/_grep\<br>	$U/_init\<br>	$U/_kill\<br>	$U/_ln\<br>	$U/_ls\<br>	$U/_mkdir\<br>	$U/_rm\<br>	$U/_sh\<br>	$U/_stressfs\<br>	$U/_usertests\<br>	$U/_grind\<br>	$U/_wc\<br>	$U/_zombie\<br><br>ULIB = $U/ulib.o $U/usys.o $U/printf.o $U/umalloc.o	<span class="hljs-comment">#  这个对标的就是C语言中的一些库函数，如printf，malloc之类的</span><br><span class="hljs-comment"># 这里的_就是一个字符，后面的%就是匹配所有以_开头的文件</span><br><span class="hljs-comment"># 依赖中的%.o,就是匹配所有.o结尾的文件，同时还要添加一个ULIB,依次去匹配这些东西</span><br><span class="hljs-section">_%: %.o <span class="hljs-variable">$(ULIB)</span></span><br>	<span class="hljs-variable">$(LD)</span> <span class="hljs-variable">$(LDFLAGS)</span> -T $U/user.ld -o <span class="hljs-variable">$@</span> <span class="hljs-variable">$^</span><br>	<span class="hljs-variable">$(OBJDUMP)</span> -S <span class="hljs-variable">$@</span> &gt; <span class="hljs-variable">$*</span>.asm<br>	<span class="hljs-variable">$(OBJDUMP)</span> -t <span class="hljs-variable">$@</span> | sed &#x27;1,/SYMBOL TABLE/d; s/ .* / /; /^$$/d&#x27; &gt; <span class="hljs-variable">$*</span>.sym<br><br></code></pre></td></tr></table></figure>
+
+<p><code>ulib</code>中包含的就是一些string和内存操作的一些库函数<br><code>printf</code> 包含了和标准输出相关的一些函数<br><code>umalloc</code>包含了malloc相关的动态开辟之类的函数<br><code>usys</code>里面包含的就是系统调用相关的入口函数</p>
+<p>这些将来就可以被OS调用，从文件系统中加载到内存中进行执行</p>
+<p>用户态生成这些应用文件</p>
+<p>硬盘构建完了上面这些在mkfs中使用到的编译完之后，就能构建fs.img</p>
+<h1 id="配置工具"><a href="#配置工具" class="headerlink" title="配置工具"></a>配置工具</h1><p>指定工具的版本，如果找不到合适的版本就输出错误信息</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs makefile">TOOLPREFIX := <span class="hljs-variable">$(<span class="hljs-built_in">shell</span> <span class="hljs-built_in">if</span> riscv64-unknown-elf-objdump -i 2&gt;&amp;1 | grep &#x27;elf64-big&#x27; &gt;/dev/null 2&gt;&amp;1; \</span><br><span class="hljs-variable">	then echo &#x27;riscv64-unknown-elf-&#x27;; \</span><br><span class="hljs-variable">	elif riscv64-linux-gnu-objdump -i 2&gt;&amp;1 | grep &#x27;elf64-big&#x27; &gt;/dev/null 2&gt;&amp;1; \</span><br><span class="hljs-variable">	then echo &#x27;riscv64-linux-gnu-&#x27;; \</span><br><span class="hljs-variable">	elif riscv64-unknown-linux-gnu-objdump -i 2&gt;&amp;1 | grep &#x27;elf64-big&#x27; &gt;/dev/null 2&gt;&amp;1; \</span><br><span class="hljs-variable">	then echo &#x27;riscv64-unknown-linux-gnu-&#x27;; \</span><br><span class="hljs-variable">	else echo &quot;***&quot; 1&gt;&amp;2; \</span><br><span class="hljs-variable">	echo &quot;*** Error: Couldn&#x27;t find a riscv64 version of GCC/binutils.&quot; 1&gt;&amp;2; \</span><br><span class="hljs-variable">	echo &quot;*** To turn off this <span class="hljs-built_in">error</span>, run &#x27;gmake TOOLPREFIX= ...&#x27;.&quot; 1&gt;&amp;2; \</span><br><span class="hljs-variable">	echo &quot;***&quot; 1&gt;&amp;2; exit 1; fi)</span><br></code></pre></td></tr></table></figure>
+
+<p>配置<code>编译器</code>，<code>汇编器</code>，<code>链接器</code>，<code>copy工具</code>，<code>dump工具</code>（反汇编)</p>
+<hr>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs makefile">CC = <span class="hljs-variable">$(TOOLPREFIX)</span>gcc		<span class="hljs-comment">#  指定编译器</span><br>AS = <span class="hljs-variable">$(TOOLPREFIX)</span>gas		<span class="hljs-comment">#  汇编器</span><br>LD = <span class="hljs-variable">$(TOOLPREFIX)</span>ld		<span class="hljs-comment">#  链接器，前面都加上工具的版本</span><br>OBJCOPY = <span class="hljs-variable">$(TOOLPREFIX)</span>objcopy	<span class="hljs-comment"># 把一个目标文件的内容拷贝到另一个目标文件中</span><br>OBJDUMP = <span class="hljs-variable">$(TOOLPREFIX)</span>OBJDUMP	<span class="hljs-comment"># objdump是把二进制文件反汇编成一个.asm文件</span><br></code></pre></td></tr></table></figure>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/mit6-1810/" class="category-chain-item">mit6.1810</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%BD%91%E7%BB%9C/">#网络</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>xv6 makefile详解</div>
+      <div>http://example.com/2022/12/17/xv6 makefile详解/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zevin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年12月17日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2023/01/07/%E5%9B%BE/" title="图">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">图</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/12/14/mmap/" title="mmap">
+                        <span class="hidden-mobile">mmap</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","appKey":"javf3F1xk56WiY222ZrCxGt1","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,998 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zevin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="文章目录 复习C语言io知识 学习文件的系统调用接口 文件描述符  文件与进程 一切皆文件 文件描述符的分配规则   write read 重定向  dup2   缓冲区  标准输出和标准错误 缓存区    复习C语言io知识1234567891011121314151617181920212223242526272829303132333435#include&lt;stdio.h&gt;i">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Linux----基础IO">
+<meta property="og:url" content="http://example.com/2022/04/14/Linux----%E5%9F%BA%E7%A1%80IO/index.html">
+<meta property="og:site_name" content="Zevin-Blog">
+<meta property="og:description" content="文章目录 复习C语言io知识 学习文件的系统调用接口 文件描述符  文件与进程 一切皆文件 文件描述符的分配规则   write read 重定向  dup2   缓冲区  标准输出和标准错误 缓存区    复习C语言io知识1234567891011121314151617181920212223242526272829303132333435#include&lt;stdio.h&gt;i">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/d86f05bcf2b34305ad2b8250b016c48a.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/43766ebd44194c93aa70db11ae7029c0.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/40733187b9354c3ab233f652d2fbd7af.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_11,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/e48d1bf7d861415d9971fa9040d25d37.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/4372f3a8e2d8422cab2970bb56dbe8ff.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/8a09e45ff0d04346b676e6a44bb27647.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/7a73113f7c10454c929050f818c639af.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/c2c476988cd84e60825709b66aa60755.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/8d45a116fccc424cb09fe3faf25343ff.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/24c87b8c2d1a43a0bacf1ef17538ccee.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_14,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/3dc1d44a8e7247f6a3292610d5a9e694.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/3334ef27554d46788570faf59f0f9f81.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/5862bfdbd03f4160923b96ba054cc483.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/d73391c9fded40a391f41a1552f4998b.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/b95a0a5239b1424db95268c7c34bdabb.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/fe6457ab397b43fb8abb6780c90e9f14.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/248173fe5f82407d95c2a6e93685fb0f.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_12,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/2adcaa30d0244985a17d93f0998d8452.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/2c03163e4be84359824382a1ff14261f.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/423cb249338647bb97bbf9d6d36b747c.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/fd7473564dd042b9ba523cdf969555c5.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_14,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/fe822a980e8c465b8a307e390c12c7a5.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_17,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/e0f7135cdddb406ea8787cd343b577dc.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/f2c2a61da41a4436b4b4dc935804780c.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/20669ce307064e1d8e97980962011270.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/7aa9920a748a4a0bbe156df21e8ae9b1.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/4cc7ba0ed97849f5bfa46663a59ff733.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAWmV2aW4uLg==,size_19,color_FFFFFF,t_70,g_se,x_16">
+<meta property="article:published_time" content="2022-04-14T06:41:08.000Z">
+<meta property="article:modified_time" content="2023-01-20T12:55:15.358Z">
+<meta property="article:author" content="Zevin">
+<meta property="article:tag" content="linux">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/d86f05bcf2b34305ad2b8250b016c48a.png">
+  
+  
+  
+  <title>Linux----基础IO - Zevin-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","app_key":"javf3F1xk56WiY222ZrCxGt1","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zevin-Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="Linux----基础IO"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-04-14 14:41" pubdate>
+          2022年4月14日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          9.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          81 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">Linux----基础IO</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+
+<h3 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h3><ul>
+<li><a href="#Cio_2">复习C语言io知识</a></li>
+<li><a href="#_65">学习文件的系统调用接口</a></li>
+<li><a href="#_113">文件描述符</a></li>
+<li><ul>
+<li><a href="#_150">文件与进程</a></li>
+<li><a href="#_202">一切皆文件</a></li>
+<li><a href="#_233">文件描述符的分配规则</a></li>
+</ul>
+</li>
+<li><a href="#write_272">write</a></li>
+<li><a href="#read_307">read</a></li>
+<li><a href="#_335">重定向</a></li>
+<li><ul>
+<li><a href="#dup2_391">dup2</a></li>
+</ul>
+</li>
+<li><a href="#_411">缓冲区</a></li>
+<li><ul>
+<li><a href="#_412">标准输出和标准错误</a></li>
+<li><a href="#_444">缓存区</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="复习C语言io知识"><a href="#复习C语言io知识" class="headerlink" title="复习C语言io知识"></a>复习C语言io知识</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span><br>&#123;<br>  <span class="hljs-comment">//FILE* fp=fopen(&quot;./log.txt&quot;,&quot;r&quot;);</span><br>  FILE* fp=fopen(<span class="hljs-string">&quot;./log.txt&quot;</span>,<span class="hljs-string">&quot;a&quot;</span>);<span class="hljs-comment">//追加，不会覆盖掉</span><br>  <span class="hljs-keyword">if</span>(<span class="hljs-literal">NULL</span>==fp)<br>  &#123;<br>    perror(<span class="hljs-string">&quot;fopen&quot;</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">1</span>;<br><br>  &#125;<br>  <span class="hljs-meta">#<span class="hljs-keyword">if</span> </span><br><span class="hljs-comment">//  char buffer[32];</span><br><span class="hljs-comment">//  while(fgets(buffer,sizeof(buffer),fp)!=NULL)</span><br><span class="hljs-comment">//  &#123;</span><br><span class="hljs-comment">//    printf(&quot;%s&quot;, buffer);</span><br><span class="hljs-comment">//  &#125;</span><br><span class="hljs-comment">//  if(!feof(fp))</span><br><span class="hljs-comment">//  &#123;</span><br><span class="hljs-comment">//    printf(&quot;fgets quit not normal\n&quot;);</span><br><span class="hljs-comment">//</span><br><span class="hljs-comment">//  &#125;</span><br><span class="hljs-comment">//  else </span><br><span class="hljs-comment">//  &#123;</span><br><span class="hljs-comment">//    printf(&quot;fgets quit normal\n&quot;);</span><br><span class="hljs-comment">//  &#125;</span><br><br>  <span class="hljs-type">int</span> cnt=<span class="hljs-number">10</span>;<br>  <span class="hljs-type">const</span> <span class="hljs-type">char</span>* msg=<span class="hljs-string">&quot;hello &quot;</span>;<br>  <span class="hljs-keyword">while</span>(cnt--)&#123;<br>  <span class="hljs-built_in">fputs</span>(msg,fp);<br>  &#125;<br>  fclose(fp);<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>C 程序默认会打开3个输出流，stdin，stdout，stderr<br>stdin对应键盘，stdout对应显示器，stderr对应显示器</p>
+<blockquote>
+<p>fputs(msg,stdout);&#x2F;&#x2F;直接向显示器去写入</p>
+</blockquote>
+<p>stdout是向显示器去输出<br>将原本应该显示到显示屏的内容，显示到了文件里面<br>本质是指把stdout的内容重定向到文件中<br><img src="https://img-blog.csdnimg.cn/d86f05bcf2b34305ad2b8250b016c48a.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>把原本应该打印在文件里面的打印在了显示器里面<br><img src="https://img-blog.csdnimg.cn/43766ebd44194c93aa70db11ae7029c0.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>fputs向一般文件或者硬件设备都能写入<br>磁盘也是硬件<br>同理<br>c++：cin,cout cerr</p>
+<ol>
+<li><p>c语言的一切操作实际上都是在向硬件写入（所有语言上对“文件”的操作都要贯穿操作系统）<br>即最终都是访问硬件，<br><strong>用户行为–&gt;语言，程序，lib–&gt;OS–&gt;驱动–&gt;硬件</strong></p>
+</li>
+<li><p>但是操作系统不相信任何人 ，所以访问操作系统是需要系统调用接口的<br>所以几乎所有的语言fopen，fclose,fread等等的底层一定是使用OS提供的系统调用</p>
+</li>
+</ol>
+<h1 id="学习文件的系统调用接口"><a href="#学习文件的系统调用接口" class="headerlink" title="学习文件的系统调用接口"></a>学习文件的系统调用接口</h1><blockquote>
+<p>离OS更近，更能了解</p>
+</blockquote>
+<p>文件打开</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">open</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *pathname, <span class="hljs-type">int</span> flags)</span>;<br> <span class="hljs-type">int</span> <span class="hljs-title function_">open</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">char</span> *pathname, <span class="hljs-type">int</span> flags, <span class="hljs-type">mode_t</span> mode)</span>;<br> <br></code></pre></td></tr></table></figure>
+
+<p>pathname就是要打开的路径名，flags就是我们打开的方式，mode就是打开的权限信息，<br>会返回一个文件描述符,int类型<br>flag是整数，：传递标志位，</p>
+<blockquote>
+<p>int:32个bit位，一个bit，就代表一个标志，就代表一个标志位<br>0000 0000,如以最后一个标志位为0还是1,代表是读还是写<br>，以第一个标志位，代表是否创建文件<br>可以传多个，还快</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-keyword">if</span>(O_WRONLY&amp;flag)<br></code></pre></td></tr></table></figure>
+
+<p>判断结果，所以O_WRONLY O_rdnly O_CREAT<br>这些都是只有一个比特位为1的数据，而且都不重复</p>
+<blockquote>
+<p>#define O_WRONLY 0x1<br>#define O_RDONLY 0x2<br>等等</p>
+</blockquote>
+<p>如果想要得到两个以上的功能，我们直接|就可以了</p>
+</blockquote>
+<p>这就是通过比特位的方式传多组标记的做法</p>
+<p>文件关闭<br><img src="https://img-blog.csdnimg.cn/40733187b9354c3ab233f652d2fbd7af.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_11,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> fd=open(<span class="hljs-string">&quot;./lg.txt&quot;</span>,O_WRONLY|O_CREAT);<span class="hljs-comment">//以只写方式打开,如果文件不存在，就会帮助我们创建一个</span><br><span class="hljs-comment">//相当于C语言中的w选项,</span><br><span class="hljs-keyword">if</span>(fd&lt;<span class="hljs-number">0</span>)<br>&#123;<br>  <span class="hljs-comment">//打开文件失败</span><br>  <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;open err\n&quot;</span>);<br>&#125;<br>close(fd);<span class="hljs-comment">//文件就关掉了</span><br></code></pre></td></tr></table></figure>
+
+<p>我们没有输入第三个参数（权限参数），那么加入不存在这个文件，那么产生的文件的权限是乱的<br><img src="https://img-blog.csdnimg.cn/e48d1bf7d861415d9971fa9040d25d37.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h1 id="文件描述符"><a href="#文件描述符" class="headerlink" title="文件描述符"></a>文件描述符</h1><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> fd=open(<span class="hljs-string">&quot;./g.txt&quot;</span>,O_WRONLY|O_CREAT,<span class="hljs-number">0644</span>);<span class="hljs-comment">//一次传递两个标志位</span><br><span class="hljs-comment">//以只写方式打开,如果文件不存在，就会帮助我们创建一个</span><br><span class="hljs-comment">//相当于C语言中的w选项,0644以二进制的方式显示权限</span><br><span class="hljs-keyword">if</span>(fd&lt;<span class="hljs-number">0</span>)<br>&#123;<br>  <span class="hljs-comment">//打开文件失败</span><br>  <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;open err\n&quot;</span>);<br>&#125;<br><span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;fd:%d\n&quot;</span>,fd);<br>close(fd);<span class="hljs-comment">//文件就关掉了</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/4372f3a8e2d8422cab2970bb56dbe8ff.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> fd=open(<span class="hljs-string">&quot;./g.txt&quot;</span>,O_WRONLY|O_CREAT,<span class="hljs-number">0644</span>);<span class="hljs-comment">//一次传递两个标志位</span><br> <span class="hljs-type">int</span> fd1=open(<span class="hljs-string">&quot;./g1.txt&quot;</span>,O_WRONLY|O_CREAT,<span class="hljs-number">0644</span>);<span class="hljs-comment">//一次传递两个标志位</span><br> <span class="hljs-type">int</span> fd2=open(<span class="hljs-string">&quot;./g2.txt&quot;</span>,O_WRONLY|O_CREAT,<span class="hljs-number">0644</span>);<span class="hljs-comment">//一次传递两个标志位</span><br> <span class="hljs-type">int</span> fd3=open(<span class="hljs-string">&quot;./g3.txt&quot;</span>,O_WRONLY|O_CREAT,<span class="hljs-number">0644</span>);<span class="hljs-comment">//一次传递两个标志位</span><br> <span class="hljs-comment">//以只写方式打开,如果文件不存在，就会帮助我们创建一个</span><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/8a09e45ff0d04346b676e6a44bb27647.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>我们发现是从3开始连续</p>
+<p>文件描述符那么0,1,2去那里了呢</p>
+<blockquote>
+<p>0：标准输入,键盘<br>1：标准输出，显示器<br>2：标准错误，显示器</p>
+</blockquote>
+<blockquote>
+<p>0 1 2 3 4 5 6 7<br>我们可以联想到一个数组的下标</p>
+</blockquote>
+<blockquote>
+<p>open的返回值是OS系统给我们的</p>
+</blockquote>
+<h2 id="文件与进程"><a href="#文件与进程" class="headerlink" title="文件与进程"></a>文件与进程</h2><p>所有的文件操作，表现上都是进程执行对应的函数</p>
+<blockquote>
+<p>进程对文件的操作</p>
+<ol>
+<li>要操作文件必须先<strong>打开文件</strong></li>
+<li><strong>打开文件</strong>的本质：将文件相关的属性信息加载到内存</li>
+<li>系统中会存在大量的进程，进程可以打开多个文件，系统中存在更多的<strong>打开的文件</strong><br>那么OS 要把<strong>打开的文件</strong>管理起来，<br>（先描述再组织）</li>
+</ol>
+<ul>
+<li>如果一个文件没有被打开，没有被创建，那么这个文件就在磁盘上，同理一个<strong>进程</strong>没有被打开，这个进程也在<strong>磁盘</strong>上面</li>
+<li>如果创建了空文件（内容），要不要占磁盘空间呢，但是还有文件的属性，也是数据，，所以也是要占据磁盘空间，<br><strong>磁盘文件&#x3D;文件内容+文件的属性</strong></li>
+</ul>
+</blockquote>
+<p>对文件的操作：</p>
+<ol>
+<li>对文件内容进行操作</li>
+<li>对文件属性进行操作</li>
+</ol>
+<p>管理的思路<br>先描述再组织</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">file</span></span><br><span class="hljs-class">&#123;</span><br>	<span class="hljs-comment">//包含了打开文件的相关属性信息</span><br>	<span class="hljs-comment">//链接属性</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>在进程里面有<br>struct task_struct<br>{<!-- --><br>struct files_struct* fs;&#x2F;&#x2F;地址，指向的就是其对应的内容<br>}</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">files_strtuct</span></span><br><span class="hljs-class">&#123;</span><br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">file</span>* <span class="hljs-title">fd_array</span>[];</span><span class="hljs-comment">//指针数组</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>因为array是一个指针数组，所以可以用对应的下标找到对应的地址0,1,2<br>相当于fd_array[0]就指向了一个文件</p>
+<p>所以0，1，2分别被标准输入，标准输出，标准错误文件给占用<br>每次生成一个文件，再内存里面就要形成一个struct file结构，在把地址填入到array下标处</p>
+<p>而我们再write和read的时候，都要传入fd</p>
+<ol>
+<li>执行write和read调用的是进程，而进程就能通过自己的PCB 找到对应的fs指针，找到files_struct里面根据文件描述符找到对应的文件，进行相关操作</li>
+</ol>
+<p>fd</p>
+<blockquote>
+<p>本质就是内核中进程和文件关联的数组的下标</p>
+</blockquote>
+<h2 id="一切皆文件"><a href="#一切皆文件" class="headerlink" title="一切皆文件"></a>一切皆文件</h2><p>一切皆为文件<br>每一个硬件都有其对应的write和read的方法<br><img src="https://img-blog.csdnimg.cn/7a73113f7c10454c929050f818c639af.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>虚拟文件，可以类比于多态，使用函数指针，就用指针调用对应的函数，这些函数调用这些硬件对应的方法，<br>多态就是实现一切皆（）的高级方法<br><img src="https://img-blog.csdnimg.cn/c2c476988cd84e60825709b66aa60755.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>如我们在上层调用read&#x2F;write的时候，就指向了对应的fd，再指向其对应的方法<br><img src="https://img-blog.csdnimg.cn/8d45a116fccc424cb09fe3faf25343ff.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">Fd_Dewrite</span><span class="hljs-params">()</span><br>&#123;<br>    <span class="hljs-type">const</span> <span class="hljs-type">char</span>* msg=<span class="hljs-string">&quot;hello&quot;</span>;<br>    write(<span class="hljs-number">1</span>,msg,<span class="hljs-built_in">strlen</span>(msg));<span class="hljs-comment">//向标准输出去写入</span><br>    write(<span class="hljs-number">1</span>,msg,<span class="hljs-built_in">strlen</span>(msg));<span class="hljs-comment">//向标准输出去写入</span><br>    write(<span class="hljs-number">1</span>,msg,<span class="hljs-built_in">strlen</span>(msg));<span class="hljs-comment">//向标准输出去写入</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们直接向标准输出去书出<br><img src="https://img-blog.csdnimg.cn/24c87b8c2d1a43a0bacf1ef17538ccee.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_14,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>直接从键盘输入</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">read(<span class="hljs-number">0</span>,buf,<span class="hljs-keyword">sizeof</span>(buf)<span class="hljs-number">-1</span>);<span class="hljs-comment">//直接从键盘上写入</span><br>   <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;echo :%s&quot;</span>,buf);<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/3dc1d44a8e7247f6a3292610d5a9e694.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h2 id="文件描述符的分配规则"><a href="#文件描述符的分配规则" class="headerlink" title="文件描述符的分配规则"></a>文件描述符的分配规则</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span>  <span class="hljs-title function_">Fd_Alloc_Base</span><span class="hljs-params">()</span><br>&#123;<br>	close(<span class="hljs-number">0</span>);<br>    close(<span class="hljs-number">2</span>);<span class="hljs-comment">//把0对应的标准输入给关闭</span><br>    <span class="hljs-type">int</span> fd=open(<span class="hljs-string">&quot;./g.txt&quot;</span>,O_CREAT|O_WRONLY,<span class="hljs-number">0644</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;fd=%d \n&quot;</span>,fd);<br>    close(fd);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/3334ef27554d46788570faf59f0f9f81.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br><strong>分配规则</strong></p>
+<blockquote>
+<p>每次给新文件分配的fd，是从fd_array中找到最小的，没有被使用的，作为新的fd</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span>  <span class="hljs-title function_">Fd_Alloc_Base</span><span class="hljs-params">()</span><br>&#123;<br>    close(<span class="hljs-number">1</span>);<br>    close(<span class="hljs-number">2</span>);<span class="hljs-comment">//把0对应的标准输入给关闭</span><br>    <span class="hljs-type">int</span> fd=open(<span class="hljs-string">&quot;./g.txt&quot;</span>,O_CREAT|O_WRONLY,<span class="hljs-number">0644</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;fd=%d \n&quot;</span>,fd);<br>    close(fd);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们把1的标准输出给关了，<br><img src="https://img-blog.csdnimg.cn/5862bfdbd03f4160923b96ba054cc483.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>没有显示到显示屏中，而是显示到了文件中<br>这就是输出重定向</p>
+<p>原因：我们把1的文件描述符给关了，所以现在给g.txt里面的fd就是1，<br>而printf里面对应的文件的fd一定是1，所以现在g.txt的fd为&#x3D;1，就写到了g.txt</p>
+<p>而printf和fprintf里面的都是有相关的fd，因为操作系统最大，</p>
+<h1 id="write"><a href="#write" class="headerlink" title="write"></a>write</h1><p>功能：向文件描述符写入，在buf的用户缓冲区里面，期望写入cout个字节<br>return：返回的是实际向文件里面写入多少个字节的内容<br><img src="https://img-blog.csdnimg.cn/d73391c9fded40a391f41a1552f4998b.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;sys/stat.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;sys/types.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;fcntl.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;unistd.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;string.h&gt;</span></span><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span><br>&#123;<br>    <span class="hljs-type">int</span> fd=open(<span class="hljs-string">&quot;demo.txt&quot;</span>,O_CREAT|O_WRONLY,<span class="hljs-number">0644</span>);<br>    <span class="hljs-keyword">if</span>(fd&lt;<span class="hljs-number">0</span>)<br>    &#123;<br>        perror(<span class="hljs-string">&quot;open&quot;</span>);<br>        <span class="hljs-built_in">exit</span>(<span class="hljs-number">-1</span>);<br>    &#125;<br>    <span class="hljs-type">const</span> <span class="hljs-type">char</span>*msg=<span class="hljs-string">&quot;hello \n&quot;</span>;<br>    <span class="hljs-type">int</span> cnt=<span class="hljs-number">5</span>;<br>    <span class="hljs-keyword">while</span>(cnt)<br>    &#123;<br>        write(fd,msg,<span class="hljs-built_in">strlen</span>(msg));<span class="hljs-comment">//我们写入文件的过程中，我们要不要加入\0呢，不需要，</span><br>        <span class="hljs-comment">//因为\0作为字符串的结束标志位，只是c的规定，而文件关心字符串的内容，</span><br>        cnt--;<br>    &#125;<br><br>    close(fd);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们用write写入了5个hello，<br><img src="https://img-blog.csdnimg.cn/b95a0a5239b1424db95268c7c34bdabb.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h1 id="read"><a href="#read" class="headerlink" title="read"></a>read</h1><p>功能：从文件描述符中读取指定内容，一次读取到的内容，都放到用户层缓冲区中，每次读取count个字节<br>return：如果count是我们期望读多少个字节，返回就是我们实际读取多少个字节<br><img src="https://img-blog.csdnimg.cn/fe6457ab397b43fb8abb6780c90e9f14.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">FdRead</span><span class="hljs-params">()</span><br>&#123;<br>    <span class="hljs-type">int</span> fd=open(<span class="hljs-string">&quot;./demo.txt&quot;</span>,O_RDONLY);<span class="hljs-comment">//以读的方式打开不涉及到创建,权限也不要写了</span><br>    <span class="hljs-keyword">if</span>(fd&lt;<span class="hljs-number">0</span>)<br>    &#123;<br>        perror(<span class="hljs-string">&quot;open&quot;</span>);<br>        <span class="hljs-built_in">exit</span>(<span class="hljs-number">-1</span>);<br>    &#125;<br>    <span class="hljs-type">char</span> buff[<span class="hljs-number">1024</span>];<br>    <span class="hljs-type">ssize_t</span> s=read(fd,buff,<span class="hljs-keyword">sizeof</span>(buff)<span class="hljs-number">-1</span>);<span class="hljs-comment">//-1是因为我们不需要\0</span><br><br>    <span class="hljs-keyword">if</span>(s&gt;<span class="hljs-number">0</span>)<br>    &#123;<br>        <span class="hljs-comment">//说明我们读取到了有效的内容</span><br>        <span class="hljs-comment">//因为我们要把读取到的内容当作一个字符串看待，所以要在最结尾添加一个\0,作为字符串结束标志</span><br>        buff[s]=<span class="hljs-number">0</span>;<br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%s\n&quot;</span>,buff);<br>    &#125;<br>    close(fd);<br>    <br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/248173fe5f82407d95c2a6e93685fb0f.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_12,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h1 id="重定向"><a href="#重定向" class="headerlink" title="重定向"></a>重定向</h1><p>输出重定向</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">echo <span class="hljs-string">&quot;hello world&quot;</span>&gt;<span class="hljs-built_in">log</span>.txt<br></code></pre></td></tr></table></figure>
+
+<p>我们可以理解为把echo的1关掉，在把log打开，再把所有内容打印到里面</p>
+<p>追加重定向</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span>  <span class="hljs-title function_">Fd_Alloc_Base</span><span class="hljs-params">()</span><br>&#123;<br>    close(<span class="hljs-number">1</span>);<br>    <span class="hljs-comment">// close(2);//把0对应的标准输入给关闭</span><br>    <span class="hljs-type">int</span> fd=open(<span class="hljs-string">&quot;./g.txt&quot;</span>,O_CREAT|O_WRONLY|O_APPEND,<span class="hljs-number">0644</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;fd=%d \n&quot;</span>,fd);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;hello world&quot;</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;hello world&quot;</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;hello world&quot;</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;hello world&quot;</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;hello world&quot;</span>);<br>    <span class="hljs-comment">// close(fd);</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>只在open的时候把append选项加上去<br>输入重定向<br>就是把原来从键盘里面读入的东西，现在从一个文件里面读<br><img src="https://img-blog.csdnimg.cn/2adcaa30d0244985a17d93f0998d8452.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">Fd_Redefout</span><span class="hljs-params">()</span><br>&#123;<br>    close(<span class="hljs-number">0</span>);<span class="hljs-comment">//把输入给关掉</span><br>    <span class="hljs-type">int</span> fd=open(<span class="hljs-string">&quot;./g.txt&quot;</span>,O_RDONLY);<br>    <span class="hljs-type">char</span> line[<span class="hljs-number">128</span>];<br>    <span class="hljs-keyword">while</span>(fgets(line,<span class="hljs-keyword">sizeof</span>(line)<span class="hljs-number">-1</span>,<span class="hljs-built_in">stdin</span>))<span class="hljs-comment">//因为现在g.txt的fd为0,所以stdin就是g.txt</span><br>    &#123;<br>        <span class="hljs-comment">//原本应该从键盘读取的内容，现在是从文件里面读取了</span><br>        <span class="hljs-comment">//输入重定向</span><br>        <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;%s\n&quot;</span>,line);<br>    &#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>验证文件描述符</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span> <span class="hljs-title function_">Verify_IO</span><span class="hljs-params">()</span><br>&#123;<br>   <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;stdin-&gt; %d&quot;</span>,<span class="hljs-built_in">stdin</span>-&gt;_fileno);<br>   <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;stdout-&gt; %d&quot;</span>,<span class="hljs-built_in">stdout</span>-&gt;_fileno);<br>   <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;stderr-&gt; %d&quot;</span>,<span class="hljs-built_in">stderr</span>-&gt;_fileno);<br><br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/2c03163e4be84359824382a1ff14261f.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h2 id="dup2"><a href="#dup2" class="headerlink" title="dup2"></a>dup2</h2><p><img src="https://img-blog.csdnimg.cn/423cb249338647bb97bbf9d6d36b747c.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>newfd是oldfd的一份拷贝，数组内容的拷贝，指针的拷贝<br>所以全部变成old，<br>输出重定向</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">dup2(fd,<span class="hljs-number">1</span>)<br></code></pre></td></tr></table></figure>
+
+<p>shell中的重定向<br>echo “hello” &gt; file.c<br>fork-&gt;child-&gt;dup2(fd,1)-&gt;exec(“echo,“echo”)</p>
+<p>fork创建之后 子进程也有fd，而且文件描述符和父进程都一样<br>但是打开的那些文件不会新建，因为我们是在创建进程，</p>
+<blockquote>
+<p>如果父进程打开了标准输入，输出，错误，子进程也会继承下去<br>因为bash是所有进程的父进程，而bash打开了标准输入，输出，错误，所以所有的子进程也都继承下去了</p>
+</blockquote>
+<h1 id="缓冲区"><a href="#缓冲区" class="headerlink" title="缓冲区"></a>缓冲区</h1><h2 id="标准输出和标准错误"><a href="#标准输出和标准错误" class="headerlink" title="标准输出和标准错误"></a>标准输出和标准错误</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span><br>&#123;<br>    <span class="hljs-type">const</span> <span class="hljs-type">char</span>* msg=<span class="hljs-string">&quot;hello stdout\n&quot;</span>;<br>    write(<span class="hljs-number">1</span>,msg,<span class="hljs-built_in">strlen</span>(msg));<br>    <span class="hljs-type">const</span> <span class="hljs-type">char</span>* msg2=<span class="hljs-string">&quot;hello stderr\n&quot;</span>;<br>    write(<span class="hljs-number">2</span>,msg2,<span class="hljs-built_in">strlen</span>(msg2));<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/fd7473564dd042b9ba523cdf969555c5.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_14,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>我们发现只有标准输出重定向到了文件里面，但是标准错误仍然打印在屏幕里面了</p>
+<blockquote>
+<p>因为重定向只有fd&#x3D;1的被弄进去，而fd&#x3D;2不会被弄进去</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">./redir &gt;<span class="hljs-built_in">log</span>.txt <span class="hljs-number">2</span>&gt;&amp;<span class="hljs-number">1</span><br></code></pre></td></tr></table></figure>
+
+<p>把标准输出和标准错误都重定向进去</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><code class="hljs c">$ cat <span class="hljs-built_in">log</span>.txt<br>hello <span class="hljs-built_in">stdout</span><br>hello <span class="hljs-built_in">stderr</span><br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>.&#x2F;redir &gt;log.txt 2&gt;&amp;1<br>先执行前面第一条语句，此时把fd&#x3D;1原本指向显示器改为指向一个特定文件，而fd&#x3D;2的文件原本指向了显示屏，把1里面的内容拷贝到2里面，所以2也指向1指向的文件</p>
+</blockquote>
+<h2 id="缓存区"><a href="#缓存区" class="headerlink" title="缓存区"></a>缓存区</h2><ol>
+<li></li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span><br>&#123;<br>    <span class="hljs-type">const</span> <span class="hljs-type">char</span>* msg=<span class="hljs-string">&quot;hello stdout\n&quot;</span>;<br>    write(<span class="hljs-number">1</span>,msg,<span class="hljs-built_in">strlen</span>(msg));<br>    <span class="hljs-type">const</span> <span class="hljs-type">char</span>* msg2=<span class="hljs-string">&quot;hello stderr\n&quot;</span>;<br>    write(<span class="hljs-number">2</span>,msg2,<span class="hljs-built_in">strlen</span>(msg2));<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;hello printf\n&quot;</span>);<br>    <span class="hljs-built_in">fprintf</span>(<span class="hljs-built_in">stdout</span>,<span class="hljs-string">&quot;hello fprintf\n&quot;</span>);<br>    close(<span class="hljs-number">1</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/fe822a980e8c465b8a307e390c12c7a5.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_17,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>第一次可以显示出fprintf<br>close后，第二次不能输出这些内容</p>
+<ol start="2">
+<li></li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span>  <span class="hljs-title function_">Fd_Alloc_Base</span><span class="hljs-params">()</span><br>&#123;<br>    close(<span class="hljs-number">1</span>);<br>    <span class="hljs-comment">// close(2);//把0对应的标准输入给关闭</span><br>    <span class="hljs-type">int</span> fd=open(<span class="hljs-string">&quot;./g.txt&quot;</span>,O_CREAT|O_WRONLY|O_APPEND,<span class="hljs-number">0644</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;fd=%d \n&quot;</span>,fd);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;hello world&quot;</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;hello world&quot;</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;hello world&quot;</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;hello world&quot;</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;hello world&quot;</span>);<br>    <span class="hljs-comment">// close(fd);</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>把fd关闭之后就没有显示内容了</p>
+<blockquote>
+<p>c语言本身也<br>我们曾经说的缓冲区都是用户级缓冲区，都是语言层面<br>printf是向stdout写入（FILE*）–》（struct file)<br>我们使用printf和fprintf，我们并没有写到OS里面，而是写到c语言缓冲区，把c语言的缓存区刷新到操作系统，</p>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/e0f7135cdddb406ea8787cd343b577dc.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>我们在特定的情况下才会把数据刷新到内核缓冲区，</p>
+<ol>
+<li>遇到\n的时候，会刷新到显示器上面，</li>
+<li>进程退出的时候，会刷新FILE 内部的数据到OS，没有进程退出的时候数据还会在C缓冲区里面，</li>
+</ol>
+<p>用户——&gt;OS</p>
+<blockquote>
+<p>刷新策略</p>
+<ol>
+<li>立即刷新（不缓冲）</li>
+<li>行刷新（行缓冲\n）：如显示器打印，</li>
+<li>全缓冲区满了才刷新(也就是不会溢出)，比如，往磁盘文件里面写入</li>
+</ol>
+</blockquote>
+<p>OS—&gt; 硬件，也是同样使用的</p>
+<p>如果发生了重定向，<br>显示器 --&gt; log.txt</p>
+<blockquote>
+<p>原本是行刷新（行缓冲），现在就变成了全缓冲</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-type">void</span>  <span class="hljs-title function_">Fd_Alloc_Base</span><span class="hljs-params">()</span><br>&#123;<br>    close(<span class="hljs-number">1</span>);<br>    <span class="hljs-comment">// close(2);//把0对应的标准输入给关闭</span><br>    <span class="hljs-type">int</span> fd=open(<span class="hljs-string">&quot;./g.txt&quot;</span>,O_CREAT|O_WRONLY|O_APPEND,<span class="hljs-number">0644</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;fd=%d \n&quot;</span>,fd);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;hello world&quot;</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;hello world&quot;</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;hello world&quot;</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;hello world&quot;</span>);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;hello world&quot;</span>);<br>    <span class="hljs-comment">// close(fd);</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>对于这个代码</p>
+<blockquote>
+<p>如果不close的话，所有的信息都打印到了文件当中</p>
+<blockquote>
+<p>没有close的话，所有的消息都直接输出到了c语言缓冲区里面，然后因为没有close掉fd，这批数据就会在进程退出的时候，数据就会刷新到内核，</p>
+</blockquote>
+<p>把close放开，文件里面什么都没有，</p>
+<blockquote>
+<p>所有的消息，刷新变成了全缓冲，有可能并没有被写满，说明可能没有立即被刷新到文件里头，而进程退出之前调用了close，就把文件描述符给关了，进程退出的时候数据还在缓冲区里面，<strong>来不及刷新</strong>到内核当中，所以文件里面就没有看到对应的内容</p>
+</blockquote>
+<p>如果把close（1）关掉，那么printf把数据都刷新到用户缓冲区里头，行刷新，立马刷新了</p>
+</blockquote>
+<p>如果在close之前<br>fflush（stdout），强制刷新缓冲区里面，就可以了写到文件里面了，</p>
+<p><strong>FILE*里面是有包含缓冲区的</strong></p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs C"><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span><br>&#123;<br>    <span class="hljs-type">const</span> <span class="hljs-type">char</span> *msg = <span class="hljs-string">&quot;hello stdout\n&quot;</span>;<br>    write(<span class="hljs-number">1</span>, msg, <span class="hljs-built_in">strlen</span>(msg));<br>    <span class="hljs-type">const</span> <span class="hljs-type">char</span> *msg2 = <span class="hljs-string">&quot;hello stderr\n&quot;</span>;<br>    write(<span class="hljs-number">2</span>, msg2, <span class="hljs-built_in">strlen</span>(msg2));<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;hello printf\n&quot;</span>);<br>    <span class="hljs-built_in">fprintf</span>(<span class="hljs-built_in">stdout</span>, <span class="hljs-string">&quot;hello fprintf\n&quot;</span>);<br>    close(<span class="hljs-number">1</span>);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/f2c2a61da41a4436b4b4dc935804780c.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>我们发现我们即使close(1),仍然能够打印在显示屏上，因为三行刷新，有\n就刷新了</p>
+<blockquote>
+<p>我们把内容重定向到文件里面，<br>发现只有write的1被写进去了</p>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/20669ce307064e1d8e97980962011270.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/7aa9920a748a4a0bbe156df21e8ae9b1.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>这是因为我们close（1），当重定向的时候原本要写到1里面的内容，显示到文件中，就从行刷新，变成了全缓冲，不立即刷新，而write是系统调用没有经过c语言缓冲区，就可以打印到文件里面，</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string.h&gt;</span></span><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span><br>&#123;<br>    <span class="hljs-type">const</span> <span class="hljs-type">char</span> *msg = <span class="hljs-string">&quot;hello stdout\n&quot;</span>;<br>    write(<span class="hljs-number">1</span>, msg, <span class="hljs-built_in">strlen</span>(msg));<br>    <span class="hljs-comment">// const char *msg2 = &quot;hello stderr\n&quot;;</span><br>    <span class="hljs-comment">// write(2, msg2, strlen(msg2));</span><br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;hello printf\n&quot;</span>);<br>    <span class="hljs-built_in">fprintf</span>(<span class="hljs-built_in">stdout</span>, <span class="hljs-string">&quot;hello fprintf\n&quot;</span>);<br>    <span class="hljs-built_in">fputs</span>(<span class="hljs-string">&quot;hello puts\n&quot;</span>,<span class="hljs-built_in">stdout</span>);<br>    <span class="hljs-comment">// close(1);</span><br><br>    fork();<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/4cc7ba0ed97849f5bfa46663a59ff733.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAWmV2aW4uLg==,size_19,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>我们如果2往显示器上打印，大家都正常，如果往文件里面打印，c接口会重复，系统接口不受影响<br>刷新策略变了，<br>写入文件里面的时候，就变成了全缓冲，数据就先写到了c语言缓冲区里面（不是操作系统提供的），</p>
+<blockquote>
+<p>fork之后发生了写时拷贝，父进程写到了缓冲区里面，子进程也刷新到了缓冲区里面，当副进程退出的时候，就把数据i刷新出去，子进程也要刷新，所以因为写实拷贝的问题，出现了重复刷新</p>
+</blockquote>
+<p>而如果在fork之前就把数据全部fflush出去的话，fork之后就不会发生写实拷贝，因为缓冲区里面没有数据了，可是write没有打印两个，</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/linux/">#linux</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>Linux----基础IO</div>
+      <div>http://example.com/2022/04/14/Linux----基础IO/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zevin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年4月14日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/04/19/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8Einode/" title="文件系统与inode">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">文件系统与inode</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/04/04/STL%E4%B8%ADstring%E7%B1%BB%E7%9A%84%E6%A8%A1%E6%8B%9F%E5%AE%9E%E7%8E%B0/" title="STL中string类的模拟实现">
+                        <span class="hidden-mobile">STL中string类的模拟实现</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","appKey":"javf3F1xk56WiY222ZrCxGt1","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

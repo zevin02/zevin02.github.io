@@ -1,0 +1,823 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zevin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="文章目录 TCP和UDP 为什么要有TCP&#x2F;IP 协议 TCP（传输控制协议）  TCP 报文格式 确认应答机制 缓冲区    TCP和UDP协议发生在传输层传输层主要处理：端到端的连接 TCP和UDP UDP 是一个人面向无连接的，可类比成写信，UDP发送写信到邮箱之后，对方不能够立即就可以收到，先后发送的信件也不一定是按照顺序接收，甚至里面信的内容有可能也不会完整而TCP可以类比">
+<meta property="og:type" content="article">
+<meta property="og:title" content="TCP基础（1）">
+<meta property="og:url" content="http://example.com/2022/06/13/TCP%E5%9F%BA%E7%A1%80%EF%BC%881%EF%BC%89/index.html">
+<meta property="og:site_name" content="Zevin-Blog">
+<meta property="og:description" content="文章目录 TCP和UDP 为什么要有TCP&#x2F;IP 协议 TCP（传输控制协议）  TCP 报文格式 确认应答机制 缓冲区    TCP和UDP协议发生在传输层传输层主要处理：端到端的连接 TCP和UDP UDP 是一个人面向无连接的，可类比成写信，UDP发送写信到邮箱之后，对方不能够立即就可以收到，先后发送的信件也不一定是按照顺序接收，甚至里面信的内容有可能也不会完整而TCP可以类比">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/0d2a148db5474570b52a83571741c9b3.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/ab25d026d86b443a8a2377e27256d137.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/9a0f354014c74a0e9dc6c2e026f248b5.png">
+<meta property="article:published_time" content="2022-06-13T13:33:26.000Z">
+<meta property="article:modified_time" content="2023-01-20T12:55:15.358Z">
+<meta property="article:author" content="Zevin">
+<meta property="article:tag" content="udp tcp&#x2F;ip 网络协议">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/0d2a148db5474570b52a83571741c9b3.png">
+  
+  
+  
+  <title>TCP基础（1） - Zevin-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","app_key":"javf3F1xk56WiY222ZrCxGt1","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zevin-Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="TCP基础（1）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-06-13 21:33" pubdate>
+          2022年6月13日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          3.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          27 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">TCP基础（1）</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+
+<h3 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h3><ul>
+<li><a href="#TCPUDP_5">TCP和UDP</a></li>
+<li><a href="#TCPIP__9">为什么要有TCP&#x2F;IP 协议</a></li>
+<li><a href="#TCP_23">TCP（传输控制协议）</a></li>
+<li><ul>
+<li><a href="#TCP__32">TCP 报文格式</a></li>
+<li><a href="#_88">确认应答机制</a></li>
+<li><a href="#_104">缓冲区</a></li>
+</ul>
+</li>
+</ul>
+<p>TCP和UDP协议发生在传输层<br>传输层主要处理：端到端的连接</p>
+<h1 id="TCP和UDP"><a href="#TCP和UDP" class="headerlink" title="TCP和UDP"></a>TCP和UDP</h1><blockquote>
+<p>UDP 是一个人面向无连接的，可类比成写信，UDP发送写信到邮箱之后，对方不能够立即就可以收到，先后发送的信件也不一定是按照顺序接收，甚至里面信的内容有可能也不会完整<br>而TCP可以类比成电话，我们拨打电话到对方接通，互相通话，结束后挂断，这些都能够完成，并且能够确认对方是否能够接收到数据，</p>
+</blockquote>
+<h1 id="为什么要有TCP-x2F-IP-协议"><a href="#为什么要有TCP-x2F-IP-协议" class="headerlink" title="为什么要有TCP&#x2F;IP 协议"></a>为什么要有TCP&#x2F;IP 协议</h1><p>数据的IO操作，硬件的数据到另外一个硬件上面也是需要有协议的，在冯诺依曼体系中，也是设计一个硬件和一个硬件之间都是相互独立的，硬件之间的通信也都是需要协议（因为有“线”）<br>总线就是用来解决通信的问题</p>
+<p>一个单处理器系统中的总线有三种</p>
+<blockquote>
+<ol>
+<li>CPU 内部连接各个<strong>寄存器</strong>及其<strong>运算部件</strong>之间的总线，称为内部总线</li>
+<li>CPU 同计算机系统的其他高速功能部件（存储器，通道等互相连接的总线），称为系统总线</li>
+<li>中，低速度IO设备之间互相连通的总线位，IO 总线</li>
+</ol>
+</blockquote>
+<p>结论</p>
+<blockquote>
+<ul>
+<li>在网络中的各个设备，各个电脑之间也是直接或者间接使用“线”来进行连接的</li>
+<li>只不过网络中，“线”变的更长了，可以通信的距离变遥远了</li>
+<li>因此一旦传输距离变长的话，就需要一些协议来保证数据可以可靠的到达</li>
+</ul>
+</blockquote>
+<h1 id="TCP（传输控制协议）"><a href="#TCP（传输控制协议）" class="headerlink" title="TCP（传输控制协议）"></a>TCP（传输控制协议）</h1><p>TCP在两个端点（应用程序之间提供了可靠的，面向连接的，双向字节流通信信道）<br>TCP端点：表示TCP连接一端的内核所维护的信息（通常会进一步对这个术语进行缩写），“一个TCP端点”或者“客户端TCP”来表示“客户端应用程序所维护的TCP端点”</p>
+<p><strong>TCP 实现有效的载荷和首部分离是通过</strong>4位首部<strong>实现的</strong><br>TCP实现交付给上层工作是由16位目的端口号**</p>
+<p>假设首部长度为6，说明选项有4字节，这样就可以完整的读取报头数据，然后数据的读取可以根据数据的协议做处理，</p>
+<h2 id="TCP-报文格式"><a href="#TCP-报文格式" class="headerlink" title="TCP 报文格式"></a>TCP 报文格式</h2><p>1行就是4个字节<br>TCP 标准长度20个字节<br>4位首部长度[0000,1111]<br><img src="https://img-blog.csdnimg.cn/0d2a148db5474570b52a83571741c9b3.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>序列号 : 序列号: 序列号:<br>TCP 连接中发送的每一个字节都是按照顺序编号<br>在建立连接的时候，设置整个要传送的字节流的其实序号为计算机生成的随机数<br>序列号则是本报文段发送的第一个字节的序号，<br><img src="https://img-blog.csdnimg.cn/ab25d026d86b443a8a2377e27256d137.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>确认号 确认号 确认号<br>是对历史确认报文的序号+1，是期望收到对方下一个报文段的序列号，而且确认号为N，表示前N-1为止的数据 都已经正确收到了</p>
+<p>首部长度 首部长度 首部长度<br>里面记录的是报头长度<br>基本单位是4字节，如果首部长度是1，那么实际长度就是1 * 4&#x3D;4，表示TCP 头部有多少个32为bit（有多少个4字节），因为是4位所以TCP头部最大长度是（1111）15*4&#x3D;60<br>最小是固定20个字节,我们一般都是长度都是20，所以20&#x2F;4&#x3D;5，填充的是0101</p>
+<blockquote>
+<p>所以当我们读取到一个完成的TCP报文，提取到前20个字节（标准长度），从里面分析到报文长度，确认报文是20个字节，剩余的就是有效载荷，提取，</p>
+</blockquote>
+<p>窗口大小 窗口大小 窗口大小<br>表示自己接收缓冲区剩余的空间大小，要求对方发送数据的时候要考虑到这一点，这个值通常是变化的（16位）</p>
+<p>校验和 校验和 校验和<br>校验的范围包括首部和数据<br>发送端填充CRC 校验，接收端校验不通过，则认为数据有问题</p>
+<p>紧急指针 紧急指针 紧急指针<br>指出了紧急数据的末尾在报文段中的位置,和URG搭配使用，<br>因为TCP都是按序到达的，每一个报文，什么时候被上层读到都是确定的，<br>如果想让一个数据尽快的被上层读取，可以设置URG：表明该报文<strong>携带</strong>了紧急数据，需要优先读取<br>16位紧急指针就会指向对应的地址<br><strong>tcp的紧急指针只能传输1个字节</strong></p>
+<p>六位标志位 六位标志位 六位标志位</p>
+<blockquote>
+<p>server首先要面对的是，有大量的TCP报文，如何区分报文的类别<br>例如送外卖，普通外卖，美团，饿了吗怎么区分，不同的人有不同的策略</p>
+</blockquote>
+<p>这些标志位可以用来区分不同种类的TCP报文<br>每个标志位都是一个bit，要么是0，要么是1</p>
+<p>URG(urgent):为1代表了紧急指针有效,和16位紧急指针搭配使用<br>ACK:为1代表有效，连接建立后所有的报文ACK都是1，<strong>确认报文</strong>，几乎所有的TCP报文都会设置ACK<br>PSH(push)：<strong>告知对方尽快的将数据向上交付</strong>，避免缓冲区被打满了，发送方无法发送<br>RST(reset)：表明出现了严重差错，必须释放连接重新建立，<strong>重置异常连接</strong><br>SYN：为1代表了这是一个连接请求，<strong>链接请求报文</strong><br>FIN：通知对方，本端要关闭了，我们称携带FIN 表示的为结束报文段，<strong>断开连接报文</strong></p>
+<p>选项 选项 选项<br>选项的首部-标长<br>60-20&#x3D;40,选项的最大长度</p>
+<h2 id="确认应答机制"><a href="#确认应答机制" class="headerlink" title="确认应答机制"></a>确认应答机制</h2><p>tcp并不是百分之百可靠的！因为总会遇到一条消息没有被应答,但是只要一条消息有应答，我们就能确认该消息被对方100%收到了,世界上不存在100%可靠的，因为不能确认它丢了还是被应答了</p>
+<p>TCP可靠性的核心机制：确认应答机制，按序到达</p>
+<ol>
+<li>发送的数据对方收到并发送确认就保证了数据是发送成功的</li>
+<li>为了避免发送的数据出现混乱，使用序列号</li>
+<li>确认序号保证之前发送的数据发送成功，按序到达，确认是哪一个报文发送成功</li>
+<li>无论是数据还是应答，本质上都是：一个完整的tcp报文，可以不携带数据，但是一定是一个完整的tcp报文，源端口目的端口，这些都要有</li>
+<li>一个报文为什么既有序号又有确认号<blockquote>
+<p>因为tcp是一个全双工的通信协议（我给你发消息的同时，你也可以给我发送消息），你在给我确认的时候，我也可以给你确认<br>有可能是既有自己要发送的报文的序号，也同时有对对方报文的确认</p>
+</blockquote>
+</li>
+</ol>
+<p>通过确认应答机制能够保证我的<strong>历史数据</strong>被收到了</p>
+<h2 id="缓冲区"><a href="#缓冲区" class="headerlink" title="缓冲区"></a>缓冲区</h2><p>TCP协议，是自带发送和接收缓冲区的！<br>（TCP malloc2段内存空间）</p>
+<ul>
+<li>write&#x2F;send:与其叫做发送接口，不如理解成拷贝函数，send是把数据拷贝到TCP的发送缓冲区里面，接下来TCP 就把发送缓冲区里面的数据，直接发送给对方的接收缓冲区里面</li>
+<li>read&#x2F;recv:与其叫做接收窗口，不如叫做拷贝函数，recv是把数据从TCP 的接收缓冲区里面拷贝到本地,有的时候会阻塞住，是因为缓冲区里面没数据，不是网络里面没数据</li>
+</ul>
+<p><strong>为什么要有缓冲区？</strong></p>
+<ul>
+<li>提高应用层效率：应用层把数据拷贝到缓冲区里面，就可以直接返回了,至于什么时候发送，怎么发送，我不关心</li>
+<li>只有操作系统的TCP 协议可以知道网络及对方的状态信息，所以也就只有TCP协议，知道如何发，什么时候发，发多少，出错了怎么办？（传输控fa制协议）发送的细节应用层就不用管了</li>
+<li>缓冲区的存在可以做到应用层和TCP进行解耦，各自做好各自的事即可</li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/9a0f354014c74a0e9dc6c2e026f248b5.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>在第一次发送SYN 的时候{SYN，1000-》（标号）（0-》数据的大小） &lt;mass 1460 （传输文件的大小上限）&gt;}</p>
+<ol>
+<li>确认号+1 是因为在原来的序列号还要加上SYN这个标志位的大小</li>
+<li>三次握手完成在代码层面上的体现就是：accept（）和connect()成功执行返回，所以accept（）执行发出错误信号出来，或者connect都是没有建立成功</li>
+<li>普通报文不携带数据，不消耗序列号，所以后面再在传输的时候不会加上标志位，该多大就多大</li>
+<li>假如说客户端先发起关闭，第一次挥手断开连接（半关闭，有一端关了，另一端没有关闭第一次挥手），客户端如果还有数据就不能再发送了，相当于socket内部的写缓冲区关闭了，但是读缓冲区还留着</li>
+<li>后面服务器也要发起关闭，也要有两次挥手（半关闭是导致4次挥手的原因）</li>
+<li>半关闭并非是关套接字，而是关里面的写缓冲区，读缓冲区还没有关闭，</li>
+<li>数据会被分成段，如果一个段在到达时是存在错误的，这个段就会被丢弃，确认信息也不会发送，发送者在发送每一个段的时候，都会开启一个定时器，如果定时器超时之前没有收到确认，就会重传这个段，</li>
+<li></li>
+</ol>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" class="category-chain-item">网络编程</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/udp-tcp-ip-%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/">#udp tcp/ip 网络协议</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>TCP基础（1）</div>
+      <div>http://example.com/2022/06/13/TCP基础（1）/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zevin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年6月13日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/06/18/%E7%B2%98%E5%8C%85%E9%97%AE%E9%A2%98/" title="粘包问题">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">粘包问题</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/06/05/%E8%AF%BB%E8%80%85%E5%86%99%E8%80%85%E6%A8%A1%E5%9E%8B/" title="读者写者模型">
+                        <span class="hidden-mobile">读者写者模型</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","appKey":"javf3F1xk56WiY222ZrCxGt1","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

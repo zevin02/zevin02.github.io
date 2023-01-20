@@ -1,0 +1,819 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zevin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="文章目录 序列化和反序列化 网络计算器  没有使用组件 jsoncpp组件的使用  jsontest 网络在线计算器      自顶向下去写，我们现在每次写的协议都是基于上一层的协议 序列化和反序列化我们程序员写的一个一个程序，都是在应用层 我们发送的数据都是结构化的数据,这种结构话的数据就很好看也很好使用 1234567struct message&amp;#123;	我的昵称：会跳的鹅	我的头像：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="网络计算器—————序列化与反序列化">
+<meta property="og:url" content="http://example.com/2022/07/12/%E7%BD%91%E7%BB%9C%E8%AE%A1%E7%AE%97%E5%99%A8%E2%80%94%E2%80%94%E2%80%94%E2%80%94%E2%80%94%E5%BA%8F%E5%88%97%E5%8C%96%E4%B8%8E%E5%8F%8D%E5%BA%8F%E5%88%97%E5%8C%96/index.html">
+<meta property="og:site_name" content="Zevin-Blog">
+<meta property="og:description" content="文章目录 序列化和反序列化 网络计算器  没有使用组件 jsoncpp组件的使用  jsontest 网络在线计算器      自顶向下去写，我们现在每次写的协议都是基于上一层的协议 序列化和反序列化我们程序员写的一个一个程序，都是在应用层 我们发送的数据都是结构化的数据,这种结构话的数据就很好看也很好使用 1234567struct message&amp;#123;	我的昵称：会跳的鹅	我的头像：">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/9af114c02fab415fbc353a9664baea35.png">
+<meta property="article:published_time" content="2022-07-12T12:50:44.000Z">
+<meta property="article:modified_time" content="2023-01-20T12:55:15.358Z">
+<meta property="article:author" content="Zevin">
+<meta property="article:tag" content="网络">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/9af114c02fab415fbc353a9664baea35.png">
+  
+  
+  
+  <title>网络计算器—————序列化与反序列化 - Zevin-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","app_key":"javf3F1xk56WiY222ZrCxGt1","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zevin-Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="网络计算器—————序列化与反序列化"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-07-12 20:50" pubdate>
+          2022年7月12日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          10k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          84 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">网络计算器—————序列化与反序列化</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+
+<h3 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h3><ul>
+<li><a href="#_3">序列化和反序列化</a></li>
+<li><a href="#_41">网络计算器</a></li>
+<li><ul>
+<li><a href="#_43">没有使用组件</a></li>
+<li><a href="#jsoncpp_72">jsoncpp组件的使用</a></li>
+<li><ul>
+<li><a href="#jsontest_96">jsontest</a></li>
+<li><a href="#_160">网络在线计算器</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>自顶向下去写，我们现在每次写的协议都是基于上一层的协议</p>
+<h1 id="序列化和反序列化"><a href="#序列化和反序列化" class="headerlink" title="序列化和反序列化"></a>序列化和反序列化</h1><p>我们程序员写的一个一个程序，都是在应用层</p>
+<p>我们发送的数据都是结构化的数据,这种结构话的数据就很好看也很好使用</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">message</span></span><br><span class="hljs-class">&#123;</span><br>	我的昵称：会跳的鹅<br>	我的头像：唐老鸭.png<br>	我的消息：在吗？<br>	消息时间：<span class="hljs-number">2022</span><span class="hljs-number">-07</span><span class="hljs-number">-10</span> <span class="hljs-number">11</span>：<span class="hljs-number">31</span>：<span class="hljs-number">59</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>这就是一个结构化的消息，我们要把这个结构化的数据转化成一个从“字符串”,我们要把这个结构化的数据<br>“{昵称：xxx，头像：xxx，消息：xxx}”，把它传送到网络里面，到对端之后，再把它解析出来，读取到对应的结构体里面</p>
+<p><strong>序列化</strong>：把结构化的数据转化为字符串的过程就是序列化的过程，</p>
+<p><strong>反序列化</strong>：把字符串转化为结构体信息就是反序列化的过程，因为结构化的数据，再网络里面不方便传输，字符串便于网络传输</p>
+<p>为什么要进行序列化和反序列化</p>
+<ol>
+<li>为了应用层网络通信的方便</li>
+<li>为了方便上层进行使用内部成员，将应用和网络进行解耦，我们只关心使用，不关心发送的过程</li>
+</ol>
+<blockquote>
+<p>而我们之前使用的TCP和UDP是没有序列化的过程，我们必须要有结构化的数据<br>而这些序列化和反序列化的数据，它实际上就是协议的表现</p>
+</blockquote>
+<p>我们自己写一个实现序列化和反序列化<br>也可以直接使用别人写好的组件，java里面（json，xml，protobuff）</p>
+<p>我们这里就使用<strong>jsoncpp</strong><br>jsoncpp的安装</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs cpp">sudo yum install -y jsoncpp-devel<br></code></pre></td></tr></table></figure>
+
+<h1 id="网络计算器"><a href="#网络计算器" class="headerlink" title="网络计算器"></a>网络计算器</h1><p>我们这里自己定制协议</p>
+<h2 id="没有使用组件"><a href="#没有使用组件" class="headerlink" title="没有使用组件"></a>没有使用组件</h2><blockquote>
+<p>发送端口<br>伪代码</p>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs cpp">string x=<span class="hljs-string">&quot;123&quot;</span>;<br>string opt=<span class="hljs-string">&quot;+&quot;</span>;<br>string y=<span class="hljs-string">&quot;321&quot;</span>;<br>string data=x+opt+y;<span class="hljs-comment">//</span><br><span class="hljs-built_in">send</span>(data);<span class="hljs-comment">//这个就是序列化的过程，转化成字符串再发送过去</span><br></code></pre></td></tr></table></figure>
+
+<p>接收端</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-built_in">recv</span>(data);<br>recv=<span class="hljs-string">&quot;123+321&quot;</span>;<br><span class="hljs-type">int</span> opt==recv.<span class="hljs-built_in">find</span>(<span class="hljs-string">&quot;+&quot;</span>);<br>string x=recv.<span class="hljs-built_in">substr</span>(<span class="hljs-number">0</span>,opt);<span class="hljs-comment">//</span><br>string y=recv.<span class="hljs-built_in">substr</span>(opt);<br><span class="hljs-type">int</span> _x=<span class="hljs-built_in">to_int</span>(x);<br><span class="hljs-type">int</span> _y=<span class="hljs-built_in">to_int</span>(y);<br><span class="hljs-type">int</span> z=x+y;<br>string _z=<span class="hljs-built_in">to_string</span>(z)<br><span class="hljs-built_in">send</span>(z)<br><span class="hljs-comment">//这就是一个反序列化的过程,接收到了一个字符串，再把它弄成结构体</span><br><span class="hljs-comment">//最后还需要再序列化</span><br></code></pre></td></tr></table></figure>
+
+<p>这个方案，我们是把数据分开了<br>我们发现这个过程实际上是非常麻烦的 ，都由我们自己做就很麻烦</p>
+<h2 id="jsoncpp组件的使用"><a href="#jsoncpp组件的使用" class="headerlink" title="jsoncpp组件的使用"></a>jsoncpp组件的使用</h2><p>约定方案2</p>
+<blockquote>
+<ul>
+<li><strong>定义结构体</strong>标识我们需要交互的信息</li>
+<li>发送数据时将这个结构i体按照一个规则转化成字符串，接收数据的时候再按照相同的规则把字符串转化为结构体</li>
+<li>这个过程就叫做“序列化”和“反序列化的过程”</li>
+</ul>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">struct</span> <span class="hljs-title class_">request</span><br>&#123;<br>	<span class="hljs-type">int</span> x;<br>	<span class="hljs-type">int</span> y;<br>	<span class="hljs-type">char</span> op;<br>&#125;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">request</span> req=&#123;<span class="hljs-number">10</span>,<span class="hljs-number">20</span>,<span class="hljs-string">&quot;+&quot;</span>&#125;;<br><span class="hljs-built_in">write</span>(sock,&amp;req,<span class="hljs-built_in">sizeof</span>(req));<span class="hljs-comment">//这样子发送的时候，实际上就是直接把序列化的数据发送过去了</span><br><br><br><span class="hljs-comment">//接收</span><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">request</span> req;<br><span class="hljs-built_in">read</span>(sock,&amp;req,<span class="hljs-built_in">sizeof</span>(req));<span class="hljs-comment">//这样的话就缺少了序列化的过程，不太推荐</span><br><br></code></pre></td></tr></table></figure>
+
+<h3 id="jsontest"><a href="#jsontest" class="headerlink" title="jsontest"></a>jsontest</h3><p>测试json</p>
+<p>t e s t . c p p test.cpp test.cpp</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;string&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;jsoncpp/json/json.h&gt;</span></span><br><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><br><br><span class="hljs-comment">//仅仅是了解一下序列化和反序列化的过程</span><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">request_t</span><br>&#123;<br>    <span class="hljs-type">int</span> x;    <span class="hljs-comment">// 10</span><br>    <span class="hljs-type">int</span> y;    <span class="hljs-comment">// 0</span><br>    <span class="hljs-type">char</span> opt; <span class="hljs-comment">//我们协议上是支持  //</span><br>    <span class="hljs-built_in">request_t</span>() = <span class="hljs-keyword">default</span>;<span class="hljs-comment">//生成默认的构造函数</span><br>&#125;; <span class="hljs-comment">//请求协议</span><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">()</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">request_t</span> req=&#123;<span class="hljs-number">10</span>,<span class="hljs-number">20</span>,<span class="hljs-string">&#x27;*&#x27;</span>&#125;;<br>    <span class="hljs-comment">//现在我们有了这个结构化的数据,所以我们就需要把它进行序列化</span><br>    Json::Value root;<span class="hljs-comment">//可以承转任意对象,json是一种kv式的序列化方案</span><br>    <span class="hljs-comment">//要序列化的对象先装到一个value对象里面</span><br>    root[<span class="hljs-string">&quot;datax&quot;</span>]=req.x;<br>    root[<span class="hljs-string">&quot;datay&quot;</span>]=req.y;<br>    root[<span class="hljs-string">&quot;operator&quot;</span>]=req.opt;<br><br>    <span class="hljs-comment">//FastWriter StyledWriter   有这两种类型,这是一整行没有分层的</span><br>    <span class="hljs-comment">// Json::StyledWriter writer;//我们定义了一个json里面Writer类,writer对象,这个writer式一种分层的</span><br>    Json::FastWriter writer;<span class="hljs-comment">//我们定义了一个json里面Writer类,writer对象,这个writer式一种分层的</span><br>    <span class="hljs-comment">//而FastWriter 就是一种正常的字符串样子</span><br>    string json_string=writer.<span class="hljs-built_in">write</span>(root);<span class="hljs-comment">//这里的返回值是一个string类型的对象</span><br>    <span class="hljs-comment">//现在我们就完成了一个序列化的过程</span><br>    cout&lt;&lt;json_string&lt;&lt;endl;<br>	<span class="hljs-comment">//序列化之后就能发送给对端了</span><br><br><br>    <span class="hljs-comment">//接下来就需要反序列化</span><br>	<span class="hljs-comment">//假如说对端发送的是这个</span><br>    string jsontostruct=<span class="hljs-string">R&quot;(&#123;&quot;datax&quot;:10,&quot;datay&quot;:20,&quot;operator&quot;:42&#125;)&quot;</span>;<span class="hljs-comment">//R是把（）里面的东西当中最原始的东西来看待,避免对里面的&quot;&quot;做转义</span><br>    Json::Reader reader;<span class="hljs-comment">//调用里面的读取</span><br>    Json::Value rooter;<br>    <span class="hljs-comment">//将字符串翻译成结构化的数据</span><br>    reader.<span class="hljs-built_in">parse</span>(jsontostruct,rooter);<br>    <span class="hljs-type">request_t</span> reqr;<br>    reqr.x=rooter[<span class="hljs-string">&quot;datax&quot;</span>].<span class="hljs-built_in">asInt</span>();<span class="hljs-comment">//类似于map,我们定义的datax=x,把它当作一个整数来看待</span><br>    reqr.y=rooter[<span class="hljs-string">&quot;datay&quot;</span>].<span class="hljs-built_in">asInt</span>();<br>    reqr.opt=(<span class="hljs-type">char</span>)root[<span class="hljs-string">&quot;operator&quot;</span>].<span class="hljs-built_in">asUInt</span>();<span class="hljs-comment">//这样就可以获得他的对应的东西了，强转成char类型</span><br>    cout&lt;&lt;reqr.opt&lt;&lt;endl;<br>    cout&lt;&lt;reqr.x&lt;&lt;reqr.opt&lt;&lt;reqr.y&lt;&lt;endl;<br>    <span class="hljs-comment">// cout&lt;&lt;jsontostruct&lt;&lt;endl;</span><br>    <span class="hljs-comment">//这样就读取到里面的内容了</span><br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/9af114c02fab415fbc353a9664baea35.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h3 id="网络在线计算器"><a href="#网络在线计算器" class="headerlink" title="网络在线计算器"></a>网络在线计算器</h3><p>S o c k . h p p Sock.hpp Sock.hpp</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;sys/socket.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;sys/types.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;cstdlib&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;arpa/inet.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;netinet/in.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;cstring&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;string&gt;</span></span><br><span class="hljs-comment">//这些静态的套接字都是属于类而不属于对象</span><br><span class="hljs-keyword">class</span> <span class="hljs-title class_">Sock</span><br>&#123;<br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">int</span>  <span class="hljs-title">Socket</span><span class="hljs-params">()</span></span><br><span class="hljs-function">    </span>&#123;<br>        <span class="hljs-type">int</span> sockfd=<span class="hljs-built_in">socket</span>(AF_INET,SOCK_STREAM,<span class="hljs-number">0</span>);<br>        <span class="hljs-keyword">if</span>(sockfd&lt;<span class="hljs-number">0</span>)<br>        &#123;<br>            <span class="hljs-built_in">perror</span>(<span class="hljs-string">&quot;socket&quot;</span>);<br>            <span class="hljs-built_in">exit</span>(<span class="hljs-number">2</span>);<br>        &#125;<br>        <span class="hljs-keyword">return</span> sockfd;<br>    &#125;<br>    <span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title">Listen</span><span class="hljs-params">(<span class="hljs-type">int</span> sockfd)</span></span><br><span class="hljs-function">    </span>&#123;<br>        <span class="hljs-keyword">if</span>(<span class="hljs-built_in">listen</span>(sockfd,<span class="hljs-number">5</span>)&lt;<span class="hljs-number">0</span>)<br>        &#123;<br>            <span class="hljs-built_in">perror</span>(<span class="hljs-string">&quot;listen&quot;</span>);<br>            <span class="hljs-built_in">exit</span>(<span class="hljs-number">4</span>);<br>        &#125;<br>    &#125;<br>    <span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title">Bind</span><span class="hljs-params">(<span class="hljs-type">int</span> sockfd,<span class="hljs-type">uint16_t</span> port)</span></span><br><span class="hljs-function">    </span>&#123;<br>        <span class="hljs-keyword">struct</span> <span class="hljs-title class_">sockaddr_in</span> local;<br>        <span class="hljs-built_in">memset</span>(&amp;local,<span class="hljs-number">0</span>,<span class="hljs-built_in">sizeof</span>(local));<br>        local.sin_family=AF_INET;<br>        local.sin_addr.s_addr=INADDR_ANY;<br>        local.sin_port=<span class="hljs-built_in">htons</span>(port);<br>        <span class="hljs-keyword">if</span>(<span class="hljs-built_in">bind</span>(sockfd,(<span class="hljs-keyword">struct</span> sockaddr*)&amp;local,<span class="hljs-built_in">sizeof</span>(local))&lt;<span class="hljs-number">0</span>)<br>        &#123;<br>            <span class="hljs-built_in">perror</span>(<span class="hljs-string">&quot;bind&quot;</span>);<br>            <span class="hljs-built_in">exit</span>(<span class="hljs-number">3</span>);<br>        &#125;<br>    &#125;<br>    <span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">int</span> <span class="hljs-title">Accept</span><span class="hljs-params">(<span class="hljs-type">int</span> sockfd)</span></span><br><span class="hljs-function">    </span>&#123;<br>        <span class="hljs-keyword">struct</span> <span class="hljs-title class_">sockaddr_in</span> peer;<br>        <span class="hljs-built_in">bzero</span>(&amp;peer,<span class="hljs-number">0</span>);<br>        <span class="hljs-type">socklen_t</span> len=<span class="hljs-built_in">sizeof</span>(peer);<br>        <span class="hljs-type">int</span> fd=<span class="hljs-built_in">accept</span>(sockfd,(<span class="hljs-keyword">struct</span> sockaddr*)&amp;peer,&amp;len);<br>        <span class="hljs-keyword">if</span>(fd&lt;<span class="hljs-number">0</span>)<br>        &#123;<br>            <span class="hljs-built_in">perror</span>(<span class="hljs-string">&quot;accept&quot;</span>);<br>            <span class="hljs-built_in">exit</span>(<span class="hljs-number">5</span>);<br>        &#125;<br>        <span class="hljs-keyword">return</span> fd;<br>    &#125;<br>    <span class="hljs-function"><span class="hljs-type">static</span> <span class="hljs-type">void</span> <span class="hljs-title">Connect</span><span class="hljs-params">(<span class="hljs-type">int</span> sockfd,string ip,<span class="hljs-type">int</span> port)</span></span><br><span class="hljs-function">    </span>&#123;<br>        <span class="hljs-keyword">struct</span> <span class="hljs-title class_">sockaddr_in</span> svr;<br>        <span class="hljs-built_in">memset</span>(&amp;svr,<span class="hljs-number">0</span>,<span class="hljs-built_in">sizeof</span>(svr));<br>        svr.sin_family=AF_INET;<br>        svr.sin_port=<span class="hljs-built_in">htons</span>(port);<br>        svr.sin_addr.s_addr=<span class="hljs-built_in">inet_addr</span>(ip.<span class="hljs-built_in">c_str</span>());<br><br>        <span class="hljs-keyword">if</span>(<span class="hljs-built_in">connect</span>(sockfd,(<span class="hljs-keyword">struct</span> sockaddr*)&amp;svr,<span class="hljs-built_in">sizeof</span>(svr))&lt;<span class="hljs-number">0</span>)<br>        &#123;<br>            <span class="hljs-built_in">perror</span>(<span class="hljs-string">&quot;connect&quot;</span>);<br>            <span class="hljs-built_in">exit</span>(<span class="hljs-number">6</span>);<br>        &#125;<br>    &#125;<br><br>&#125;;<br></code></pre></td></tr></table></figure>
+
+<p>p r o t o c o l . h p p protocol.hpp protocol.hpp</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">//我们在通信的时候要自己定制协议</span><br><span class="hljs-comment">//客户端和服务器要进行计算器的功能，我们要有请求有响应</span><br><span class="hljs-comment">//这个本质上是一个应用层网络服务</span><br><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> once</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;iostream&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;pthread.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;jsoncpp/json/json.h&gt;</span></span><br><br><span class="hljs-keyword">using</span> <span class="hljs-keyword">namespace</span> std;<br><br><span class="hljs-comment">//定制协议的过程，目前就是定制结构化数据的过程</span><br><span class="hljs-comment">//请求格式</span><br><span class="hljs-comment">//但是向这种,如果面对的是老客户端,一旦有一个字节没有办法发送过来,就出现了错误</span><br><br><span class="hljs-comment">//我们需要序列化这个东西</span><br><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">request_t</span><br>&#123;<br>    <span class="hljs-type">int</span> x;    <span class="hljs-comment">// 10</span><br>    <span class="hljs-type">int</span> y;    <span class="hljs-comment">// 0</span><br>    <span class="hljs-type">char</span> opt; <span class="hljs-comment">//我们协议上是支持  //</span><br>    <span class="hljs-built_in">request_t</span>() = <span class="hljs-keyword">default</span>;<br>&#125;; <span class="hljs-comment">//请求协议</span><br><br><span class="hljs-comment">//这里我们写一个响应格式</span><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">response_t</span><br>&#123;<br>    <span class="hljs-type">int</span> code;   <span class="hljs-comment">//程序运算完毕的计算状态，code=0（success），code=-1（：\0）,code=-2(%0)，先检测code，得到result才有意义</span><br>    <span class="hljs-type">int</span> result; <span class="hljs-comment">//计算结果,能否区分是正常的计算结果，还是异常退出结果</span><br>&#125;;<br><br><span class="hljs-comment">//这里的话我们实现一个序列化请求的函数</span><br><span class="hljs-type">request_t</span> ----&gt;<span class="hljs-function">string</span><br><span class="hljs-function">string <span class="hljs-title">ReqSerialize</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">request_t</span> &amp;req)</span></span><br><span class="hljs-function"></span>&#123;<br>    Json::Value root;<br>    root[<span class="hljs-string">&quot;one&quot;</span>] = req.x;<br>    root[<span class="hljs-string">&quot;two&quot;</span>] = req.y;<br>    root[<span class="hljs-string">&quot;operator&quot;</span>] = req.opt;<br>    Json::FastWriter writer;<br>    string sendwriter = writer.<span class="hljs-built_in">write</span>(root);<span class="hljs-comment">//调用write之后，就实现了序列化</span><br>    <span class="hljs-keyword">return</span> sendwriter; <span class="hljs-comment">//返回序列化之后的字符串</span><br>&#125;<br><br><span class="hljs-comment">//这里实现一个反序列化的函数</span><br><span class="hljs-comment">// string---&gt;request_t</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">ReqReSerialize</span><span class="hljs-params">(<span class="hljs-type">const</span> string &amp;jsonstring, <span class="hljs-type">request_t</span> &amp;req)</span></span><br><span class="hljs-function"></span>&#123;<br>    Json::Reader reader;<br>    Json::Value  root;<br>    reader.<span class="hljs-built_in">parse</span>(jsonstring, root); <span class="hljs-comment">//解析进行反序列化</span><br>    req.x = root[<span class="hljs-string">&quot;one&quot;</span>].<span class="hljs-built_in">asInt</span>();<br>    req.y = root[<span class="hljs-string">&quot;two&quot;</span>].<span class="hljs-built_in">asInt</span>();<br>    req.opt =(<span class="hljs-type">char</span>) root[<span class="hljs-string">&quot;operator&quot;</span>].<span class="hljs-built_in">asUInt</span>();<br>&#125;<br><br><br><span class="hljs-comment">//序列化响应的函数</span><br><span class="hljs-type">response_t</span> -----&gt;<span class="hljs-function">string</span><br><span class="hljs-function"></span><br><span class="hljs-function">string <span class="hljs-title">RespSerialize</span><span class="hljs-params">(<span class="hljs-type">const</span> <span class="hljs-type">response_t</span> &amp;resp)</span></span><br><span class="hljs-function"></span>&#123;<br>    Json::Value root;<br>    root[<span class="hljs-string">&quot;code&quot;</span>]=resp.code;<br>    root[<span class="hljs-string">&quot;result&quot;</span>]=resp.result;<br>    Json::FastWriter writer;<br>    string sendwriter = writer.<span class="hljs-built_in">write</span>(root);<br>    <span class="hljs-keyword">return</span> sendwriter; <span class="hljs-comment">//返回序列化之后的字符串</span><br>&#125;<br><br><br><span class="hljs-comment">//这里实现一个反序列化响应的函数</span><br><span class="hljs-comment">// string---&gt;response_t</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">RespReSerialize</span><span class="hljs-params">(<span class="hljs-type">const</span> string &amp;jsonstring, <span class="hljs-type">response_t</span> &amp;resp)</span></span><br><span class="hljs-function"></span>&#123;<br>    Json::Reader reader;<br>    Json::Value  root;<br>    reader.<span class="hljs-built_in">parse</span>(jsonstring, root); <span class="hljs-comment">//解析进行反序列化</span><br>    resp.code = root[<span class="hljs-string">&quot;code&quot;</span>].<span class="hljs-built_in">asInt</span>();<br>    resp.result = root[<span class="hljs-string">&quot;result&quot;</span>].<span class="hljs-built_in">asInt</span>();<br>&#125;<br><br></code></pre></td></tr></table></figure>
+
+<p>c l i e n t . c c client.cc client.cc</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;protocol.hpp&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;Sock.hpp&quot;</span></span><br><br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> *argv[])</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">if</span> (argc != <span class="hljs-number">3</span>)<br>    &#123;<br>        cout &lt;&lt; <span class="hljs-string">&quot;ip+port&quot;</span> &lt;&lt; endl;<br>        <span class="hljs-built_in">exit</span>(<span class="hljs-number">1</span>);<br>    &#125;<br>    <span class="hljs-type">uint16_t</span> port = <span class="hljs-built_in">atoi</span>(argv[<span class="hljs-number">2</span>]);<br>    <span class="hljs-type">int</span> sockfd = Sock::<span class="hljs-built_in">Socket</span>();<br>    Sock::<span class="hljs-built_in">Connect</span>(sockfd, argv[<span class="hljs-number">1</span>], port);<br>    <span class="hljs-type">request_t</span> req;<br>    cout &lt;&lt; <span class="hljs-string">&quot;Please Enter Data One# &quot;</span>;<br>    cin &gt;&gt; req.x;<br>    cout &lt;&lt; <span class="hljs-string">&quot;Please Enter Data Two# &quot;</span>;<br>    cin &gt;&gt; req.y;<br>    cout &lt;&lt; <span class="hljs-string">&quot;Please Enter Data Opt# &quot;</span>;<br>    cin &gt;&gt; req.opt;<br>    string sendwriter=<span class="hljs-built_in">ReqSerialize</span>(req);<br>    <span class="hljs-built_in">write</span>(sockfd, sendwriter.<span class="hljs-built_in">c_str</span>(), sendwriter.<span class="hljs-built_in">size</span>());<br><br>    <span class="hljs-comment">//这样就序列化成功了</span><br>    <span class="hljs-comment">//读取信息</span><br>    <span class="hljs-type">char</span> buf[<span class="hljs-number">1024</span>];<br>    <span class="hljs-type">ssize_t</span> s = <span class="hljs-built_in">read</span>(sockfd, buf, <span class="hljs-built_in">sizeof</span>(buf) - <span class="hljs-number">1</span>);<br>    <span class="hljs-comment">//对resp进行反序列化</span><br>    <span class="hljs-type">response_t</span> resp;<br>    <span class="hljs-keyword">if</span> (s &gt; <span class="hljs-number">0</span>)<br>    &#123;<br>        buf[s] = <span class="hljs-number">0</span>;<br>        string msg = buf;<br>        <span class="hljs-comment">// cout&lt;&lt;msg&lt;&lt;endl;</span><br>        <span class="hljs-comment">//对响应进行反序列化完成</span><br>        <span class="hljs-built_in">RespReSerialize</span>(msg, resp);<br>        cout &lt;&lt; <span class="hljs-string">&quot;code[0:success]: &quot;</span> &lt;&lt; resp.code;<br>        cout &lt;&lt; <span class="hljs-string">&quot;result &quot;</span> &lt;&lt; resp.result &lt;&lt; endl;<br>       <br>    &#125;<br>    <span class="hljs-keyword">else</span><br>    &#123;<br>        <span class="hljs-built_in">exit</span>(<span class="hljs-number">1</span>);<br>    &#125;<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>s e r v e r . c c server.cc server.cc</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;protocol.hpp&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&quot;Sock.hpp&quot;</span></span><br><span class="hljs-function"><span class="hljs-type">void</span> *<span class="hljs-title">HandlerRequest</span><span class="hljs-params">(<span class="hljs-type">void</span> *args)</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-built_in">pthread_detach</span>(<span class="hljs-built_in">pthread_self</span>());<br>    <span class="hljs-type">int</span> sockfd = *(<span class="hljs-type">int</span> *)args;<br>    <span class="hljs-keyword">delete</span> args;<br><br>    <span class="hljs-comment">//业务逻辑，先读先要放序列化，然后计算，判断结果是否正确，正确返回，不正确异常</span><br>    <span class="hljs-comment">//做一个短服务，request -&gt; 分析处理  -&gt;构建response  -&gt;sent（response）---&gt;close(sock)</span><br><br>    <span class="hljs-comment">// verson1:没有明显的序列化和反序列化的过程</span><br>    <span class="hljs-comment">// 1.读取请求,但是这样的操作对于90%的情况是可以满足的,但是对于一些老的服务器就不可以使用了</span><br><br>    <span class="hljs-comment">//直接发的话缺少了一个序列化和放序列化的过程</span><br>    <span class="hljs-type">char</span> buf[<span class="hljs-number">1024</span>];<br><br>    <span class="hljs-type">ssize_t</span> s = <span class="hljs-built_in">read</span>(sockfd, buf, <span class="hljs-built_in">sizeof</span>(buf) - <span class="hljs-number">1</span>);<br>    <span class="hljs-keyword">if</span> (s &lt; <span class="hljs-number">0</span>)<br>    &#123;<br>        cout &lt;&lt; <span class="hljs-string">&quot;error&quot;</span> &lt;&lt; endl;<br>        <span class="hljs-built_in">close</span>(sockfd);<br>    &#125;<br>    <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span> (s == <span class="hljs-number">0</span>)<br>    &#123;<br>        cout &lt;&lt; <span class="hljs-string">&quot;client quit...&quot;</span> &lt;&lt; endl;<br>        <span class="hljs-built_in">close</span>(sockfd);<br>    &#125;<br>    <span class="hljs-keyword">else</span><br>    &#123;<br>        <span class="hljs-comment">//只要大于0就认为读取成功了</span><br>        buf[s] = <span class="hljs-number">0</span>;<br>        string msg = buf;<br>        <span class="hljs-type">request_t</span> req;<br>        <span class="hljs-comment">//进行对字符串的反序列化请求</span><br>        <span class="hljs-built_in">ReqReSerialize</span>(msg, req);<br><br>        <span class="hljs-comment">//读取过来要进行一个反序列化的过程</span><br><br>        <span class="hljs-comment">// if (s == sizeof(req)) //因为传送过来的是一个结构体,所以就是==</span><br>        <span class="hljs-comment">// &#123;</span><br>        <span class="hljs-comment">//读取到了一个完整的请求,待定</span><br>        <span class="hljs-comment">// req.x,req.y,req.opt</span><br>        <span class="hljs-comment">// 2.分析请求</span><br>        <span class="hljs-comment">// 3.计算结果</span><br>        <span class="hljs-type">response_t</span> resp = &#123;<span class="hljs-number">0</span>, <span class="hljs-number">0</span>&#125;; <span class="hljs-comment">//响应,这里的默认响应结果我们都给他设置为0,默认都设置为0</span><br>        <span class="hljs-comment">// 4.构建响应,并进行返回</span><br>        <span class="hljs-keyword">switch</span> (req.opt)<br>        &#123;<br>        <span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;+&#x27;</span>:<br>            resp.result = req.x + req.y;<br>            <span class="hljs-keyword">break</span>;<br>        <span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;-&#x27;</span>:<br>            resp.result = req.x - req.y;<br>            <span class="hljs-keyword">break</span>;<br>        <span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;*&#x27;</span>:<br>            resp.result = req.x * req.y;<br><br>            <span class="hljs-keyword">break</span>;<br>        <span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;/&#x27;</span>:<br>            <span class="hljs-keyword">if</span> (req.y == <span class="hljs-number">0</span>)<br>                resp.code = <span class="hljs-number">-1</span>;<br>            <span class="hljs-keyword">else</span><br>                resp.result = req.x / req.y;<br>            <span class="hljs-keyword">break</span>;<br>        <span class="hljs-keyword">case</span> <span class="hljs-string">&#x27;%&#x27;</span>:<br>            <span class="hljs-keyword">if</span> (req.y == <span class="hljs-number">0</span>)<br>                resp.code = <span class="hljs-number">-2</span>;<br>            <span class="hljs-keyword">else</span><br>                resp.result = req.x % req.y;<br>            <span class="hljs-keyword">break</span>;<br>        <span class="hljs-keyword">default</span>:<br>            resp.code = <span class="hljs-number">-3</span>; <span class="hljs-comment">//代表我们的请求方法异常</span><br>            <span class="hljs-keyword">break</span>;<br>        &#125;<br>        <span class="hljs-comment">//处理完之后就要返回响应</span><br>        cout &lt;&lt; <span class="hljs-string">&quot;request &quot;</span> &lt;&lt; req.x &lt;&lt; req.opt &lt;&lt; req.y &lt;&lt; endl;<br>        cout&lt;&lt;<span class="hljs-string">&quot;response &quot;</span>&lt;&lt;resp.result&lt;&lt;endl;<br>        <span class="hljs-comment">//这次我们要先对resp进行序列化</span><br>        string send_msg = <span class="hljs-built_in">RespSerialize</span>(resp);<br>        cout&lt;&lt;send_msg&lt;&lt;endl;<br>        <span class="hljs-built_in">write</span>(sockfd, send_msg.<span class="hljs-built_in">c_str</span>(), send_msg.<span class="hljs-built_in">size</span>()); <span class="hljs-comment">//序列化之后再发送回去</span><br>        cout &lt;&lt; <span class="hljs-string">&quot;server finish&quot;</span> &lt;&lt; endl;<br>    &#125;<br><br>    <span class="hljs-comment">// 5.关闭链接</span><br>&#125;<br><span class="hljs-function"><span class="hljs-type">int</span> <span class="hljs-title">main</span><span class="hljs-params">(<span class="hljs-type">int</span> argc, <span class="hljs-type">char</span> *argv[])</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-keyword">if</span> (argc != <span class="hljs-number">2</span>)<br>    &#123;<br>        cout &lt;&lt; <span class="hljs-string">&quot;ip&quot;</span> &lt;&lt; endl;<br>        <span class="hljs-built_in">exit</span>(<span class="hljs-number">1</span>);<br>    &#125;<br>    <span class="hljs-type">uint16_t</span> port = <span class="hljs-built_in">atoi</span>(argv[<span class="hljs-number">1</span>]);<br>    <span class="hljs-type">int</span> sockfd = Sock::<span class="hljs-built_in">Socket</span>();<br>    Sock::<span class="hljs-built_in">Bind</span>(sockfd, port);<br>    Sock::<span class="hljs-built_in">Listen</span>(sockfd);<br>    <span class="hljs-keyword">while</span> (<span class="hljs-literal">true</span>)<br>    &#123;<br>        <span class="hljs-type">int</span> newsockfd = Sock::<span class="hljs-built_in">Accept</span>(sockfd);<br>        <span class="hljs-keyword">if</span> (newsockfd &lt; <span class="hljs-number">0</span>)<br>        &#123;<br>            <span class="hljs-keyword">continue</span>;<br>        &#125;<br>        <span class="hljs-type">pthread_t</span> tid;<br>        <span class="hljs-type">int</span> *pram = <span class="hljs-keyword">new</span> <span class="hljs-built_in">int</span>(newsockfd);<br>        <span class="hljs-built_in">pthread_create</span>(&amp;tid, <span class="hljs-literal">nullptr</span>, HandlerRequest, (<span class="hljs-type">void</span> *)pram);<br>    &#125;<br><br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>我们刚刚写的cs模式的在线版本计算器，本质上是一个应用层网络服务</p>
+<blockquote>
+<ol>
+<li>基本通信代码是我们自己写的————————（会话层：进行通信管理）</li>
+<li>序列化和反序列化时我们使用组件完成的————（表示层：设备固有数据格式和网络标准数据格式的转换）</li>
+<li>请求，结果格式，code含义，等约定是我们自己写的————（针对特定应用的协议）</li>
+<li>业务逻辑（计算也是我们自己写的）</li>
+</ol>
+</blockquote>
+<p>HTTP协议，本质上，在定位上和我们刚刚写的网络计算机，没有区别，都是应用层协议</p>
+<ol>
+<li>网络通信</li>
+<li>序列化和反序列化</li>
+<li>协议细节<br>http协议把这3点都实现了</li>
+</ol>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B/" class="category-chain-item">网络编程</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%BD%91%E7%BB%9C/">#网络</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>网络计算器—————序列化与反序列化</div>
+      <div>http://example.com/2022/07/12/网络计算器—————序列化与反序列化/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zevin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年7月12日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/08/15/HTTP%E5%8D%8F%E8%AE%AE/" title="HTTP协议">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">HTTP协议</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/07/11/socket%E7%BC%96%E7%A8%8B/" title="socket编程">
+                        <span class="hidden-mobile">socket编程</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","appKey":"javf3F1xk56WiY222ZrCxGt1","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,836 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zevin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="文章目录 为什么要通信 通信的宏观理解 进程间通信分类 管道  匿名管道    为什么要通信 我们需要不同进程之间相互协同，进程之间的协同本质上是程序员之间的协同，有可能为要从数据库中拿数据，你要从数据库中将数据格式化，写成特定的格式，我要根据特定的格式做数据统计，这一件事情，有一个无法实现这个事情就无法完成,    我们可以将这一件事情拆分成3个事情：一个进程专门从数据库中拿数据，一个进程专">
+<meta property="og:type" content="article">
+<meta property="og:title" content="进程间通信---匿名管道">
+<meta property="og:url" content="http://example.com/2022/04/25/%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1---%E5%8C%BF%E5%90%8D%E7%AE%A1%E9%81%93/index.html">
+<meta property="og:site_name" content="Zevin-Blog">
+<meta property="og:description" content="文章目录 为什么要通信 通信的宏观理解 进程间通信分类 管道  匿名管道    为什么要通信 我们需要不同进程之间相互协同，进程之间的协同本质上是程序员之间的协同，有可能为要从数据库中拿数据，你要从数据库中将数据格式化，写成特定的格式，我要根据特定的格式做数据统计，这一件事情，有一个无法实现这个事情就无法完成,    我们可以将这一件事情拆分成3个事情：一个进程专门从数据库中拿数据，一个进程专">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/7e3e1b0deacb4f459e2fb3364df604cc.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/010e0629eeca461d9357f35810fbf7e9.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAWmV2aW4uLg==,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/7191144e206a4ddc8e1fb7300e4017b5.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAWmV2aW4uLg==,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/23ca2b3446b94365a7917d9d354272df.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAWmV2aW4uLg==,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/d7bc8912c98649a19074f9bf95eb95ca.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAWmV2aW4uLg==,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/bb4ea9b247064d458b6853e6914f31fc.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/68d05a91411c40f2b282df02435d102b.png">
+<meta property="article:published_time" content="2022-04-25T14:19:25.000Z">
+<meta property="article:modified_time" content="2023-01-20T12:55:15.358Z">
+<meta property="article:author" content="Zevin">
+<meta property="article:tag" content="linux">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/7e3e1b0deacb4f459e2fb3364df604cc.png">
+  
+  
+  
+  <title>进程间通信---匿名管道 - Zevin-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","app_key":"javf3F1xk56WiY222ZrCxGt1","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zevin-Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="进程间通信---匿名管道"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-04-25 22:19" pubdate>
+          2022年4月25日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          4.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          39 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">进程间通信---匿名管道</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+
+<h3 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h3><ul>
+<li><a href="#_1">为什么要通信</a></li>
+<li><a href="#_14">通信的宏观理解</a></li>
+<li><a href="#_30">进程间通信分类</a></li>
+<li><a href="#_40">管道</a></li>
+<li><ul>
+<li><a href="#_41">匿名管道</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="为什么要通信"><a href="#为什么要通信" class="headerlink" title="为什么要通信"></a>为什么要通信</h1><blockquote>
+<p>我们需要不同进程之间相互协同，<strong>进程之间的协同</strong>本质上是<strong>程序员之间的协同</strong>，有可能为要从<strong>数据库中拿数据</strong>，你要从数据库中将数据格式化，写成特定的格式，我要根据特定的<strong>格式做数据统计</strong>，这一件事情，有一个无法实现这个事情就无法完成,</p>
+</blockquote>
+<blockquote>
+<ol>
+<li>我们可以将这一件事情拆分成3个事情：一个进程专门<strong>从数据库中拿数据</strong>，一个进程专门做<strong>数据格式化</strong>，还有一个进程专门<strong>做数据统计</strong></li>
+<li>第一个处理完<strong>之后交给</strong>第二个，第二个处理完之后<strong>交给</strong>第三个</li>
+<li>这样我们就可以实现业务上的通信，这样就增加了代码的可维护性，这样我们就找专门的进程处理特定的问题</li>
+</ol>
+</blockquote>
+<p>如：<br>管道<br><img src="https://img-blog.csdnimg.cn/7e3e1b0deacb4f459e2fb3364df604cc.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/010e0629eeca461d9357f35810fbf7e9.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAWmV2aW4uLg==,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h1 id="通信的宏观理解"><a href="#通信的宏观理解" class="headerlink" title="通信的宏观理解"></a>通信的宏观理解</h1><p>进程之间可能会存在特定的协同工作的场景-—–&gt; 一个进程要把自己的数据交付给了一个进程，让其处理———-&gt;这就叫做进程间通信-—–&gt; 但是进程具有独立性，交互数据，成本一定很高，<br>(所以这一定需要操作系统进行协同，参与通信)<br>因为一个进程是看不到另一个进程的资源<br>所以两个进程要相互通信——-&gt;必须要先看到一份公共的资源(一方往里面放数据，另一方往里面取数据 )（这里的资源，就是一段内存）—-&gt; (这段公共进程属于谁，只能属于操作系统，)！！，因为进程具有独立性<br><strong>这段内存：可能以文件的方式存在，也可能以队列的方式存在，也可能提供的就是原始的内存块</strong><br>（这也是通信方式有很多的原因）</p>
+<p>进程间通信本质上：其实是有OS参与，提供一封所有通信进程都能看到的公共资源，</p>
+<p><strong>结论</strong></p>
+<ol>
+<li>我们要想办法让我们看到一份公共的资源，</li>
+<li>通信的时候操作系统的方式不同，所以通信的方式也就不同</li>
+</ol>
+<h1 id="进程间通信分类"><a href="#进程间通信分类" class="headerlink" title="进程间通信分类"></a>进程间通信分类</h1><p>管道</p>
+<blockquote>
+<ul>
+<li>匿名管道</li>
+<li>命名管道</li>
+</ul>
+</blockquote>
+<p>System V IPC</p>
+<blockquote>
+<ul>
+<li>System V 消息队列</li>
+<li><strong>System V 共享内存</strong></li>
+<li>System V 信号量</li>
+</ul>
+</blockquote>
+<h1 id="管道"><a href="#管道" class="headerlink" title="管道"></a>管道</h1><h2 id="匿名管道"><a href="#匿名管道" class="headerlink" title="匿名管道"></a>匿名管道</h2><blockquote>
+<p>父子进程是独立的进程，所以父子通信也属于进程通信的一种</p>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/7191144e206a4ddc8e1fb7300e4017b5.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAWmV2aW4uLg==,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/23ca2b3446b94365a7917d9d354272df.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAWmV2aW4uLg==,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/d7bc8912c98649a19074f9bf95eb95ca.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAWmV2aW4uLg==,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<blockquote>
+<p>让双方进程看到了同一份进程<br>接下来我们还想要让他钔通信</p>
+</blockquote>
+<p>我们可以使用系统调用</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs c">PIPE(<span class="hljs-number">2</span>)                                                                               Linux Programmer<span class="hljs-number">&#x27;</span>s Manual                                                                              <span class="hljs-title function_">PIPE</span><span class="hljs-params">(<span class="hljs-number">2</span>)</span><br><br>NAME<br>       pipe, pipe2 - create pipe<br><br>SYNOPSIS<br>       <span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span><br><br>       <span class="hljs-type">int</span> <span class="hljs-title function_">pipe</span><span class="hljs-params">(<span class="hljs-type">int</span> pipefd[<span class="hljs-number">2</span>])</span>;<br><br>       <span class="hljs-meta">#<span class="hljs-keyword">define</span> _GNU_SOURCE             <span class="hljs-comment">/* See feature_test_macros(7) */</span></span><br>       <span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;fcntl.h&gt;</span>              <span class="hljs-comment">/* Obtain O_* constant definitions */</span></span><br>       <span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;unistd.h&gt;</span></span><br><br>       <span class="hljs-type">int</span> <span class="hljs-title function_">pipe2</span><span class="hljs-params">(<span class="hljs-type">int</span> pipefd[<span class="hljs-number">2</span>], <span class="hljs-type">int</span> flags)</span>;<br><br>DESCRIPTION<br>       <span class="hljs-title function_">pipe</span><span class="hljs-params">()</span>  creates  a pipe, a unidirectional data channel that can be used <span class="hljs-keyword">for</span> interprocess communication.  The <span class="hljs-built_in">array</span> pipefd is used to <span class="hljs-keyword">return</span> two file descriptors referring to the ends of the<br>       pipe.  pipefd[0] refers to the read end of the pipe.  pipefd[1] refers to the write end of the pipe.  Data written to the write end of the pipe is buffered by the kernel until  it  is  read<br>       from the read end of the pipe.  For further details, see <span class="hljs-title function_">pipe</span><span class="hljs-params">(<span class="hljs-number">7</span>)</span>.<br><br>       If flags is 0, then <span class="hljs-title function_">pipe2</span><span class="hljs-params">()</span> is the same as <span class="hljs-title function_">pipe</span><span class="hljs-params">()</span>.  The following values can be bitwise ORed in flags to obtain different behavior:<br><br>       O_NONBLOCK  Set the O_NONBLOCK file status flag on the two new open file descriptions.  Using this flag saves extra calls to <span class="hljs-title function_">fcntl</span><span class="hljs-params">(<span class="hljs-number">2</span>)</span> to achieve the same result.<br><br>       O_CLOEXEC   Set the close-on-<span class="hljs-title function_">exec</span> <span class="hljs-params">(FD_CLOEXEC)</span> flag on the two new file descriptors.  See the description of the same flag in <span class="hljs-title function_">open</span><span class="hljs-params">(<span class="hljs-number">2</span>)</span> <span class="hljs-keyword">for</span> reasons why this may be useful.<br><br>RETURN VALUE<br>       On success, zero is returned.  On error, -1 is returned, and errno is <span class="hljs-built_in">set</span> appropriately.<br><br>ERRORS<br>       EFAULT pipefd is not valid.<br><br>       <span class="hljs-title function_">EINVAL</span> <span class="hljs-params">(pipe2())</span> Invalid value in flags.<br><br>       EMFILE Too many file descriptors are in use by the process.<br><br>       ENFILE The system limit on the total number of open files has been reached.<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<ol>
+<li>pipefd[2]是一个输出型参数；意味着我们向通过这个参数读取到打开的两个fd，就是把这个值带出去，</li>
+<li>pipe(pipefd[2]),数组名就是首元素地址，到时候通过指针把文件描述符拷贝到我们的数组之中，</li>
+</ol>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;unistd.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;fcntl.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span><br>&#123;<br>  <span class="hljs-type">int</span> fd[<span class="hljs-number">2</span>];<br>  <span class="hljs-keyword">if</span>(pipe(fd)!=<span class="hljs-number">0</span>)<br>  &#123;<br>    perror(<span class="hljs-string">&quot;pipe&quot;</span>);<br>    <span class="hljs-built_in">exit</span>(<span class="hljs-number">-1</span>);<br>  &#125;<br>  <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;pipe[0]=%d\n&quot;</span>,fd[<span class="hljs-number">0</span>]);<br>  <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;pipe[1]=%d\n&quot;</span>,fd[<span class="hljs-number">1</span>]);<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/bb4ea9b247064d458b6853e6914f31fc.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>我们发现一个是3，一个是4<br><strong>匿名管道的特点</strong></p>
+<blockquote>
+<ol>
+<li>管道是一个单向的流通信号，</li>
+<li>管道是面向字节流的，tcp FILE,fstream,我们读的时候是只有字节的概念，并不是说我想读多少，就读多少</li>
+<li>仅限于父子特性</li>
+<li>管道回自带同步机制，管道里面没有数据就不会读到管道里面的废弃数据，原子性写入</li>
+<li>管道的生命周期是随进程的</li>
+</ol>
+</blockquote>
+<p>我们测试了一下，写段一直不写，读端一直不读</p>
+<blockquote>
+<p>写满64KB 的时候，write就不再写入了，为什么呢？因为管道有大小！当write写满的时候，要让reader来读，同样的读端也要等写端，我们不会出现读取新老数据的覆盖事件，</p>
+</blockquote>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;unistd.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;fcntl.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span> <span class="hljs-string">&lt;string.h&gt;</span></span><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span><br>&#123;<br>  <span class="hljs-type">int</span> fd[<span class="hljs-number">2</span>];<br>  <span class="hljs-keyword">if</span>(pipe(fd)!=<span class="hljs-number">0</span>)<span class="hljs-comment">//创建管道</span><br>  &#123;<br>    perror(<span class="hljs-string">&quot;pipe&quot;</span>);<br>    <span class="hljs-built_in">exit</span>(<span class="hljs-number">-1</span>);<br>  &#125;<br>  <span class="hljs-comment">//打印文件描述符</span><br>  <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;pipe[0]=%d\n&quot;</span>,fd[<span class="hljs-number">0</span>]);<br>  <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;pipe[1]=%d\n&quot;</span>,fd[<span class="hljs-number">1</span>]);<br>  <span class="hljs-comment">//实现进程键通信</span><br>  <span class="hljs-type">pid_t</span> id =fork();<br>  <span class="hljs-keyword">if</span>(id&lt;<span class="hljs-number">0</span>)<br>  &#123;<br>    perror(<span class="hljs-string">&quot;fork&quot;</span>);<br>    <span class="hljs-built_in">exit</span>(<span class="hljs-number">1</span>);<br>  &#125;<br>  <span class="hljs-comment">//我们向让父进程执行读取，子进程执行写入</span><br>  <span class="hljs-comment">//0-----&gt;就是读取端，1-----&gt;就是写入端</span><br>  <span class="hljs-keyword">else</span> <span class="hljs-keyword">if</span>(id==<span class="hljs-number">0</span>)<span class="hljs-comment">//创建子进程</span><br>  &#123;<br>    <span class="hljs-comment">//child</span><br>    <span class="hljs-comment">//关闭读写端，建立一个单向的管道</span><br>    <span class="hljs-comment">//子进程把文件描述符也都给继承下来了</span><br>    close(fd[<span class="hljs-number">0</span>]);<br>    <span class="hljs-type">const</span> <span class="hljs-type">char</span>* msg=<span class="hljs-string">&quot;hello world&quot;</span>;<br>    <span class="hljs-type">int</span> <span class="hljs-built_in">cout</span>=<span class="hljs-number">0</span>;<br>    <span class="hljs-comment">//我们还可以使用read 和write进行读写操作</span><br>    <span class="hljs-keyword">while</span>(<span class="hljs-number">1</span>)<br>    &#123;<br><br>    <span class="hljs-comment">//write(fd[1],msg,strlen(msg));//我们不需要+1,因为\0本身只是c语言的标准，</span><br>    write(fd[<span class="hljs-number">1</span>],<span class="hljs-string">&quot;a&quot;</span>,<span class="hljs-number">1</span>);<span class="hljs-comment">//子进程不断往管道里面写入，但是父进程不读</span><br>    <span class="hljs-built_in">cout</span>++;<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;cout=%d\n&quot;</span>,<span class="hljs-built_in">cout</span>);<br>    <span class="hljs-comment">//write的动作就是pipe里面只要有缓冲区区域就一直写入</span><br>    <span class="hljs-comment">//当我们一直些的时候，写满64KB的时候，写段就不再写入了，因为管道有大小，</span><br>    <span class="hljs-comment">//当写端写满的时候，为什么不写了，</span><br>    <span class="hljs-comment">//因为要让读端来读，</span><br>    &#125;<br>    <span class="hljs-built_in">exit</span>(<span class="hljs-number">0</span>);<br>    <span class="hljs-comment">//dup2(fd[1],1);</span><br>  &#125;<br>  <span class="hljs-keyword">else</span> <br>  &#123;<br>    <span class="hljs-comment">//father</span><br>    close(fd[<span class="hljs-number">1</span>]);<br>    <span class="hljs-comment">//父进程就一直在那里读取</span><br>    <span class="hljs-comment">//while(1)</span><br>    <span class="hljs-comment">//&#123;</span><br>    <span class="hljs-comment">//  char buf[32]=&#123;0&#125;;</span><br>    <span class="hljs-comment">//  ssize_t ret=read(fd[0],buf,sizeof(buf));//如果此时ret=0说明子进程关闭文件描述符了，相当于读到文件的结尾了</span><br>    <span class="hljs-comment">//  //read是只要有数据就可以一直读取</span><br>    <span class="hljs-comment">//  //这就叫字节流</span><br>    <span class="hljs-comment">//  if(ret==0)</span><br>    <span class="hljs-comment">//    break;</span><br>    <span class="hljs-comment">//  else </span><br>    <span class="hljs-comment">//  &#123;</span><br>    <span class="hljs-comment">//  buf[ret]=0;//把\0位置就设置为0</span><br>    <span class="hljs-comment">//  printf(&quot;child say : %s\n&quot;,buf);</span><br><br>    <span class="hljs-comment">//  //我们没有让父进程去sleep</span><br>    <span class="hljs-comment">//  &#125;</span><br><br>    dup2(fd[<span class="hljs-number">0</span>],<span class="hljs-number">0</span>);<span class="hljs-comment">//绑定打印到文件里面</span><br>    <span class="hljs-comment">//&#125;</span><br>    sleep(<span class="hljs-number">1</span>);<br>    <span class="hljs-comment">//dup2(fd[0],0);</span><br>  &#125;<br>  <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/68d05a91411c40f2b282df02435d102b.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>写段被关闭了，读端继续读，就会都到文件的最后</p>
+<blockquote>
+<p>当我们的读端关闭，写端还在写入，此时站在操作系统的角度，合理吗？？<br>严重不合理，因为已经没有人读了，你还在写入，本质就是在浪费操作系统的资源，所以OS会直接终止写入进程，OS给目标进程发送信号，SIGPIPE</p>
+</blockquote>
+<p>管道的四种情况：</p>
+<blockquote>
+<ol>
+<li>读端不读或者读的满，那么写端要等读端读完</li>
+<li>读端关闭，没人读了，写端就没有了存在的必要，写端直接受到SIGPIPE 的信号，直接终止</li>
+<li>写端不写或者写的慢，读端就要等写端</li>
+<li>写端关闭，读端就读完全部pipe内部的数据，然后再读就会读到0，表面文件的结尾！</li>
+</ol>
+</blockquote>
+<blockquote>
+<p>管道实在具有血缘关系的进程之间可以进行进程间通信，但是常用于父子间通信的</p>
+</blockquote>
+<blockquote>
+<p>管道是文件吗？<br>如果一个文件只能被当前进程打开，相关进程退出了，被打开的文件呢？会被OS自动关闭，</p>
+</blockquote>
+<p>可以看我的github仓库详细情况<br><a target="_blank" rel="noopener" href="https://github.com/zevin02/Linuxstudy/tree/master/procommunicate">匿名管道代码详细</a></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/linux/">#linux</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>进程间通信---匿名管道</div>
+      <div>http://example.com/2022/04/25/进程间通信---匿名管道/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zevin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年4月25日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/04/29/%E5%91%BD%E5%90%8D%E7%AE%A1%E9%81%93%E4%BA%8ESystem%20V/" title="命名管道于System V">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">命名管道于System V</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/04/21/%E5%8A%A8%E6%80%81%E5%BA%93%E5%92%8C%E9%9D%99%E6%80%81%E5%BA%93/" title="动态库和静态库">
+                        <span class="hidden-mobile">动态库和静态库</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","appKey":"javf3F1xk56WiY222ZrCxGt1","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

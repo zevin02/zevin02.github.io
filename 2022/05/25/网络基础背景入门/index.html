@@ -1,0 +1,923 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zevin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="文章目录 计算机网络背景  网络发展 网络在哪里 认识“协议” 协议分层 OSI七层模型与TCP&#x2F;IP四层模型 我们从实际角度上介绍一下TCP&#x2F;IP模型每一层都做些什么  局域网 报头 跨网络   令牌环 mac地址 网络中的地址管理  认识IP地址 认识MAC地址   理解    计算机网络背景网络发展现有计算机再有OS，原来没有OS之前使用计算机的成本是很高的，只有科学">
+<meta property="og:type" content="article">
+<meta property="og:title" content="网络基础背景入门">
+<meta property="og:url" content="http://example.com/2022/05/25/%E7%BD%91%E7%BB%9C%E5%9F%BA%E7%A1%80%E8%83%8C%E6%99%AF%E5%85%A5%E9%97%A8/index.html">
+<meta property="og:site_name" content="Zevin-Blog">
+<meta property="og:description" content="文章目录 计算机网络背景  网络发展 网络在哪里 认识“协议” 协议分层 OSI七层模型与TCP&#x2F;IP四层模型 我们从实际角度上介绍一下TCP&#x2F;IP模型每一层都做些什么  局域网 报头 跨网络   令牌环 mac地址 网络中的地址管理  认识IP地址 认识MAC地址   理解    计算机网络背景网络发展现有计算机再有OS，原来没有OS之前使用计算机的成本是很高的，只有科学">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/861e1a4560ad46c092ecc346af567e9a.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/6d314f582e0843288d1ccd1833b69543.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/1601334c7277499092e3b4a9075c96df.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/b2fd581b6afd4e46a49ff7e3a610e1aa.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/c9dfabb0c2bb43ceb3e901417f261cb3.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/c36496e00885434084a1368fd8aa04d3.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/38724388395e45edb182d5157a6c5001.png">
+<meta property="article:published_time" content="2022-05-25T13:56:51.000Z">
+<meta property="article:modified_time" content="2023-01-20T12:55:15.358Z">
+<meta property="article:author" content="Zevin">
+<meta property="article:tag" content="网络编程 网络 网络协议">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/861e1a4560ad46c092ecc346af567e9a.png">
+  
+  
+  
+  <title>网络基础背景入门 - Zevin-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","app_key":"javf3F1xk56WiY222ZrCxGt1","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zevin-Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="网络基础背景入门"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-05-25 21:56" pubdate>
+          2022年5月25日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          5.4k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          46 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">网络基础背景入门</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+
+<h3 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h3><ul>
+<li><a href="#_1">计算机网络背景</a></li>
+<li><ul>
+<li><a href="#_2">网络发展</a></li>
+<li><a href="#_21">网络在哪里</a></li>
+<li><a href="#_25">认识“协议”</a></li>
+<li><a href="#_43">协议分层</a></li>
+<li><a href="#OSITCPIP_60">OSI七层模型与TCP&#x2F;IP四层模型</a></li>
+<li><a href="#TCPIP_90">我们从实际角度上介绍一下TCP&#x2F;IP模型每一层都做些什么</a></li>
+<li><ul>
+<li><a href="#_100">局域网</a></li>
+<li><a href="#_114">报头</a></li>
+<li><a href="#_151">跨网络</a></li>
+</ul>
+</li>
+<li><a href="#_167">令牌环</a></li>
+<li><a href="#mac_172">mac地址</a></li>
+<li><a href="#_190">网络中的地址管理</a></li>
+<li><ul>
+<li><a href="#IP_191">认识IP地址</a></li>
+<li><a href="#MAC_198">认识MAC地址</a></li>
+</ul>
+</li>
+<li><a href="#_205">理解</a></li>
+</ul>
+</li>
+</ul>
+<h1 id="计算机网络背景"><a href="#计算机网络背景" class="headerlink" title="计算机网络背景"></a>计算机网络背景</h1><h2 id="网络发展"><a href="#网络发展" class="headerlink" title="网络发展"></a>网络发展</h2><p>现有计算机再有OS，原来没有OS之前使用计算机的成本是很高的，只有科学家才可以使用，在有了OS之后，计算机的使用成本就降低了，之后计算机进入到高校里面，<br>在有了OS之后再有网络<br>我们做实验产生了数据，这个时候数据需要交给别人</p>
+<blockquote>
+<p>当企业里面有3个人A,B,C。<br>A处理完数据后把数据传送给B，B在A处理完之前都在等待<br>B处理完数据之后把数据传给C，C在AB都处理完之前在等待<br>数据在来回传导</p>
+</blockquote>
+<p>高校内部有数据研究和沟通的需求，<strong>就需要产生网络（就是为了提高效率）</strong></p>
+<blockquote>
+<p>如以前没有网络，我们想给一个人传递消息，就需要骑马到他那边告诉他</p>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/861e1a4560ad46c092ecc346af567e9a.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/6d314f582e0843288d1ccd1833b69543.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>局域网(LAN)：在同一个网段里面，这一个一个小的模块就是局域网，局域网和局域网之间可以用路由器来连接，实现跨网络传送</p>
+<p>广域网（WAN）:局域网多了就变成了广域网，但是广域网没有一个清晰的概念，一般只要存在路由器的，就是广域网或者城域网，</p>
+<h2 id="网络在哪里"><a href="#网络在哪里" class="headerlink" title="网络在哪里"></a>网络在哪里</h2><p>这里的网络，指的是网络协议栈，他是一个软件，贯穿体系结构的，尤其TCP&#x2F;IP他就是OS的一部分，</p>
+<p><img src="https://img-blog.csdnimg.cn/1601334c7277499092e3b4a9075c96df.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h2 id="认识“协议”"><a href="#认识“协议”" class="headerlink" title="认识“协议”"></a>认识“协议”</h2><p>协议：</p>
+<blockquote>
+<p>假如说我上学在外，电话费很贵<br>我就和父亲做了一个约定</p>
+<blockquote>
+<p>1.我给家里打电话，响了一声，就挂掉，说明我是平安的<br>2. 我给家里打电话，响了两声，就挂掉，说明我没钱了<br>3. 我给家里打电话，响了三声，就挂掉，说明我想要和他们聊天</p>
+</blockquote>
+</blockquote>
+<p>而这个约定其实就是协议<br>所谓的计算机协议，本质就是约定，而这个约定是由编码的程序员自己根据标准的文档，或者自己的喜好定义的协议<br>如我们在计算机中发送不同的东西，则计算机就根据这些东西由协议规定，做出特定的响应</p>
+<blockquote>
+<p>但是两台主机之间，约定好协议就可以了吗</p>
+</blockquote>
+<blockquote>
+<p>世界上的计算机生产商特别多，OS类型也很多，计算机的硬件也由很多<br>虽然都遵守了协议，但是没有办法，<br>所以我们就需要一个共同的标准，这就是<strong>网络协议</strong></p>
+</blockquote>
+<h2 id="协议分层"><a href="#协议分层" class="headerlink" title="协议分层"></a>协议分层</h2><p>举个例子：</p>
+<blockquote>
+<p>在语言层上有两个人用汉语交流，通过通信设备层的电话机来进行交互，现在下层的逻辑不变，上层变成了说英文，但是不影响交流，仅在语言层发生了变更，但是如果底层使用的是手机，同样也可以实现相同的内容</p>
+</blockquote>
+<p>软件分层的好处：</p>
+<blockquote>
+<p>可以通过分层完成了一个<strong>解耦</strong>的操作，一旦解耦之后，任何一层，我们想要进行替换，就可以直接进行替换，<strong>而不会影响另一层</strong>，即便有一层当中有bug，我们只需要把问题聚焦在这一层就可以，而不影响其他层</p>
+</blockquote>
+<p>软件分层，<br>无外乎就是<br>[<strong>代码</strong>（逻辑层面的分层）和<strong>数据</strong>（数据层面的分层，数据在不同层上面流动）]</p>
+<p>例如：<br>1.一切皆文件，在linux系统管理对象的时候，肯定是先描述再组织，里面的东西都被当作文件对待了，所有的文件公共的方法，<br>2. 如果我又想把所有的东西都当作文件来看，所以要抽象出一个文件结构，这个文件结构的结构就是文件的结构，方法就是包含了一堆的函数指针，这个函数指针里面指向的是具体的底层的对应的方法，这取决于我们底层是什么样子，这个就是一切皆文件的软件结构</p>
+<p><strong>分层最大的好处在于“封装”，面向对象例子</strong></p>
+<h2 id="OSI七层模型与TCP-x2F-IP四层模型"><a href="#OSI七层模型与TCP-x2F-IP四层模型" class="headerlink" title="OSI七层模型与TCP&#x2F;IP四层模型"></a>OSI七层模型与TCP&#x2F;IP四层模型</h2><blockquote>
+<ul>
+<li>OSI（开放系统互连）七层网络模型称为开放式系统互联参考模型，是一个逻辑上的定义和规范。<br>（逻辑上就是<strong>没有真实存在</strong>，而是用代码或者其他的方式抽象模拟出来的，例如进程的<strong>虚拟地址空间</strong>，在进程角度，它认为它拥有这么多的空间，而实际上是操作系统模拟出来的）<br>这个<strong>实际</strong>上就是：硬件上不实现，通过软件上来实现，软件上实现，就是增加一些软件层，来实现，mm_struct (虚拟地址空间)，一切皆文件里面的很多函数调用方法，它实际上也是软件层面上的实现</li>
+</ul>
+</blockquote>
+<blockquote>
+<ul>
+<li>物理层：<strong>负责光电信号</strong>，<br>（计算机软件怎么通信，设计的再怎么绚丽，我们都要在现实当中跑的，例如我们打游戏的时候，一些英雄人物技能多么的酷，这在底层实际上都是一些2进制数据，要么传输，要么展示，要么计算，反正都是2进制数据，在硬件层面上，我根本就不知道这些0，1序列是什么意思，你只需要告诉我，要传多少的光电信号，好比我今天进到公司里面，你帮我把这个功能实现一下，可是我不知道这个函数这个功能在公司整个业务层面上代表了什么呢，我也不关心，在公司方面，每个人结构就是层状结构，）</li>
+</ul>
+<hr>
+<p>传多少光电信号，什么时候传，我只需要照做就可以了，不需要多问，光电信号传的距离够不够远呀，信号够不够呀，就是纯硬件的，2进制序列是以什么样的形式传过去，是以<strong>模拟信号</strong>还是<strong>数字信号</strong>，无线wifi，波形，区段，频率应该选择什么样子的，那么这个就是<strong>物理层</strong>：<br>决定的就是通信过程中的一些物理层面的东西，比如最大传播速率，传输距离，信号抗干扰性，<br><strong>集线器</strong>（Hub）【光电信号开始的时候有自己的初始能量，传输距离有限，能量会衰减，相隔千里之外也能听清楚，把信号衰减又把他放大，这叫做集线器】</p>
+</blockquote>
+<blockquote>
+<ul>
+<li>数据链路层：<strong>就是特定硬件匹配的驱动模块，设备和设备之间的识别</strong>：<br>例如网卡的设备驱动，帧同步（从网线上检测到什么信号算作新帧的开始），冲突检测（如果检测到冲突就重发），数据的校验；有以太网，令牌环网，无线LAN,交换机（switch）工作在<strong>链路层</strong>，软件工作（和硬件强相关）</li>
+<li>网络层：<strong>负责地址管理和网络管理和路由选择的</strong>，IP协议中，通过路由表的方式规划处两台主机之间的数据传输线路（路由），路由器（router）</li>
+<li>传输层：负责两台主机之间<strong>数据的传输</strong>，TCP,UDP</li>
+<li>应用层：负责<strong>应用程序之间的沟通</strong>（http，ftp）</li>
+</ul>
+</blockquote>
+<p>一般而言：</p>
+<blockquote>
+<ul>
+<li>对于一台主机，其操作系统的内核实现了从传输层到物理层之间的内容</li>
+<li>对于一台路由器，它实现了从网络层到物理层之间的内容</li>
+<li>对于一台交换机，它实现了从数据链路层到物理层之间的内容</li>
+<li>对于一台集线器，它实现了物理层的内容</li>
+</ul>
+</blockquote>
+<p>越上层的应用它所包含的层就越复杂，越多</p>
+<h2 id="我们从实际角度上介绍一下TCP-x2F-IP模型每一层都做些什么"><a href="#我们从实际角度上介绍一下TCP-x2F-IP模型每一层都做些什么" class="headerlink" title="我们从实际角度上介绍一下TCP&#x2F;IP模型每一层都做些什么"></a>我们从实际角度上介绍一下TCP&#x2F;IP模型每一层都做些什么</h2><blockquote>
+<p>例如我们在网购买东西，下单之后，卖家下楼把货物进行包装（这个就是封装），再之后，就填写快递单号（相当于给数据添加报头），这发送出去之后，这个快递卖家就不管了（每一个层只需要处理自己的事情，不需要去处理别的层做的事情），之后就都是快递公司的事情了，快递一个一个发送给下一个（数据链路层决定的，数据链路层决定下一跳要去哪里），走山东云南，福建（这个就是网络层决定的，路径规划）。快递丢了的话，我们就重新给你发一封（传输层，保证可靠性，传输控制），</p>
+</blockquote>
+<blockquote>
+<p><strong>有一个误区</strong>：数据传送给对端，事情就结束了，但是对于数据的使用，才是最终的目的，如何分析和使用传输过来的数据，下三层是处理怎么拿到数据，应用层是处理怎么处理这些数据，</p>
+</blockquote>
+<h3 id="局域网"><a href="#局域网" class="headerlink" title="局域网"></a>局域网</h3><p><img src="https://img-blog.csdnimg.cn/b2fd581b6afd4e46a49ff7e3a610e1aa.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>每一层都认为自己发送的数据都是对端层直接收到的</p>
+<p>这个图重点讨论的是局域网通信的TCP&#x2F;IP属于OS，链路层是在网卡驱动层面上的，下三层解决通信细节，用户并不关心这些东西，应用层主要处理应用程序的细节，（如我是应用层，我收到了快递盒子，用小刀把快递盒子切开，我们里面的洗面奶一次用多少，这是我对洗面奶这个应用处理的细节）</p>
+<p>局域网中的两台主机能直接通信吗？</p>
+<p>在局域网中数据必须贯彻四层，到最底层的以太网，通过以太网驱动程序，以太网协议到达对端的数据链路层，从以太网里面回到服务器上面</p>
+<p>而对于同等的层，它会得到同样的报头加报文，所以在每一层看来，每一层都认为，我发什么数据对方就收什么数据，这个就是左侧封装的过程，右边叫做解耦的过程，这也是一种逻辑上的概念，这叫做在应用层是同等层，只要我们有网络，我们都是直接沟通，技术上就是封装</p>
+<h3 id="报头"><a href="#报头" class="headerlink" title="报头"></a>报头</h3><p>如何理解报头：<br>(什么是报头，为什么要有报头)</p>
+<blockquote>
+<p>所有的快递盒子上面都有快递单，这个是贴在盒子上的，发货人谁，收货人是谁，重要的是格式和数据，单子类似于快递的报头，因为如果没有的话，就不知道谁发的，也不知到发给谁，无法得知该快递该如何派发，指导我们来进行派发</p>
+</blockquote>
+<blockquote>
+<p>需要报头中的数据来<strong>指导当前层进行我们的某种协议决策</strong>，如何处理这些报文，传输层报头指导如何进行数据传输，网络层指导如何进行下一个路径，链路层报头指导如何进行下一跳，实际上我们根本不需要这些快递单，我只需要物件，这叫做<strong>解包的过程</strong>，我发货物，填上单子，指导我们进行某种协议决策的，</p>
+</blockquote>
+<p>在OS中如何理解报头和数据呢<br>如何理解报头和有效载荷</p>
+<blockquote>
+<ol>
+<li><pre><code class="hljs">在当前层中，报头叫报头，报头的后面叫做这个报文的有效载荷，
+</code></pre>
+</li>
+<li><pre><code class="hljs">报头是数据吗，是一种结构化的数据，既然大家都是数据呢
+</code></pre>
+</li>
+<li><pre><code class="hljs">centos OS 如何理解封装和解封，linux OS是C写的，站在语言角度，如何理解封装和解包呢？  
+</code></pre>
+我们随便定义一个报头<br>这就叫做位段，网络里面就是位段类型</li>
+</ol>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">my_hdr</span></span><br><span class="hljs-class">&#123;</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> src:<span class="hljs-number">16</span>;<span class="hljs-comment">//占16个比特位</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> dst:<span class="hljs-number">16</span>;<span class="hljs-comment">//目的地址</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> type:<span class="hljs-number">8</span>;<span class="hljs-comment">//报文的类型</span><br>	<span class="hljs-type">unsigned</span> <span class="hljs-type">int</span> len:<span class="hljs-number">24</span>;<span class="hljs-comment">//报头的长度</span><br>&#125;<br><span class="hljs-class"><span class="hljs-keyword">struct</span> <span class="hljs-title">my_hdr</span> <span class="hljs-title">my</span>;</span><span class="hljs-comment">//定义一个位段变量，定义了一个报头，要开空间，结构化的数据</span><br>my.src=<span class="hljs-number">0x1</span>;<br>my.dst=<span class="hljs-number">0x2</span>;<br>my.type=<span class="hljs-number">0x3</span>;<br>my.len=<span class="hljs-number">0x4</span>;<br></code></pre></td></tr></table></figure>
+
+<p>添加报头，这些位段都写好了之后，我们有一个数据（你好，把这个位段拷贝到你好这个空间的前面就可以了，把一个位段拷贝进一个缓冲区，可以采用memcpy或者memmove2进制拷贝，把一个变量拷贝进一个数据当中，这就是报文，其他报头也是类似的，这就是封装的过程）<br>4. 如何理解解包<br>我们可以定义一个指针指向这个报头的头部，例如void* ptr,我们要拿这个报头，只要把这个 ptr强转成(struct my_hdr*),即可,就能够访问里面的内容数据了，(（struct my_hdr*）ptr)++,就能够去掉报头了，后面就是有效载荷</p>
+<ol start="5">
+<li>几乎每一层协议的包头中，都要包含两种字段：</li>
+</ol>
+<ul>
+<li>当前报头的有效载荷要交付给上层的哪一个协议（分用的过程，解包分用）</li>
+<li>几乎每个报头都要有一个属性，明确报头和有效载荷的边界，解包的时候，不能多解和少解，是我们学习所有的协议的共性，</li>
+</ul>
+</blockquote>
+<h3 id="跨网络"><a href="#跨网络" class="headerlink" title="跨网络"></a>跨网络</h3><p><img src="https://img-blog.csdnimg.cn/c9dfabb0c2bb43ceb3e901417f261cb3.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>以太网</p>
+<blockquote>
+<p>左右两个主机因为是经过路由器连接，所以两个主机并不在同一个局域网，并不在同一个网段，但是主机A和路由器，主机B和路由器，彼此之间是在一个网段的，就相当于中间的话事人，这样就能让A和B进行沟通，</p>
+</blockquote>
+<p>局域网（以太网）基于碰撞检测的方式</p>
+<blockquote>
+<p>同一个局域网之间为什么能通信：<br>原理类似于上课，局域网中的<strong>网络资源被大家共享</strong>的，发送的消息所有人都能收到，但是里面有地址，mac地址，标识对应 的人物，对比的时候发现不是我的，就直接舍弃，只有接收者收到这个信息在，这就像发数据的过程，</p>
+</blockquote>
+<blockquote>
+<p>如果同时发送，可能发生数据碰撞的问题，这样的话就同时往公共资源里面发消息，只能说的是判断有没有发生碰撞，每台主机都要有碰撞检测的能力，还要能够正常通信，每台主机都要有碰撞避免算法，等一等，动态调整，这样就可以几乎只有一个主机发送，这里面都在数据链路层帮我们做：局域网中任何一个时刻都只能有一台主机发送消息</p>
+</blockquote>
+<p>可以将网络资源理解为临界资源，网络系统也是有互斥的机制的</p>
+<blockquote>
+<p>如果我想攻击这个网络，就一直往局域网发送数据，占用临界资源，造成了其他主机的饥饿问题</p>
+</blockquote>
+<h2 id="令牌环"><a href="#令牌环" class="headerlink" title="令牌环"></a>令牌环</h2><blockquote>
+<p>相当于每个主机要进行传导数据，只有传导数据的人才可以获得令牌，发完之后，再把令牌给下一个人，这就相当于互斥锁里面的锁</p>
+</blockquote>
+<h2 id="mac地址"><a href="#mac地址" class="headerlink" title="mac地址"></a>mac地址</h2><blockquote>
+<p>全球内唯一的网卡中的序列号，48位的mac地址更多做局域网标识，<br>每台主机都有其Mac地址，路由器也是一个主机，也有Mac地址</p>
+</blockquote>
+<p>如何理解IP：</p>
+<blockquote>
+<ol>
+<li>从哪里来到哪里去（几乎一直不会变化的地址）:IP地址</li>
+<li>上一站从哪里来，下一站要去哪里（一直在变化的地址）：Mac地址<br>所以我们在传输数据的时候，目的IP一直不变的，而Mac地址一直都在变化，在数据链路层，经过路由器，一直在进行解包和重新封装，<br>inet是内网地址<br>我们站在IP网的角度，发送的有效载荷都是一样的 因为有ip网络，所以它帮我们屏蔽了底层网络的差异（因为有路由器的存在，看不到底层路由器的差异），IP就是局域网中的一个虚拟化技术，跨网络传送的技术，</li>
+</ol>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/c36496e00885434084a1368fd8aa04d3.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h2 id="网络中的地址管理"><a href="#网络中的地址管理" class="headerlink" title="网络中的地址管理"></a>网络中的地址管理</h2><h3 id="认识IP地址"><a href="#认识IP地址" class="headerlink" title="认识IP地址"></a>认识IP地址</h3><p>IP协议中有两个版本，IPV4和ipv6，我们现在所提到的IP协议，没有特殊说名的都是ipv4</p>
+<blockquote>
+<ul>
+<li>ip地址是在ip协议中，用来标识网络中不同主机的地址</li>
+<li>对于IPV4来说，IP地址是一个4字节，32位的整数</li>
+<li>我们通常也是用“点分十进制的方式”来表示IP地址，如192.168.0.122，每一个点都是分割一个字节，范围在0-255之间</li>
+</ul>
+</blockquote>
+<h3 id="认识MAC地址"><a href="#认识MAC地址" class="headerlink" title="认识MAC地址"></a>认识MAC地址</h3><blockquote>
+<ul>
+<li>MAC地址用来识别数据链路层中的相连的节点</li>
+<li>长度是48个字节，6个字节，一般用16进制加上冒号形式表示（08：00：27：35：11：12）</li>
+<li>网卡在出厂的时候就已经确定了，不能修改，mac地址是唯一的（虚拟机里面 的mac地址就不是真实的了）</li>
+</ul>
+</blockquote>
+<h2 id="理解"><a href="#理解" class="headerlink" title="理解"></a>理解</h2><p><img src="https://img-blog.csdnimg.cn/38724388395e45edb182d5157a6c5001.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<blockquote>
+<p>可以这么理解假如说主机A 是一个学生要去找主机B是另一个学生都住在4楼，它要给b寄送东西，路由器相当于另一个楼，2楼里面有保安，A要送东西，要下楼，找到路由器1，上楼2楼，找保安，保安称不知道，又下楼，继续找路由器2，上楼下楼，最后到路由器3保安才知道b的地址，我继续下楼，到b的地方，上楼到4楼，把东西给它</p>
+</blockquote>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E7%BD%91%E7%BB%9C%E7%BC%96%E7%A8%8B-%E7%BD%91%E7%BB%9C-%E7%BD%91%E7%BB%9C%E5%8D%8F%E8%AE%AE/">#网络编程 网络 网络协议</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>网络基础背景入门</div>
+      <div>http://example.com/2022/05/25/网络基础背景入门/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zevin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年5月25日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/06/03/%E7%BA%BF%E7%A8%8B%E6%B1%A0/" title="线程池">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">线程池</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/05/18/c++%E5%A4%9A%E6%80%81/" title="c++多态">
+                        <span class="hidden-mobile">c++多态</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","appKey":"javf3F1xk56WiY222ZrCxGt1","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

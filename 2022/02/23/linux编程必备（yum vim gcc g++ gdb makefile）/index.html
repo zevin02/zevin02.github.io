@@ -1,0 +1,946 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zevin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="文章目录 yum  下载安装 删除软件   vim  命令模式 底行模式 插入模式 vim的配置   gcc和g++  gcc  背景知识 gcc简单演示 gcc选项  预处理 编译 汇编 链接  函数库       g++   gdb  选项  run list&#x2F;l b（breakpoint）（打断点） s n display  p undisplay   finish（结束当前函">
+<meta property="og:type" content="article">
+<meta property="og:title" content="linux编程必备（yum vim gcc g++ gdb makefile）">
+<meta property="og:url" content="http://example.com/2022/02/23/linux%E7%BC%96%E7%A8%8B%E5%BF%85%E5%A4%87%EF%BC%88yum%20vim%20gcc%20g++%20gdb%20makefile%EF%BC%89/index.html">
+<meta property="og:site_name" content="Zevin-Blog">
+<meta property="og:description" content="文章目录 yum  下载安装 删除软件   vim  命令模式 底行模式 插入模式 vim的配置   gcc和g++  gcc  背景知识 gcc简单演示 gcc选项  预处理 编译 汇编 链接  函数库       g++   gdb  选项  run list&#x2F;l b（breakpoint）（打断点） s n display  p undisplay   finish（结束当前函">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/ac125774683648e0a17f3eb007a72837.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/1835b2e7fa0445228adf2202d4fc4535.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/d6ce997b6b3e4aa196b042b316bbc55f.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/2eb6de6ef8a14c11b342a8b794926659.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/4e678061dabe4aeeb4d0da8413bc6325.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/b220d38cc7ed4340b4c4815824cd7078.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_11,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/3391a8d1cfc0410e9bd808da4a7ce0d7.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_17,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/ad91994cedad463baa378c248a7b599f.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/d04d1132a6394c568a4ae1e5f6692ce7.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/d863d211b22442ba9af1369ab3a61a75.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/132140cf87a04a8395d23c25a5576a68.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/3158c3f6e977420394b92751490c9ccd.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/942d6d909733421fb38f6c81ad30663a.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/75a782e7d1e44b94b81df6bbe952f0af.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/77990438b190410183052c1364034512.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/799540d423dd4a5a8e81fd27ddd140af.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/e987996e6d72497dae3550274b08dee2.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/2c121155c7424ac0818b7ee845e7f25f.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/eae4aceaf2a04811affd0e3b9b95c61d.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/4781e61f2d704e4d9df37485d8613a41.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/84876d94c6d543f595ece9956996dc2c.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/656dd726de3f494bbae143914788c6bf.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/3dc608b7d76d429bb780e1a612a8984e.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/f512f82b92474816bdb1bf38b860dc25.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_14,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/a36aa29fa2f445ac85a7c9d5801b33b8.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/2cf0dc5bb216406cb8b7ea68fbe5fba4.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/500496468d5647aa99e38b813ae3c658.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/bae2814aa0084963b8beebfd918ef534.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_18,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/c6f6a67eee6d4c07bd852af3c3584eec.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/ecabcdb7955646a8b47aaf24e42d0f37.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/9edd63facf7c494f88d635a6241fa98b.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/5ee5079e4fd94fd0a2a05eed6b77de7a.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_13,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/10b60a6c97b445958aaf7501e99dcff7.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/703a698d4c5545e69420ed4ef70321ff.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/24cb31bee78041f2abd5b653ac65d383.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/c03c5a34f88e45a4806051eb14998cec.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/3c3719d1f0fe48c59abc0757842ffd75.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/4bf4aef6c82d40a5a0c6609e23424388.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/610157b909e74b47b9f18fbb58e36417.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/53eaad4ff5f84e59ace85dbff5ec0ec3.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/c0ab58a420324d9e91dbec43457ed143.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/0c7cb9261f2a4fd59bc4998f157773af.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/d83f771f9dc443f8b1d911e012c2f640.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/69c6eb1b84c842f182a025dde9bd7ee4.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/4e04384e488d4063b8358e3886ee0bb8.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/50d1b34c9d504888a7f4e4c87df0f16e.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_19,color_FFFFFF,t_70,g_se,x_16">
+<meta property="article:published_time" content="2022-02-23T13:09:15.000Z">
+<meta property="article:modified_time" content="2023-01-20T12:55:15.358Z">
+<meta property="article:author" content="Zevin">
+<meta property="article:tag" content="linux vim 编辑器">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/ac125774683648e0a17f3eb007a72837.png">
+  
+  
+  
+  <title>linux编程必备（yum vim gcc g++ gdb makefile） - Zevin-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","app_key":"javf3F1xk56WiY222ZrCxGt1","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zevin-Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="linux编程必备（yum vim gcc g++ gdb makefile）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-02-23 21:09" pubdate>
+          2022年2月23日 晚上
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.8k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          24 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">linux编程必备（yum vim gcc g++ gdb makefile）</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+
+<h3 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h3><ul>
+<li><a href="#yum_1">yum</a></li>
+<li><ul>
+<li><a href="#_14">下载安装</a></li>
+<li><a href="#_18">删除软件</a></li>
+</ul>
+</li>
+<li><a href="#vim_24">vim</a></li>
+<li><ul>
+<li><a href="#_42">命令模式</a></li>
+<li><a href="#_81">底行模式</a></li>
+<li><a href="#_92">插入模式</a></li>
+<li><a href="#vim_99">vim的配置</a></li>
+</ul>
+</li>
+<li><a href="#gccg_104">gcc和g++</a></li>
+<li><ul>
+<li><a href="#gcc_106">gcc</a></li>
+<li><ul>
+<li><a href="#_108">背景知识</a></li>
+<li><a href="#gcc_123">gcc简单演示</a></li>
+<li><a href="#gcc_132">gcc选项</a></li>
+<li><ul>
+<li><a href="#_134">预处理</a></li>
+<li><a href="#_142">编译</a></li>
+<li><a href="#_147">汇编</a></li>
+<li><a href="#_156">链接</a></li>
+<li><ul>
+<li><a href="#_168">函数库</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#g_180">g++</a></li>
+</ul>
+</li>
+<li><a href="#gdb_188">gdb</a></li>
+<li><ul>
+<li><a href="#_201">选项</a></li>
+<li><ul>
+<li><a href="#run_203">run</a></li>
+<li><a href="#listl_208">list&#x2F;l</a></li>
+<li><a href="#bbreakpoint_215">b（breakpoint）（打断点）</a></li>
+<li><a href="#s_224">s</a></li>
+<li><a href="#n_228">n</a></li>
+<li><a href="#display_230">display</a></li>
+<li><ul>
+<li><a href="#p_235">p</a></li>
+<li><a href="#undisplay_239">undisplay</a></li>
+</ul>
+</li>
+<li><a href="#finish_243">finish（结束当前函数）</a></li>
+<li><a href="#ccontinue_247">c（continue）</a></li>
+<li><a href="#until_251">until</a></li>
+<li><a href="#d_255">d</a></li>
+<li><a href="#disable_261">disable</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a href="#makemakefile_268">make&#x2F;makefile</a></li>
+</ul>
+<h1 id="yum"><a href="#yum" class="headerlink" title="yum"></a>yum</h1><p>（等同于手机上的应用市场）<br>Linux中安装软件并不简单<br>方法<br>1.源码安装，编译一个源码进行安装<br>2.rpm安装，安装包<br>3.Linux可能存在大量软件之间的依赖关系，就需要安装许多第三方库，安装非常麻烦，因此可以使用<br><strong>yum</strong>，自己会考虑依赖关系，而不许要我们去处理<br><strong>查找软件</strong><br><img src="https://img-blog.csdnimg.cn/ac125774683648e0a17f3eb007a72837.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>可以搭配grep进行搜索过滤<br><img src="https://img-blog.csdnimg.cn/1835b2e7fa0445228adf2202d4fc4535.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h2 id="下载安装"><a href="#下载安装" class="headerlink" title="下载安装"></a>下载安装</h2><p>yum install (软件名)<br><img src="https://img-blog.csdnimg.cn/d6ce997b6b3e4aa196b042b316bbc55f.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h2 id="删除软件"><a href="#删除软件" class="headerlink" title="删除软件"></a>删除软件</h2><p>yum remove （软件名）<br><img src="https://img-blog.csdnimg.cn/2eb6de6ef8a14c11b342a8b794926659.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h1 id="vim"><a href="#vim" class="headerlink" title="vim"></a>vim</h1><ul>
+<li>IDE集成开发环境，干什么都可以，而linux里面可以安装这样的集成开发环境，但是我们一般不会这么做</li>
+</ul>
+<blockquote>
+<ul>
+<li>编写代码 —》vim（vi的升级版）.vi 文本编辑器，从定位上和记事本没有任何差别，都是用来写代码的（只能写代码）</li>
+<li>编译代码</li>
+<li>调试代码</li>
+<li>发布代码，运行<br>代码关系的维护（.h文件谁包含谁）<br>这些写代码都要包含</li>
+</ul>
+</blockquote>
+<p>vim是多模式的编辑器<br>（默认是命令模式）<br>进入后按i可以插入文字</p>
+<p>还有底行模式<br><img src="https://img-blog.csdnimg.cn/4e678061dabe4aeeb4d0da8413bc6325.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h2 id="命令模式"><a href="#命令模式" class="headerlink" title="命令模式"></a>命令模式</h2><p>光标我们不用键盘中的上下左右<br>而用hjkl</p>
+<blockquote>
+<p>h 在这4个字母的最左边所以是光标向<strong>左</strong>移动<br>l在最右边所以是向<strong>右</strong>移动<br>j（jump）向下跳，所以是向下移动<br>k（king）国王高高在上，所以向上移动</p>
+</blockquote>
+<blockquote>
+<p>光标位置锚点，快速定位到行首 shift+^<br>行尾 shift+$<br>gg光标直接定位到第一行<br>shift+g直接定位到行尾<br>n+shift +g 快速定位到指定行<br>w可以按照单词为单位，一个单词一个单词向后进行查找<br>b向前移动</p>
+</blockquote>
+<blockquote>
+<p>复制粘贴<br>yy复制当前行<br>p就粘贴<br>n+p就是一次重复粘贴n行<br>2yy就从当前行往下两行复制（多行复制）<br>u就可以撤销之前的操作<br>dd：删除当前光标所在行<br>dd+p就是剪切<br>n+dd就是<br>shift+~大小写切换<br>（小写）x就会把当前所在光标的1个字符给删掉<br>n+x就会把光标之后的n个字符给删掉<br>（大写）X就会从光标处往前删除字符<br>n+X就会从光标处往前删除n个字符<br>r可以替换光标处的字符<br>shift r（替换模式），可以实现多个内容的替换<br>ctrl r撤销刚才的撤销</p>
+</blockquote>
+<p>在插入模式也可以这样弄，但是特别慢</p>
+<h2 id="底行模式"><a href="#底行模式" class="headerlink" title="底行模式"></a>底行模式</h2><p>shift ：</p>
+<blockquote>
+<p>set nu可以把行号调出来<br>set nonu就取消行号<br>vs .c可以实现不同文件的分屏显示<br>ctrl ww就可以在不同屏中光标切换<br>wq就是退出光标所在的屏幕<br>w是保存<br>q是退出<br>！强制</p>
+</blockquote>
+<h2 id="插入模式"><a href="#插入模式" class="headerlink" title="插入模式"></a>插入模式</h2><p>进入插入模式有<br>a光标往后移动一位进入插入模式<br>o就是光标往下一行进入插入模式</p>
+<p>插入模式不能进入底行模式</p>
+<h2 id="vim的配置"><a href="#vim的配置" class="headerlink" title="vim的配置"></a>vim的配置</h2><p>vim配置在自己的配置文件中，只会影响自己的操作，不会影响别的用户<br>root有自己的配置文件，只影响自己，<br>(只会影响自己，不会影响别人)</p>
+<h1 id="gcc和g"><a href="#gcc和g" class="headerlink" title="gcc和g++"></a>gcc和g++</h1><h2 id="gcc"><a href="#gcc" class="headerlink" title="gcc"></a>gcc</h2><h3 id="背景知识"><a href="#背景知识" class="headerlink" title="背景知识"></a>背景知识</h3><ul>
+<li>预处理（进行宏替换，去注释，头文件展开，条件编译）</li>
+<li>编译（生成汇编）</li>
+<li>汇编（生成机器可识别代码）</li>
+<li>连接（生成可执行文件或库文件）</li>
+</ul>
+<p>1.为什么c程序的翻译是这个过程</p>
+<blockquote>
+<ul>
+<li>一开始都是二进制编程（打孔编程），只有高级科研人才才可以写</li>
+<li>出现了汇编语言 助记符，利用编译器变成二进制代码</li>
+<li>出现了c语言，先变成汇编语言，更加简单，开发效率更加高<br>C语言中有很多需要被提前处理的，比如注释等</li>
+</ul>
+</blockquote>
+<p>2.链接如何理解</p>
+<blockquote>
+<p>自己写的c程序和语言上或者第三方库</p>
+</blockquote>
+<h3 id="gcc简单演示"><a href="#gcc简单演示" class="headerlink" title="gcc简单演示"></a>gcc简单演示</h3><p>在vim上编写mycode.c文件<br><img src="https://img-blog.csdnimg.cn/b220d38cc7ed4340b4c4815824cd7078.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_11,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><img src="https://img-blog.csdnimg.cn/3391a8d1cfc0410e9bd808da4a7ce0d7.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_17,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述">gcc是编译c语言程序</p>
+<ul>
+<li>gcc [目标文件]</li>
+<li>.&#x2F;a.out</li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/ad91994cedad463baa378c248a7b599f.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h3 id="gcc选项"><a href="#gcc选项" class="headerlink" title="gcc选项"></a>gcc选项</h3><h4 id="预处理"><a href="#预处理" class="headerlink" title="预处理"></a>预处理</h4><p>gcc -E mycode.c :开始进行翻译，完成预处理之后，就停下来不做下面的事情<br><img src="https://img-blog.csdnimg.cn/d04d1132a6394c568a4ae1e5f6692ce7.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述">将预处理生成的写入一个临时文件 mycode.i（已经经过了预处理阶段）</p>
+<p><img src="https://img-blog.csdnimg.cn/d863d211b22442ba9af1369ab3a61a75.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><img src="https://img-blog.csdnimg.cn/132140cf87a04a8395d23c25a5576a68.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h4 id="编译"><a href="#编译" class="headerlink" title="编译"></a>编译</h4><p>gcc -S mycode.c（-S，开始进行程序的翻译，完成编译之后就停下来就不要往后走了）<br><img src="https://img-blog.csdnimg.cn/3158c3f6e977420394b92751490c9ccd.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述">因为已经经过了预处理所以可以直接使用mycode.i，跳过预处理阶段，并将生成的临时文件放入mycode.s里面<br><img src="https://img-blog.csdnimg.cn/942d6d909733421fb38f6c81ad30663a.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述">生成了汇编语言</p>
+<h4 id="汇编"><a href="#汇编" class="headerlink" title="汇编"></a>汇编</h4><p>计算机不可以直接执行汇编语言<br>汇编语言需要编译器<br>gcc -c mycode.c(从源文件开始)<br>也可以gcc -c mycode.s<br><img src="https://img-blog.csdnimg.cn/75a782e7d1e44b94b81df6bbe952f0af.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p><img src="https://img-blog.csdnimg.cn/77990438b190410183052c1364034512.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述">汇编形成的二进制文件并不可以直接执行，叫做可重定向目标文件</p>
+<h4 id="链接"><a href="#链接" class="headerlink" title="链接"></a>链接</h4><p>语言也是有库的！调用了第三方的语言库（一套头文件+一套库文件（libc.a,libc.so））<br>需要链接将我们自己的代码中的函数调用，外部数据，和库关系起来</p>
+<ul>
+<li>gcc mycode.o<br>gcc mycode.o -o mycode<br>自定义生成可执行程序的名字<br>.&#x2F;mycode<br><img src="https://img-blog.csdnimg.cn/799540d423dd4a5a8e81fd27ddd140af.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述">方便的时候也可以<br>gcc mycode.c -o mycode(生成可执行程序)<strong>推荐</strong><br>.&#x2F;mycode<br><img src="https://img-blog.csdnimg.cn/e987996e6d72497dae3550274b08dee2.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></li>
+</ul>
+<h5 id="函数库"><a href="#函数库" class="headerlink" title="函数库"></a>函数库</h5><p>linux分为：</p>
+<ul>
+<li><p>静态库： .a，指编译链接时，<strong>把库文件</strong>的代码<strong>全部</strong>加入到<strong>可执行文件</strong>中，因此生成的文件比较大，但在运行时也就不再需要库文件了，其后缀名一般为“.a”，<strong>静态链接</strong></p>
+</li>
+<li><p>动态库: .so 在编译链接时并没有把库文件的代码加入到可执行文件中，而是<strong>在程序执行时由运行</strong>时<strong>链接文件</strong>加载库，这样可以节省系统的开销，一般后缀名为“.so”，<strong>动态链接</strong><br>(都和程序成功运行有关)</p>
+</li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/2c121155c7424ac0818b7ee845e7f25f.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述">gcc默认采用动态链接方式，形成可执行程序<br><img src="https://img-blog.csdnimg.cn/eae4aceaf2a04811affd0e3b9b95c61d.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>如果想要采用静态链接 -static</p>
+<h2 id="g"><a href="#g" class="headerlink" title="g++"></a>g++</h2><p>编译c++程序，g++也可以编译c语言<br>g++和gcc的选项和过程都是一样的<br><img src="https://img-blog.csdnimg.cn/4781e61f2d704e4d9df37485d8613a41.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><img src="https://img-blog.csdnimg.cn/84876d94c6d543f595ece9956996dc2c.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>Linux可以直接跑很多语言如python，shell</p>
+<p><img src="https://img-blog.csdnimg.cn/656dd726de3f494bbae143914788c6bf.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h1 id="gdb"><a href="#gdb" class="headerlink" title="gdb"></a>gdb</h1><p>调试代码<br>gdb带上可执行程序的名字<br><img src="https://img-blog.csdnimg.cn/3dc608b7d76d429bb780e1a612a8984e.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>如果一个程序可以被调试的，该程序的二进制文件一定加入了一些debug信息<br>release去掉了debug信息<br><strong>linux中默认的可执行程序是release</strong><br>但是我们如果想要调试的话，要g++ mycode.cpp -o mycode -g<br>加入-g选项就可以了</p>
+<p><img src="https://img-blog.csdnimg.cn/f512f82b92474816bdb1bf38b860dc25.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_14,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/a36aa29fa2f445ac85a7c9d5801b33b8.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><img src="https://img-blog.csdnimg.cn/2cf0dc5bb216406cb8b7ea68fbe5fba4.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h2 id="选项"><a href="#选项" class="headerlink" title="选项"></a>选项</h2><h3 id="run"><a href="#run" class="headerlink" title="run"></a>run</h3><p>相当于f5<br><img src="https://img-blog.csdnimg.cn/500496468d5647aa99e38b813ae3c658.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h3 id="list-x2F-l"><a href="#list-x2F-l" class="headerlink" title="list&#x2F;l"></a>list&#x2F;l</h3><p>会显示代码，一次显示10行，再l会接上之前代码后面显示</p>
+<p>l 1会从第一行开始显示<br><img src="https://img-blog.csdnimg.cn/bae2814aa0084963b8beebfd918ef534.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_18,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h3 id="b（breakpoint）（打断点）"><a href="#b（breakpoint）（打断点）" class="headerlink" title="b（breakpoint）（打断点）"></a>b（breakpoint）（打断点）</h3><p>b （行）<br><img src="https://img-blog.csdnimg.cn/c6f6a67eee6d4c07bd852af3c3584eec.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述">info b（显示断点）</p>
+<p><img src="https://img-blog.csdnimg.cn/ecabcdb7955646a8b47aaf24e42d0f37.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p><img src="https://img-blog.csdnimg.cn/9edd63facf7c494f88d635a6241fa98b.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述">再r一下，就在断点处停了下来</p>
+<h3 id="s"><a href="#s" class="headerlink" title="s"></a>s</h3><p>相当于f11<br><img src="https://img-blog.csdnimg.cn/5ee5079e4fd94fd0a2a05eed6b77de7a.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_13,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h3 id="n"><a href="#n" class="headerlink" title="n"></a>n</h3><p>相当于f10</p>
+<h3 id="display"><a href="#display" class="headerlink" title="display"></a>display</h3><p>（常显示，每次调试都会显示一次）<br>相当于监视窗口查看一个变量的值<br><img src="https://img-blog.csdnimg.cn/10b60a6c97b445958aaf7501e99dcff7.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><img src="https://img-blog.csdnimg.cn/703a698d4c5545e69420ed4ef70321ff.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h4 id="p"><a href="#p" class="headerlink" title="p"></a>p</h4><p>只显示一次<br><img src="https://img-blog.csdnimg.cn/24cb31bee78041f2abd5b653ac65d383.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h4 id="undisplay"><a href="#undisplay" class="headerlink" title="undisplay"></a>undisplay</h4><p>不想再常显示之前设的变量<br><img src="https://img-blog.csdnimg.cn/c03c5a34f88e45a4806051eb14998cec.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h3 id="finish（结束当前函数）"><a href="#finish（结束当前函数）" class="headerlink" title="finish（结束当前函数）"></a>finish（结束当前函数）</h3><p>可以自行的把一个函数给跑完<br><img src="https://img-blog.csdnimg.cn/3c3719d1f0fe48c59abc0757842ffd75.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h3 id="c（continue）"><a href="#c（continue）" class="headerlink" title="c（continue）"></a>c（continue）</h3><p>直接跳到下一个断电<br><img src="https://img-blog.csdnimg.cn/4bf4aef6c82d40a5a0c6609e23424388.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h3 id="until"><a href="#until" class="headerlink" title="until"></a>until</h3><p>直接跳到某一行<br>until 12</p>
+<h3 id="d"><a href="#d" class="headerlink" title="d"></a>d</h3><p>删除断电<br>d （几号断电）</p>
+<p><img src="https://img-blog.csdnimg.cn/610157b909e74b47b9f18fbb58e36417.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h3 id="disable"><a href="#disable" class="headerlink" title="disable"></a>disable</h3><p>禁用断电<br>disable （第几个断点）<br><img src="https://img-blog.csdnimg.cn/53eaad4ff5f84e59ace85dbff5ec0ec3.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>enable就开启断点<br><img src="https://img-blog.csdnimg.cn/c0ab58a420324d9e91dbec43457ed143.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h1 id="make-x2F-makefile"><a href="#make-x2F-makefile" class="headerlink" title="make&#x2F;makefile"></a>make&#x2F;makefile</h1><p><strong>1.make是一条命令 ，makefile是一个文件</strong><br><strong>2.文件和文件之间的互相依赖关系</strong></p>
+<p>make和makefile可以达到我们形成可执行程序的目的</p>
+<p><strong>makefile</strong></p>
+<blockquote>
+<p>1.依赖关系<br>2.依赖方法</p>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/0c7cb9261f2a4fd59bc4998f157773af.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><img src="https://img-blog.csdnimg.cn/d83f771f9dc443f8b1d911e012c2f640.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述">清理功能（删除可执行文件）<br><img src="https://img-blog.csdnimg.cn/69c6eb1b84c842f182a025dde9bd7ee4.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/4e04384e488d4063b8358e3886ee0bb8.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述">.PHONY 修饰对于的符号，伪目标（总是可执行的）的概念</p>
+<p><img src="https://img-blog.csdnimg.cn/50d1b34c9d504888a7f4e4c87df0f16e.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBA5pe256m65peF5a6i772e,size_19,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述">make一次只会执行一个依赖关系，</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/linux-vim-%E7%BC%96%E8%BE%91%E5%99%A8/">#linux vim 编辑器</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>linux编程必备（yum vim gcc g++ gdb makefile）</div>
+      <div>http://example.com/2022/02/23/linux编程必备（yum vim gcc g++ gdb makefile）/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zevin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年2月23日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/02/25/git%EF%BC%883%EF%BC%89/" title="git（3）">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">git（3）</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/02/22/C++%E6%A8%A1%E6%9D%BF%E5%88%9D%E9%98%B6/" title="C++模板初阶">
+                        <span class="hidden-mobile">C++模板初阶</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","appKey":"javf3F1xk56WiY222ZrCxGt1","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

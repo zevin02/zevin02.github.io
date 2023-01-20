@@ -1,0 +1,759 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zevin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="静态顺序表 test.c 123456789101112131415161718192021222324252627282930313233&#x2F;&#x2F;顺序表是物理地址连续的存储单元，一次存储数据元素的线性结构，在数组上实现数据增删查改&#x2F;&#x2F;顺序表一般可以分为&#x2F;&#x2F;1.静态的顺序表：使用定长数组存储&#x2F;&#x2F;2.动态的顺序表，使用动态开辟的数组进行存储&#x2F;&#x2F;1.连续的物理空间存储——数组&#x2F;&#x2F;2.数据必须是从头开始">
+<meta property="og:type" content="article">
+<meta property="og:title" content="顺序表">
+<meta property="og:url" content="http://example.com/2021/11/21/%E9%A1%BA%E5%BA%8F%E8%A1%A8/index.html">
+<meta property="og:site_name" content="Zevin-Blog">
+<meta property="og:description" content="静态顺序表 test.c 123456789101112131415161718192021222324252627282930313233&#x2F;&#x2F;顺序表是物理地址连续的存储单元，一次存储数据元素的线性结构，在数组上实现数据增删查改&#x2F;&#x2F;顺序表一般可以分为&#x2F;&#x2F;1.静态的顺序表：使用定长数组存储&#x2F;&#x2F;2.动态的顺序表，使用动态开辟的数组进行存储&#x2F;&#x2F;1.连续的物理空间存储——数组&#x2F;&#x2F;2.数据必须是从头开始">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/1e929af5f87846c7b12430459ce08f5b.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5rGf5oy9fg==,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/3e796fe61a754bdab33e810604b0cf0f.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5rGf5oy9fg==,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="article:published_time" content="2021-11-21T08:16:01.000Z">
+<meta property="article:modified_time" content="2023-01-20T12:55:15.358Z">
+<meta property="article:author" content="Zevin">
+<meta property="article:tag" content="排序算法 算法 链表 数据结构">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/1e929af5f87846c7b12430459ce08f5b.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5rGf5oy9fg==,size_20,color_FFFFFF,t_70,g_se,x_16">
+  
+  
+  
+  <title>顺序表 - Zevin-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","app_key":"javf3F1xk56WiY222ZrCxGt1","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zevin-Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="顺序表"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-11-21 16:16" pubdate>
+          2021年11月21日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          50 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">顺序表</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+
+<p>静态顺序表</p>
+<p>test.c</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-comment">//顺序表是物理地址连续的存储单元，一次存储数据元素的线性结构，在数组上实现数据增删查改</span><br><span class="hljs-comment">//顺序表一般可以分为</span><br><span class="hljs-comment">//1.静态的顺序表：使用定长数组存储</span><br><span class="hljs-comment">//2.动态的顺序表，使用动态开辟的数组进行存储</span><br><br><span class="hljs-comment">//1.连续的物理空间存储——数组</span><br><span class="hljs-comment">//2.数据必须是从头开始，依次存储，一个一个存</span><br><br><span class="hljs-comment">//静态的顺序表，给少了不够用，够多了浪费，不能灵活利用</span><br><span class="hljs-selector-id">#include</span>&quot;seqlist<span class="hljs-selector-class">.h</span>&quot;<br><br>void <span class="hljs-built_in">testseqlist</span>()<br>&#123;<br>	SL s;<br>	<span class="hljs-built_in">seqlistinit</span>(&amp;s);<span class="hljs-comment">//要把实参的地址传给形参</span><br>	<span class="hljs-built_in">seqlistpushback</span>(&amp;s, <span class="hljs-number">1</span>);<br>	<span class="hljs-built_in">seqlistpushback</span>(&amp;s, <span class="hljs-number">2</span>);<br>	<span class="hljs-built_in">seqlistpushback</span>(&amp;s, <span class="hljs-number">3</span>);<br>	<span class="hljs-built_in">seqlistpushback</span>(&amp;s, <span class="hljs-number">4</span>);<br>	<span class="hljs-built_in">seqlistpushback</span>(&amp;s, <span class="hljs-number">5</span>);<br>	<span class="hljs-built_in">seqlistpushback</span>(&amp;s, <span class="hljs-number">6</span>);<br>	<span class="hljs-built_in">seqlistpushback</span>(&amp;s, <span class="hljs-number">7</span>);<br>	<span class="hljs-built_in">seqlistpushback</span>(&amp;s, <span class="hljs-number">8</span>);<br>	<span class="hljs-built_in">seqlistpushback</span>(&amp;s, <span class="hljs-number">9</span>);<br>	<span class="hljs-built_in">seqlistpushback</span>(&amp;s, <span class="hljs-number">10</span>);<br>	<span class="hljs-built_in">seqlistpushback</span>(&amp;s, <span class="hljs-number">11</span>);<br><br>&#125;<br>int <span class="hljs-selector-tag">main</span>()<br>&#123;<br>	<span class="hljs-built_in">testseqlist</span>();<br>	return <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>seqlist.c</p>
+<figure class="highlight xl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><code class="hljs xl">#include<span class="hljs-string">&quot;seqlist.h&quot;</span><br>void seqlistinit(SL* ps)<br>&#123;<br>	<span class="hljs-function"><span class="hljs-title">memset</span>(ps-&gt;</span>a, <span class="hljs-number">0</span>, sizeof(seqdata)*n);<span class="hljs-comment">//对数组初始化为0</span><br>	<span class="hljs-function"><span class="hljs-title">ps</span>-&gt;</span>sz = <span class="hljs-number">0</span>;<br>&#125;<br><br>void seqlistpushback(SL*ps, seqdata x)<br>&#123;<br>	<span class="hljs-function"><span class="hljs-title">if</span> (ps-&gt;</span>sz &gt;= n)<br>	&#123;<br>		printf(<span class="hljs-string">&quot;seqlist is full\n&quot;</span>);<br>		return;<br>	&#125;<br>	<span class="hljs-function"><span class="hljs-title">ps</span>-&gt;</span><span class="hljs-function"><span class="hljs-title">a</span>[ps-&gt;</span>sz] = x;<span class="hljs-comment">//尾插在sz下一个位置的下标</span><br>	<span class="hljs-function"><span class="hljs-title">ps</span>-&gt;</span>sz++;<br>	<span class="hljs-comment">//sz可能会超过数组的最大范围，会越界</span><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>seqlist.h</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> once</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;string.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> n 10</span><br><span class="hljs-keyword">typedef</span> <span class="hljs-type">int</span> seqdata;<br><br><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">seqlist</span><br>&#123;<br>	seqdata a[n];<br>	<span class="hljs-type">int</span> sz;<br>&#125;SL;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">testseqlist</span><span class="hljs-params">()</span></span>;<br><br><br><span class="hljs-comment">//初始化一个数组</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">seqlistinit</span><span class="hljs-params">(SL* ps)</span></span>;<br><br><span class="hljs-comment">//尾插</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">seqlistpushback</span><span class="hljs-params">(SL*ps, seqdata x)</span></span>;<br></code></pre></td></tr></table></figure>
+
+<p>动态版顺序表</p>
+<p><img src="https://img-blog.csdnimg.cn/1e929af5f87846c7b12430459ce08f5b.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5rGf5oy9fg==,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload></p>
+<p> <img src="https://img-blog.csdnimg.cn/3e796fe61a754bdab33e810604b0cf0f.png?x-oss-process=image/watermark,type_ZHJvaWRzYW5zZmFsbGJhY2s,shadow_50,text_Q1NETiBA5rGf5oy9fg==,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload></p>
+<p>seqlist.h</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">define</span> _CRT_SECURE_NO_WARNINGS 1;</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">pragma</span> once</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdio.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;string.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdlib.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;assert.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> n 10</span><br><span class="hljs-keyword">typedef</span> <span class="hljs-type">int</span> seqdata;<br><br><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">seqlist</span><br>&#123;<br>	seqdata *a;<span class="hljs-comment">//指向动态开辟的数组</span><br>	<span class="hljs-type">int</span> sz;<span class="hljs-comment">//有效数据的个数</span><br>	<span class="hljs-type">int</span> capacity;<span class="hljs-comment">//记录容量</span><br>&#125;SL;<br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">testseqlist</span><span class="hljs-params">()</span></span>;<br><br><br><span class="hljs-comment">//初始化一个数组</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">seqlistinit</span><span class="hljs-params">(SL* ps)</span></span>;<br><br><span class="hljs-comment">//尾插</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">seqlistpushback</span><span class="hljs-params">(SL*ps, seqdata x)</span></span>;<br><br><span class="hljs-comment">//打印</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">seqlistprint</span><span class="hljs-params">(SL*ps)</span></span>;<br><br><span class="hljs-comment">//头插</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">seqlistpushfront</span><span class="hljs-params">(SL *ps, seqdata x)</span></span>;<br><span class="hljs-comment">//检查容量是否充足</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">seqlistcheckcapacity</span><span class="hljs-params">(SL*ps)</span></span>;<br><br><span class="hljs-comment">//尾删</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">seqlistpopback</span><span class="hljs-params">(SL*ps)</span></span>;<br><br><span class="hljs-comment">//头删</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">seqlistpopfront</span><span class="hljs-params">(SL*ps)</span></span>;<br><br><span class="hljs-comment">//中间插入</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">seqlistinsert</span><span class="hljs-params">(SL*ps, <span class="hljs-type">int</span> pos, seqdata x)</span></span>;<br><br><span class="hljs-comment">//中间删除</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">seqlisterase</span><span class="hljs-params">(SL*ps, <span class="hljs-type">int</span> pos)</span></span>;<br><br><span class="hljs-comment">//销毁</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">seqlistdestroy</span><span class="hljs-params">(SL*ps)</span></span>;<br><br><span class="hljs-comment">//查</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">seqlistfind</span><span class="hljs-params">(SL *ps, seqdata x)</span></span>;<br><br><span class="hljs-comment">//修改</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">seqlistmodify</span><span class="hljs-params">(SL *ps,<span class="hljs-type">int</span> pos, seqdata x)</span></span>;<br></code></pre></td></tr></table></figure>
+
+<p>seqlist.c</p>
+<figure class="highlight xl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br><span class="line">142</span><br><span class="line">143</span><br><span class="line">144</span><br><span class="line">145</span><br><span class="line">146</span><br><span class="line">147</span><br><span class="line">148</span><br><span class="line">149</span><br><span class="line">150</span><br><span class="line">151</span><br><span class="line">152</span><br><span class="line">153</span><br><span class="line">154</span><br><span class="line">155</span><br><span class="line">156</span><br><span class="line">157</span><br><span class="line">158</span><br><span class="line">159</span><br><span class="line">160</span><br><span class="line">161</span><br></pre></td><td class="code"><pre><code class="hljs xl">#include<span class="hljs-string">&quot;seqlist.h&quot;</span><br>void seqlistinit(SL* ps)<span class="hljs-comment">//对顺序表进行初始化</span><br>&#123;<br>	<span class="hljs-function"><span class="hljs-title">ps</span>-&gt;</span>a = NULL;<br>	<span class="hljs-function"><span class="hljs-title">ps</span>-&gt;</span>sz = <span class="hljs-number">0</span>;<br>	<span class="hljs-function"><span class="hljs-title">ps</span>-&gt;</span>capacity = <span class="hljs-number">0</span>;<br>&#125;<br><br><br><span class="hljs-comment">//尾插</span><br>void seqlistpushback(SL*ps, seqdata x)<br>&#123;<br>	seqlistcheckcapacity(ps);<br>	<span class="hljs-function"><span class="hljs-title">ps</span>-&gt;</span><span class="hljs-function"><span class="hljs-title">a</span>[ps-&gt;</span>sz] = x;<span class="hljs-comment">//尾插在sz下一个位置的下标</span><br>	<span class="hljs-function"><span class="hljs-title">ps</span>-&gt;</span>sz++;<br>	<span class="hljs-comment">//sz可能会超过数组的最大范围，会越界</span><br>&#125;<br><br><br><span class="hljs-comment">//打印</span><br>void seqlistprint(SL*ps)<br>&#123;<br>	<span class="hljs-function"><span class="hljs-title">for</span> (int i = 0; i &lt; ps-&gt;</span>sz; i++)<br>	&#123;<br>		<span class="hljs-function"><span class="hljs-title">printf</span>(&quot;%d &quot;, ps-&gt;</span>a[i]);<br>	&#125;<br>	printf(<span class="hljs-string">&quot;\n&quot;</span>);<br>&#125;<br><br><span class="hljs-comment">//头插</span><br>void seqlistpushfront(SL *ps, seqdata x)<span class="hljs-comment">//同样面临一个增容的问题，但每次都写增容的代码很麻烦，所以我们可以写一个</span><br>&#123;<br>	seqlistcheckcapacity(ps);<br>	<span class="hljs-function"><span class="hljs-title">int</span> end = ps-&gt;</span>sz - <span class="hljs-number">1</span>;<br>	<span class="hljs-comment">//循环while的写法</span><br>	<span class="hljs-comment">//1.初始条件</span><br>	<span class="hljs-comment">//2.结束条件</span><br>	<span class="hljs-comment">//3.迭代过程</span><br>	<span class="hljs-comment">//头插就是每一位都往后挪,第一个位置空了出来</span><br>	<br>	<span class="hljs-keyword">while</span> (end &gt;= <span class="hljs-number">0</span>)<span class="hljs-comment">//我们想的结束的条件，而循环写的是继续的条件</span><br>	&#123;<br>		<span class="hljs-function"><span class="hljs-title">ps</span>-&gt;</span><span class="hljs-function"><span class="hljs-title">a</span>[end + 1] = ps-&gt;</span>a[end];<br>		end--;<br>	&#125;<br>	<span class="hljs-function"><span class="hljs-title">ps</span>-&gt;</span>a[<span class="hljs-number">0</span>] = x;<span class="hljs-comment">//把第一个元素插入</span><br>	<span class="hljs-function"><span class="hljs-title">ps</span>-&gt;</span>sz++;<br><br>&#125;<br><br><span class="hljs-comment">//搞出一个函数原来检查容量是否充足，如果不足就要增容</span><br>void seqlistcheckcapacity(SL*ps)<br>&#123;<br>	<span class="hljs-function"><span class="hljs-title">if</span> (ps-&gt;</span><span class="hljs-function"><span class="hljs-title">sz</span> == ps-&gt;</span>capacity)<span class="hljs-comment">//有效数据对于最大容量，那么我们就要进行扩容</span><br>	&#123;<br>		<span class="hljs-function"><span class="hljs-title">int</span> newcapacity = ps-&gt;</span><span class="hljs-function"><span class="hljs-title">capacity</span> == 0 ? 4 : ps-&gt;</span>capacity * <span class="hljs-number">2</span>;<span class="hljs-comment">//一开始sz为0，capacity也为0，所以当等于时有两种情况，</span><br>		<span class="hljs-comment">//1.为开辟空间</span><br>		<span class="hljs-comment">//2.sz到达了capabilities的容量</span><br>		<span class="hljs-comment">//如果一开始的capaci的初值为0，就把capacity改为4，否则就把他扩容两倍</span><br>		<span class="hljs-comment">//我们一般扩2倍，扩一倍浪费时间，扩3倍浪费空间</span><br>		<span class="hljs-function"><span class="hljs-title">seqdata</span> *tmp = (seqdata*)realloc(ps-&gt;</span>a, newcapacity * <span class="hljs-number">2</span> * sizeof(seqdata));<br>		<span class="hljs-keyword">if</span> (tmp == NULL)<br>		&#123;<br>			printf(<span class="hljs-string">&quot;realloc failur&quot;</span>);<br>			return;<br>		&#125;<br>		<span class="hljs-keyword">else</span><br>		&#123;<br>			<span class="hljs-function"><span class="hljs-title">ps</span>-&gt;</span>a = tmp;<br>			<span class="hljs-function"><span class="hljs-title">ps</span>-&gt;</span>capacity = newcapacity;<br>		&#125;<br>	&#125;<br>&#125;<br><span class="hljs-comment">//尾删</span><br>void seqlistpopback(SL*ps)<br>&#123;<br>	<span class="hljs-comment">//假如说sz为0就不用删除了</span><br>	<span class="hljs-comment">//但是如果想用粗暴的方法</span><br>	<span class="hljs-comment">//断言，如果大于0就继续删除，等于0的化就会报错</span><br>	<span class="hljs-function"><span class="hljs-title">assert</span>(ps-&gt;</span>sz&gt;<span class="hljs-number">0</span>);<br>	<span class="hljs-comment">//由sz来标识有多少个有效数据</span><br>	<span class="hljs-comment">//直接把sz--，把有效数据减少就行了</span><br>	<span class="hljs-comment">//如果我们把最后一个数据置为0，再sz--，不合适，因为可能最后一个元素本来就是一个0，或者他并不是int类型，是一个double类型的变量</span><br><br>	<span class="hljs-function"><span class="hljs-title">ps</span>-&gt;</span>sz--;<br>&#125;<br><span class="hljs-comment">//头删</span><br>void seqlistpopfront(SL*ps)<br>&#123;<br>	<span class="hljs-comment">//同时也要预防头没有数据了</span><br>	<span class="hljs-function"><span class="hljs-title">assert</span>(ps-&gt;</span>sz &gt; <span class="hljs-number">0</span>);<br>		int start = <span class="hljs-number">1</span>;<br>		<span class="hljs-comment">//前一个都用后一个来覆盖</span><br>		<span class="hljs-function"><span class="hljs-title">while</span> (start &lt; ps-&gt;</span>sz)<br>	&#123;<br>			<span class="hljs-function"><span class="hljs-title">ps</span>-&gt;</span><span class="hljs-function"><span class="hljs-title">a</span>[start - 1] = ps-&gt;</span>a[start];<span class="hljs-comment">//start下标最多到sz-1的位置</span><br>			start++;<br>	&#125;<br>		<span class="hljs-comment">//头部数据删除完之后</span><br>		<span class="hljs-comment">//同样sz也要减</span><br>		<span class="hljs-function"><span class="hljs-title">ps</span>-&gt;</span>sz--;<br>&#125;<br><br>void seqlistinsert(SL*ps, int pos, seqdata x)<br>&#123;<br>	<span class="hljs-comment">//pos只能再sz有效数据里面进行选择</span><br>	<span class="hljs-function"><span class="hljs-title">assert</span>(pos &lt; ps-&gt;</span>sz);<br>	seqlistcheckcapacity(ps);<br>	<span class="hljs-function"><span class="hljs-title">int</span> end = ps-&gt;</span>sz - <span class="hljs-number">1</span>;<br>	<span class="hljs-keyword">while</span> (end&gt;=pos)<br>	&#123;<br>		<span class="hljs-function"><span class="hljs-title">ps</span>-&gt;</span><span class="hljs-function"><span class="hljs-title">a</span>[end + 1] = ps-&gt;</span>a[end];<br>		end--;<br>	&#125;<br>	<span class="hljs-comment">//直到end挪到小于pos就终止了</span><br>	<span class="hljs-function"><span class="hljs-title">ps</span>-&gt;</span>a[pos] = x;<span class="hljs-comment">//pos是数组的下标</span><br>	<span class="hljs-function"><span class="hljs-title">ps</span>-&gt;</span>sz++;<br>&#125;<br><br>void seqlisterase(SL*ps, int pos)<br>&#123;<br>	<span class="hljs-comment">//一次把后面的数据往前挪</span><br>	<span class="hljs-comment">//把pos的位置给覆盖掉</span><br>	<span class="hljs-function"><span class="hljs-title">assert</span>(pos &lt; ps-&gt;</span>sz);<br>	int start = pos + <span class="hljs-number">1</span>;<br>	<span class="hljs-function"><span class="hljs-title">while</span> (start &lt; ps-&gt;</span>sz)<br>	&#123;<br>		<span class="hljs-function"><span class="hljs-title">ps</span>-&gt;</span><span class="hljs-function"><span class="hljs-title">a</span>[start-1] = ps-&gt;</span>a[start];<br>		start++;<br>	&#125;<br>	<span class="hljs-function"><span class="hljs-title">ps</span>-&gt;</span>sz--;<br>&#125;<br><br><br>void seqlistdestroy(SL*ps)<span class="hljs-comment">//malloc出来的空间不销毁就会内存泄露</span><br>&#123;<br>	<span class="hljs-function"><span class="hljs-title">free</span>(ps-&gt;</span>a);<br>	<span class="hljs-function"><span class="hljs-title">ps</span>-&gt;</span>a = NULL;<br>	<span class="hljs-function"><span class="hljs-title">ps</span>-&gt;</span><span class="hljs-function"><span class="hljs-title">sz</span> = ps-&gt;</span>capacity = <span class="hljs-number">0</span>;<br>&#125;<br><br>void seqlistfind(SL *ps, seqdata x)<span class="hljs-comment">//如果有序的化就可以使用二分查找</span><br>&#123;<br>	<span class="hljs-comment">//假如是有序的化，就可以用二分查找，但他并不是有序的</span><br>	<span class="hljs-comment">//那么我们就用暴力解法</span><br>	int i = <span class="hljs-number">0</span>;<br>	<span class="hljs-function"><span class="hljs-title">for</span> (i = 0; i &lt; ps-&gt;</span>sz; i++)<br>	&#123;<br>		<span class="hljs-function"><span class="hljs-title">if</span> (ps-&gt;</span>a[i] == x)<br>		&#123;<br>			return i;<span class="hljs-comment">//返回x的下标</span><br>		&#125;<br>	&#125;<br>	return -<span class="hljs-number">1</span>;<span class="hljs-comment">//如果找到的化就返回下标，每找到就返回-1，因为数组里面的下标不可能是-1</span><br>&#125;<br><br>void seqlistmodify(SL *ps, int pos, seqdata x)<br>&#123;<br>	<span class="hljs-function"><span class="hljs-title">assert</span>(pos &lt; ps-&gt;</span>sz);<br>	<span class="hljs-function"><span class="hljs-title">ps</span>-&gt;</span>a[pos] = x;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p> test.c</p>
+<figure class="highlight scss"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><code class="hljs scss"><span class="hljs-comment">//顺序表是物理地址连续的存储单元，一次存储数据元素的线性结构，在数组上实现数据增删查改</span><br><span class="hljs-comment">//顺序表一般可以分为</span><br><span class="hljs-comment">//1.静态的顺序表：使用定长数组存储</span><br><span class="hljs-comment">//2.动态的顺序表，使用动态开辟的数组进行存储</span><br><br><span class="hljs-comment">//1.连续的物理空间存储——数组</span><br><span class="hljs-comment">//2.数据必须是从头开始，依次存储，一个一个存</span><br><br><span class="hljs-comment">//静态的顺序表，给少了不够用，够多了浪费，不能灵活利用</span><br><span class="hljs-selector-id">#include</span>&quot;seqlist<span class="hljs-selector-class">.h</span>&quot;<br><br>void <span class="hljs-built_in">testseqlist</span>()<br>&#123;<br>	SL s;<br>	<span class="hljs-built_in">seqlistinit</span>(&amp;s);<span class="hljs-comment">//要把实参的地址传给形参</span><br>	<span class="hljs-built_in">seqlistpushback</span>(&amp;s, <span class="hljs-number">1</span>);<br>	<span class="hljs-built_in">seqlistpushback</span>(&amp;s, <span class="hljs-number">2</span>);<br>	<span class="hljs-built_in">seqlistpushback</span>(&amp;s, <span class="hljs-number">3</span>);<br>	<span class="hljs-built_in">seqlistpushback</span>(&amp;s, <span class="hljs-number">4</span>);<br>	<span class="hljs-built_in">seqlistpushback</span>(&amp;s, <span class="hljs-number">5</span>);<br>	<span class="hljs-built_in">seqlistpushback</span>(&amp;s, <span class="hljs-number">6</span>);<br>	<span class="hljs-built_in">seqlistpushback</span>(&amp;s, <span class="hljs-number">7</span>);   <br>	<span class="hljs-built_in">seqlistpushback</span>(&amp;s, <span class="hljs-number">8</span>);<br>	<span class="hljs-built_in">seqlistpushback</span>(&amp;s, <span class="hljs-number">9</span>);<br>	<span class="hljs-built_in">seqlistpushback</span>(&amp;s, <span class="hljs-number">10</span>);<br>	<span class="hljs-built_in">seqlistpushback</span>(&amp;s, <span class="hljs-number">11</span>);<br>	<span class="hljs-built_in">seqlistpushfront</span>(&amp;s, <span class="hljs-number">0</span>);<br>	<span class="hljs-built_in">seqlistpushfront</span>(&amp;s, -<span class="hljs-number">1</span>);<br>	<span class="hljs-built_in">seqlistpopfront</span>(&amp;s);<br>	<span class="hljs-built_in">seqlistpopback</span>(&amp;s);<br>	<span class="hljs-built_in">seqlistinsert</span>(&amp;s, <span class="hljs-number">0</span>, <span class="hljs-number">20</span>);<span class="hljs-comment">//0数组的下标</span><br>	<span class="hljs-built_in">seqlisterase</span>(&amp;s, <span class="hljs-number">0</span>);<br>	<span class="hljs-built_in">seqlistprint</span>(&amp;s);<br>	<span class="hljs-built_in">seqlistdestroy</span>(&amp;s);<br><br>&#125;<br>int <span class="hljs-selector-tag">main</span>()<br>&#123;<br>	<span class="hljs-built_in">testseqlist</span>();<br>	return <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>随后我会上传一些顺序表的oj</p>
+</blockquote>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" class="category-chain-item">数据结构</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E6%8E%92%E5%BA%8F%E7%AE%97%E6%B3%95-%E7%AE%97%E6%B3%95-%E9%93%BE%E8%A1%A8-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/">#排序算法 算法 链表 数据结构</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>顺序表</div>
+      <div>http://example.com/2021/11/21/顺序表/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zevin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年11月21日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/11/25/%E9%A1%BA%E5%BA%8F%E8%A1%A8%E5%8A%9B%E6%89%A3%E9%A2%98/" title="顺序表力扣题">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">顺序表力扣题</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/11/20/%E5%86%85%E5%AD%98%E5%87%BD%E6%95%B0/" title="内存函数">
+                        <span class="hidden-mobile">内存函数</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","appKey":"javf3F1xk56WiY222ZrCxGt1","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

@@ -1,0 +1,803 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zevin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="图的存储结构邻接矩阵边和边之间关系通过矩阵数组来保存关系  邻接矩阵适合稠密图(复杂的顶点关系) 邻接矩阵可以O（1）判断顶点的连接关系 不适合查看一个顶点连接的所有边O(N)   A,B之间相连所以matrix[A][B]&#x3D;1   1234567891011121314151617181920212223242526272829303132333435363738394041424">
+<meta property="og:type" content="article">
+<meta property="og:title" content="图">
+<meta property="og:url" content="http://example.com/2023/01/07/%E5%9B%BE/index.html">
+<meta property="og:site_name" content="Zevin-Blog">
+<meta property="og:description" content="图的存储结构邻接矩阵边和边之间关系通过矩阵数组来保存关系  邻接矩阵适合稠密图(复杂的顶点关系) 邻接矩阵可以O（1）判断顶点的连接关系 不适合查看一个顶点连接的所有边O(N)   A,B之间相连所以matrix[A][B]&#x3D;1   1234567891011121314151617181920212223242526272829303132333435363738394041424">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/88d2d8b0862a4bff8617a3671423a26c.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/5e30fb75161446ca91bb1c6ebcd6957d.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/69f47257906f46159a16aa6b1ce22798.jpg">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/b38319a780054ca3aeb20991bfd6b55a.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/e7b100c60d254ef384d887aeff7a59aa.png">
+<meta property="article:published_time" content="2023-01-07T09:31:38.000Z">
+<meta property="article:modified_time" content="2023-01-20T12:55:15.358Z">
+<meta property="article:author" content="Zevin">
+<meta property="article:tag" content="图论">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/88d2d8b0862a4bff8617a3671423a26c.png">
+  
+  
+  
+  <title>图 - Zevin-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","app_key":"javf3F1xk56WiY222ZrCxGt1","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zevin-Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="图"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2023-01-07 17:31" pubdate>
+          2023年1月7日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          8.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          72 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">图</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+
+<h1 id="图的存储结构"><a href="#图的存储结构" class="headerlink" title="图的存储结构"></a>图的存储结构</h1><h2 id="邻接矩阵"><a href="#邻接矩阵" class="headerlink" title="邻接矩阵"></a>邻接矩阵</h2><p>边和边之间关系通过矩阵数组来保存关系</p>
+<ul>
+<li>邻接矩阵适合稠密图(复杂的顶点关系)</li>
+<li>邻接矩阵可以O（1）判断顶点的连接关系</li>
+<li>不适合查看一个顶点连接的所有边O(N)</li>
+</ul>
+<blockquote>
+<p>A,B之间相连所以matrix[A][B]&#x3D;1</p>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/88d2d8b0862a4bff8617a3671423a26c.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">V</span>, <span class="hljs-keyword">class</span> <span class="hljs-title class_">W</span>, W MAX_W = INT32_MAX, <span class="hljs-type">bool</span> Direct = <span class="hljs-literal">false</span>&gt;<br>    <span class="hljs-keyword">class</span> Graph<br>    &#123;<br>        <span class="hljs-keyword">typedef</span> Graph&lt;V, W, MAX_W, Direct&gt; Self;<br><br>    <span class="hljs-keyword">private</span>:<br>        vector&lt;V&gt; _vertex;         <span class="hljs-comment">// 保存顶点</span><br>        map&lt;V, <span class="hljs-type">int</span>&gt; _indexmap;     <span class="hljs-comment">// 顶点映射下标的关系</span><br>        vector&lt;vector&lt;W&gt;&gt; _matrix; <span class="hljs-comment">// 邻接矩阵来保存边的数据，邻接矩阵适合稠密的关系图</span><br>    <span class="hljs-keyword">public</span>:<br>        <span class="hljs-comment">// 图的创建</span><br>        <span class="hljs-comment">// 1.IO输入</span><br>        <span class="hljs-comment">// 2.图结构写到文件中</span><br>        <span class="hljs-comment">// 3. 手动添加边</span><br>        <span class="hljs-built_in">Graph</span>() = <span class="hljs-keyword">default</span>;<br>        <span class="hljs-built_in">Graph</span>(<span class="hljs-type">const</span> V *a, <span class="hljs-type">size_t</span> n)<br>        &#123;<br>            _vertex.<span class="hljs-built_in">reserve</span>(n);<br>            <span class="hljs-keyword">for</span> (<span class="hljs-type">size_t</span> i = <span class="hljs-number">0</span>; i &lt; n; i++)<br>            &#123;<br>                _vertex.<span class="hljs-built_in">push_back</span>(a[i]);<br>                _indexmap[a[i]] = i;<br>            &#125;<br>            _matrix.<span class="hljs-built_in">resize</span>(n);<br>            <span class="hljs-keyword">for</span> (<span class="hljs-type">size_t</span> i = <span class="hljs-number">0</span>; i &lt; n; i++)<br>            &#123;<br>                _matrix[i].<span class="hljs-built_in">resize</span>(n, MAX_W);<br>            &#125;<br>        &#125;<br>        <span class="hljs-comment">// 获得顶点的下标</span><br>        <span class="hljs-function"><span class="hljs-type">size_t</span> <span class="hljs-title">GetVertexIndex</span><span class="hljs-params">(<span class="hljs-type">const</span> V &amp;v)</span></span><br><span class="hljs-function">        </span>&#123;<br>            <span class="hljs-keyword">auto</span> it = _indexmap.<span class="hljs-built_in">find</span>(v);<br>            <span class="hljs-keyword">if</span> (it != _indexmap.<span class="hljs-built_in">end</span>())<br>            &#123;<br>                <span class="hljs-keyword">return</span> it-&gt;second;<br>            &#125;<br>            <span class="hljs-keyword">else</span><br>            &#123;<br>                <span class="hljs-keyword">throw</span> <span class="hljs-built_in">invalid_argument</span>(<span class="hljs-string">&quot;顶点不存在&quot;</span>);<br>                <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>; <span class="hljs-comment">// 防止编译器的优化</span><br>            &#125;<br>        &#125;<br>               <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">AddEdge</span><span class="hljs-params">(<span class="hljs-type">const</span> V &amp;src, <span class="hljs-type">const</span> V &amp;dst, <span class="hljs-type">const</span> W &amp;w)</span> <span class="hljs-comment">// 添加边</span></span><br><span class="hljs-function">        </span>&#123;<br>            <span class="hljs-comment">// 添加边</span><br>            <span class="hljs-type">size_t</span> srci = <span class="hljs-built_in">GetVertexIndex</span>(src);<br>            <span class="hljs-type">size_t</span> dsti = <span class="hljs-built_in">GetVertexIndex</span>(dst);<br><br>            _matrix[srci][dsti] = w;<br>            <span class="hljs-keyword">if</span> (Direct == <span class="hljs-literal">false</span>)<br>            &#123;<br>                <span class="hljs-comment">// 无相图，两边都要添加</span><br>                _matrix[dsti][srci] = w;<br>            &#125;<br>        &#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="邻接表"><a href="#邻接表" class="headerlink" title="邻接表"></a>邻接表</h2><p>邻接表：使用数组表示顶点的集合，使用链表来表示边的关系<br>类似<code>hashtable</code></p>
+<ol>
+<li>适合稀疏的图（顶点之间关系比较简单）</li>
+<li>方便查找一个节点的所有边</li>
+<li>不适合判断两个节点之间是否相连</li>
+</ol>
+<p><img src="https://img-blog.csdnimg.cn/5e30fb75161446ca91bb1c6ebcd6957d.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/69f47257906f46159a16aa6b1ce22798.jpg" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<blockquote>
+<p>添加边关系：通过src顶点找到对应的数组，进行<code>头插元素</code>来进行<code>添加边</code></p>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">W</span>&gt;<br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Edge</span><br>&#123;<br>    W _w;<br>    <span class="hljs-type">int</span> _dsti; <span class="hljs-comment">// 目标点连接的下标</span><br>    Edge&lt;W&gt; *_next;<br><br>    <span class="hljs-built_in">Edge</span>(W w, <span class="hljs-type">int</span> dsti)<br>        : _w(w), _dsti(dsti), _next(<span class="hljs-literal">nullptr</span>)<br>    &#123;<br>    &#125;<br>&#125;;<br><span class="hljs-keyword">template</span> &lt;<span class="hljs-keyword">class</span> <span class="hljs-title class_">V</span>, <span class="hljs-keyword">class</span> <span class="hljs-title class_">W</span>, <span class="hljs-type">bool</span> Direct = <span class="hljs-literal">false</span>&gt;<br><span class="hljs-keyword">class</span> Graph<br>&#123;<br>    <span class="hljs-keyword">typedef</span> Table::Edge&lt;W&gt; Edge;<br><br><span class="hljs-keyword">private</span>:<br>    vector&lt;V&gt; _vertex;     <span class="hljs-comment">// 保存顶点</span><br>    map&lt;V, <span class="hljs-type">int</span>&gt; _indexmap; <span class="hljs-comment">// 顶点映射下标的关系</span><br>    vector&lt;Edge *&gt; _table; <span class="hljs-comment">// 邻接表来保存边的数据，邻接矩阵适合稀疏的关系图,类似哈希</span><br><span class="hljs-keyword">public</span>:<br>    <span class="hljs-comment">// 图的创建</span><br>    <span class="hljs-comment">// 1.IO输入</span><br>    <span class="hljs-comment">// 2.图结构写到文件中</span><br>    <span class="hljs-comment">// 3. 手动添加边</span><br>    <span class="hljs-built_in">Graph</span>(<span class="hljs-type">const</span> V *a, <span class="hljs-type">size_t</span> n)<br>    &#123;<br>        _vertex.<span class="hljs-built_in">reserve</span>(n);<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">size_t</span> i = <span class="hljs-number">0</span>; i &lt; n; i++)<br>        &#123;<br>            _vertex.<span class="hljs-built_in">push_back</span>(a[i]);<br>            _indexmap[a[i]] = i;<br>        &#125;<br><br>        _table.<span class="hljs-built_in">resize</span>(n, <span class="hljs-literal">nullptr</span>);<br>    &#125;<br>    <span class="hljs-comment">// 获得顶点的下标</span><br>    <span class="hljs-function"><span class="hljs-type">size_t</span> <span class="hljs-title">GetVertexIndex</span><span class="hljs-params">(<span class="hljs-type">const</span> V &amp;v)</span></span><br><span class="hljs-function">    </span>&#123;<br>        <span class="hljs-keyword">auto</span> it = _indexmap.<span class="hljs-built_in">find</span>(v);<br>        <span class="hljs-keyword">if</span> (it != _indexmap.<span class="hljs-built_in">end</span>())<br>        &#123;<br>            <span class="hljs-keyword">return</span> it-&gt;second;<br>        &#125;<br>        <span class="hljs-keyword">else</span><br>        &#123;<br>            <span class="hljs-keyword">throw</span> <span class="hljs-built_in">invalid_argument</span>(<span class="hljs-string">&quot;顶点不存在&quot;</span>);<br>            <span class="hljs-keyword">return</span> <span class="hljs-number">-1</span>; <span class="hljs-comment">// 防止编译器的优化</span><br>        &#125;<br>    &#125;<br>            <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">AddEdge</span><span class="hljs-params">(<span class="hljs-type">const</span> V &amp;src, <span class="hljs-type">const</span> V &amp;dst, <span class="hljs-type">const</span> W &amp;w)</span> <span class="hljs-comment">// 添加边</span></span><br><span class="hljs-function">    </span>&#123;<br>        <span class="hljs-comment">// 添加边</span><br>        <span class="hljs-type">size_t</span> srci = <span class="hljs-built_in">GetVertexIndex</span>(src);<br>        <span class="hljs-type">size_t</span> dsti = <span class="hljs-built_in">GetVertexIndex</span>(dst);<br>        Edge *eg = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Edge</span>(w, dsti); <span class="hljs-comment">// 头插</span><br>        eg-&gt;_next = _table[srci];<br>        _table[srci] = eg;<br>        <span class="hljs-comment">// 如果是一个无相图</span><br>        <span class="hljs-keyword">if</span> (Direct == <span class="hljs-literal">false</span>)<br>        &#123;<br>            Edge *eg = <span class="hljs-keyword">new</span> <span class="hljs-built_in">Edge</span>(w, srci); <span class="hljs-comment">// 头插</span><br>            eg-&gt;_next = _table[dsti];<br>            _table[dsti] = eg;<br>        &#125;<br>    &#125;<br>    <br></code></pre></td></tr></table></figure>
+
+<h1 id="图的遍历"><a href="#图的遍历" class="headerlink" title="图的遍历"></a>图的遍历</h1><h2 id="DFS"><a href="#DFS" class="headerlink" title="DFS"></a>DFS</h2><blockquote>
+<p>DFS:深度优先搜索：先往深处遍历，深处遍历完了再回溯，查看上层未边俩的元素</p>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/b38319a780054ca3aeb20991bfd6b55a.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<blockquote>
+<p>使用一个<code>visited</code>数组,来标记元素访问与否,用递归来进行遍历</p>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-type">void</span> _DFS(<span class="hljs-type">size_t</span> srci, vector&lt;<span class="hljs-type">bool</span>&gt; &amp;visited)<br>&#123;<br>    visited[srci] = <span class="hljs-literal">true</span>;<br>    cout &lt;&lt; srci &lt;&lt; <span class="hljs-string">&quot;:&quot;</span> &lt;&lt; _vertex[srci] &lt;&lt; <span class="hljs-string">&quot; &quot;</span>;<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; _vertex.<span class="hljs-built_in">size</span>(); i++)<br>    &#123;<br>        <span class="hljs-keyword">if</span> (_matrix[srci][i] != MAX_W &amp;&amp; visited[i] == <span class="hljs-literal">false</span>)<br>        &#123;<br>            <span class="hljs-comment">// 没有被访问过</span><br>            _DFS(i, visited);<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">return</span>;<br>&#125;<br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">DFS</span><span class="hljs-params">(<span class="hljs-type">const</span> V &amp;src)</span> <span class="hljs-comment">// 深度遍历，</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">size_t</span> srci = <span class="hljs-built_in">GetVertexIndex</span>(src);<br>    <span class="hljs-function">vector&lt;<span class="hljs-type">bool</span>&gt; <span class="hljs-title">visited</span><span class="hljs-params">(_vertex.size(), <span class="hljs-literal">false</span>)</span></span>;<br>    _DFS(srci, visited);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="BFS"><a href="#BFS" class="headerlink" title="BFS"></a>BFS</h2><blockquote>
+<p>BFS：广度优先搜索，一层一层的遍历元素,直到遍历到最后一层的元素</p>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/e7b100c60d254ef384d887aeff7a59aa.png" srcset="/img/loading.gif" lazyload alt=" "></p>
+<p><strong>思路</strong></p>
+<blockquote>
+<p>使用一个<strong>队列</strong>和一个<strong>visited数组</strong>,元素入队列的时候，标记他对应的visited数组&#x3D;true，元素出队列的时候，代入他连接的未入队列的所有节点,直到队列为空，遍历结束</p>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// 确认两个点是否相连</span><br><span class="hljs-comment">// 遍历都是遍历顶点而不是遍历边</span><br><span class="hljs-comment">// 图的遍历，深搜：优先往深走</span><br><span class="hljs-comment">//         广搜：类似层序遍历</span><br><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">BFS</span><span class="hljs-params">(<span class="hljs-type">const</span> V &amp;src)</span> <span class="hljs-comment">// 深度优先搜索</span></span><br><span class="hljs-function"></span>&#123;<br>    <span class="hljs-type">int</span> srci = <span class="hljs-built_in">GetVertexIndex</span>(src);<br>    queue&lt;<span class="hljs-type">int</span>&gt; q; <span class="hljs-comment">// 队列进行搜索</span><br>    q.<span class="hljs-built_in">push</span>(srci);<br>    <span class="hljs-function">vector&lt;<span class="hljs-type">bool</span>&gt; <span class="hljs-title">visited</span><span class="hljs-params">(_vertex.size(), <span class="hljs-literal">false</span>)</span></span>; <span class="hljs-comment">// 标记数组，入队列的时候就进行标记</span><br>    visited[srci] = <span class="hljs-literal">true</span>;<br>    <span class="hljs-type">int</span> levelsize = <span class="hljs-number">1</span>;<br>    <span class="hljs-keyword">while</span> (!q.<span class="hljs-built_in">empty</span>())<br>    &#123;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> i = <span class="hljs-number">0</span>; i &lt; levelsize; i++) <span class="hljs-comment">// 控制层序遍历</span><br>        &#123;<br>            <span class="hljs-type">int</span> front = q.<span class="hljs-built_in">front</span>();<br>            q.<span class="hljs-built_in">pop</span>();<br>            <span class="hljs-comment">// 获得对头的所有的链接的元素</span><br>            cout &lt;&lt; front &lt;&lt; <span class="hljs-string">&quot;:&quot;</span> &lt;&lt; _vertex[front] &lt;&lt; <span class="hljs-string">&quot; &quot;</span>;<br>            <span class="hljs-keyword">for</span> (<span class="hljs-type">size_t</span> i = <span class="hljs-number">0</span>; i &lt; _vertex.<span class="hljs-built_in">size</span>(); i++)<br>            &#123;<br>                <span class="hljs-keyword">if</span> (_matrix[front][i] != MAX_W)<br>                &#123;<br>                    <span class="hljs-comment">// 入队列</span><br>                    <span class="hljs-keyword">if</span> (visited[i] == <span class="hljs-literal">false</span>) <span class="hljs-comment">// 没被访问过，就要入队列</span><br>                    &#123;<br>                        q.<span class="hljs-built_in">push</span>(i); <span class="hljs-comment">// 检查是否被标记了</span><br>                        visited[i] = <span class="hljs-literal">true</span>;<br>                    &#125;<br>                &#125;<br>            &#125;<br>        &#125;<br>        cout &lt;&lt; endl;<br>        levelsize = q.<span class="hljs-built_in">size</span>();<br>    &#125;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h1 id="最小生成树"><a href="#最小生成树" class="headerlink" title="最小生成树"></a>最小生成树</h1><p>构成最小生成树的原则</p>
+<ol>
+<li>只能使用图中的边来构成最小生成树</li>
+<li>只能使用n-1条边来连接图中的n个顶点</li>
+<li>选用的n-1边不能构成回路</li>
+</ol>
+<h2 id="Kruskal"><a href="#Kruskal" class="headerlink" title="Kruskal"></a>Kruskal</h2><blockquote>
+<p>全局贪心的方法，每次在全局查找最小的边，同时判断这个边连接的两个顶点是否会形成环，如果不会形成环，就添加到最小生成树中</p>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><br><span class="hljs-keyword">struct</span> <span class="hljs-title class_">Edge</span><br>&#123;<br>    <span class="hljs-type">size_t</span> _srci;<br>    <span class="hljs-type">size_t</span> _dsti;<br>    W _w;<br>    <span class="hljs-built_in">Edge</span>(<span class="hljs-type">size_t</span> srci, <span class="hljs-type">size_t</span> dsti, W w)<br>        : _srci(srci), _dsti(dsti), _w(w)<br>    &#123;<br>    &#125;<br>    <span class="hljs-comment">// 我们要重新弄一下比较函数</span><br>    <span class="hljs-type">bool</span> <span class="hljs-keyword">operator</span>&gt;(<span class="hljs-type">const</span> Edge &amp;e) <span class="hljs-type">const</span> <span class="hljs-comment">// 重载一下&gt;函数</span><br>    &#123;<br>        <span class="hljs-keyword">return</span> _w &gt; e._w;<br>    &#125;<br>&#125;;<br><br><span class="hljs-comment">// Kruskal 是每次都选出最小的边，然后保证选出的边不会成环即可，在全局选择最小</span><br><span class="hljs-function">W <span class="hljs-title">Kruskal</span><span class="hljs-params">(Self &amp;mintree)</span> <span class="hljs-comment">// 计算最小生成树</span></span><br><span class="hljs-function"></span>&#123;<br>    mintree._vertex = _vertex;<br>    mintree._indexmap = _indexmap;<br>    mintree._matrix.<span class="hljs-built_in">resize</span>(_vertex.<span class="hljs-built_in">size</span>());<br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">size_t</span> i = <span class="hljs-number">0</span>; i &lt; _vertex.<span class="hljs-built_in">size</span>(); i++)<br>    &#123;<br>        mintree._matrix[i].<span class="hljs-built_in">resize</span>(_vertex.<span class="hljs-built_in">size</span>(), MAX_W);<br>    &#125;<br><br>    priority_queue&lt;Edge, vector&lt;Edge&gt;, greater&lt;Edge&gt;&gt; pq; <span class="hljs-comment">// 建立一个小堆</span><br>    <span class="hljs-keyword">for</span> (<span class="hljs-type">size_t</span> i = <span class="hljs-number">0</span>; i &lt; _vertex.<span class="hljs-built_in">size</span>(); i++)<br>    &#123;<br>        <span class="hljs-keyword">for</span> (<span class="hljs-type">size_t</span> j = <span class="hljs-number">0</span>; j &lt; _vertex.<span class="hljs-built_in">size</span>(); j++)<br>        &#123;<br>            <span class="hljs-keyword">if</span> (i &lt; j &amp;&amp; _matrix[i][j] != MAX_W) <span class="hljs-comment">// 无相图，只要走一半即可</span><br>            &#123;<br>                <span class="hljs-comment">// 合法</span><br>                <span class="hljs-function">Edge <span class="hljs-title">e</span><span class="hljs-params">(i, j, _matrix[i][j])</span></span>;<br>                pq.<span class="hljs-built_in">push</span>(e);<br>            &#125;<br>        &#125;<br>    &#125;<br>    <span class="hljs-comment">// 依次选出最小的边，然后依次添加就可以了</span><br>    <span class="hljs-comment">// n个顶点，选出n-1条边</span><br>    W total = <span class="hljs-built_in">W</span>();<br>    <span class="hljs-type">int</span> n = _vertex.<span class="hljs-built_in">size</span>();<br>    <span class="hljs-type">int</span> size = <span class="hljs-number">0</span>;<br>    <span class="hljs-function">ufs2::UnionFindSet <span class="hljs-title">ufs</span><span class="hljs-params">(n)</span></span>; <span class="hljs-comment">// 使用并查集来判断选中的点是否形成了一个环路</span><br><br>    <span class="hljs-keyword">while</span> (!pq.<span class="hljs-built_in">empty</span>())<br>    &#123;<br>        Edge min = pq.<span class="hljs-built_in">top</span>(); <span class="hljs-comment">// 最顶部的就是最小的边</span><br>        pq.<span class="hljs-built_in">pop</span>();<br>        <span class="hljs-keyword">if</span> (!ufs.<span class="hljs-built_in">Inset</span>(min._dsti, min._srci))<br>        &#123;<br>            <span class="hljs-comment">// 这两个点不在一个集合，说明这两个点可以添加，连接起来</span><br>            cout &lt;&lt; _vertex[min._dsti] &lt;&lt; <span class="hljs-string">&quot;-&quot;</span> &lt;&lt; _vertex[min._srci] &lt;&lt; <span class="hljs-string">&quot;-&gt;&quot;</span> &lt;&lt; min._w &lt;&lt; endl;<br>            mintree.<span class="hljs-built_in">AddEdge</span>(_vertex[min._srci], _vertex[min._dsti], min._w);<br>            ufs.<span class="hljs-built_in">Union</span>(min._dsti, min._srci);<br>            ++size;<br>            total += min._w;<br>        &#125;<br>    &#125;<br>    <span class="hljs-keyword">if</span> (size == n - <span class="hljs-number">1</span>)<br>    &#123;<br>        <span class="hljs-comment">// 成功选出了n-1条边</span><br>        <span class="hljs-comment">//</span><br>        <span class="hljs-keyword">return</span> total;<br>    &#125;<br>    <span class="hljs-keyword">else</span><br>        <span class="hljs-comment">// 可能出现走完没有选出的情况</span><br>        <span class="hljs-keyword">return</span> <span class="hljs-built_in">W</span>();<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<h2 id="Prim"><a href="#Prim" class="headerlink" title="Prim"></a>Prim</h2><blockquote>
+<p>局部贪心的方法，通过已经进入最小生成树的顶点和未进入最小生成树的顶点中，查找最小的边</p>
+</blockquote>
+<blockquote>
+<p>通过优先级队列来记录所有已经进入树中延伸出去的所有边，每次查找里面最小的边，找到了判断是否已经在树中，如果已经在了，说明成环了，就继续，没有成环就添加入树中，同时把该顶点未添加到树中的所有边添加入队列中，进行下一次遍历</p>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// Prim算法计算最小生成树算法</span><br> <span class="hljs-comment">// 在已经连接点的集合和未连接点的集合中选出最小的边顶点，</span><br> <span class="hljs-comment">// 局部贪心</span><br> <span class="hljs-function">W <span class="hljs-title">Prim</span><span class="hljs-params">(Self &amp;mintree, <span class="hljs-type">const</span> V &amp;src)</span></span><br><span class="hljs-function"> </span>&#123;<br>     <span class="hljs-type">int</span> n = _vertex.<span class="hljs-built_in">size</span>();<br>     <span class="hljs-type">int</span> srci = <span class="hljs-built_in">GetVertexIndex</span>(src);<br>     mintree._vertex = _vertex;<br>     mintree._indexmap = _indexmap;<br>     mintree._matrix.<span class="hljs-built_in">resize</span>(_vertex.<span class="hljs-built_in">size</span>());<br>     <span class="hljs-keyword">for</span> (<span class="hljs-type">size_t</span> i = <span class="hljs-number">0</span>; i &lt; _vertex.<span class="hljs-built_in">size</span>(); i++)<br>     &#123;<br>         mintree._matrix[i].<span class="hljs-built_in">resize</span>(_vertex.<span class="hljs-built_in">size</span>(), MAX_W);<br>     &#125;<br>     <span class="hljs-comment">//</span><br>     <span class="hljs-comment">// set&lt;int&gt; X; // 两个集合</span><br>     <span class="hljs-comment">// set&lt;int&gt; Y;</span><br>     <span class="hljs-comment">// X.insert(srci); // 先存进去一个起点</span><br>     <span class="hljs-comment">// for (size_t i = 0; i &lt; n; i++)</span><br>     <span class="hljs-comment">// &#123;</span><br>     <span class="hljs-comment">//     if (i != srci)</span><br>     <span class="hljs-comment">//     &#123;</span><br>     <span class="hljs-comment">//         Y.insert(i); // Y集合不存起点</span><br>     <span class="hljs-comment">//     &#125;</span><br>     <span class="hljs-comment">// &#125;</span><br><br>     <span class="hljs-function">vector&lt;<span class="hljs-type">bool</span>&gt; <span class="hljs-title">X</span><span class="hljs-params">(n, <span class="hljs-literal">false</span>)</span></span>;<br>     <span class="hljs-function">vector&lt;<span class="hljs-type">bool</span>&gt; <span class="hljs-title">Y</span><span class="hljs-params">(n, <span class="hljs-literal">true</span>)</span></span>;<br>     X[srci] = <span class="hljs-literal">true</span>;<br>     Y[srci] = <span class="hljs-literal">false</span>;<br><br>     <span class="hljs-comment">// 从X到Y集合中，连接的边选出最小的边</span><br>     priority_queue&lt;Edge, vector&lt;Edge&gt;, greater&lt;Edge&gt;&gt; minq; <span class="hljs-comment">// 选出最小边</span><br>     <span class="hljs-comment">// 先把srci连接的边添加到队列中</span><br>     <span class="hljs-keyword">for</span> (<span class="hljs-type">size_t</span> i = <span class="hljs-number">0</span>; i &lt; n; i++)<br>     &#123;<br>         <span class="hljs-keyword">if</span> (_matrix[srci][i] != MAX_W)<br>         &#123;<br>             <span class="hljs-comment">// 合法的边</span><br>             minq.<span class="hljs-built_in">push</span>(<span class="hljs-built_in">Edge</span>(srci, i, _matrix[srci][i]));<br>         &#125;<br>     &#125;<br>     <span class="hljs-type">int</span> size = <span class="hljs-number">0</span>;<br>     W total = <span class="hljs-built_in">W</span>();<br>     <span class="hljs-keyword">while</span> (!minq.<span class="hljs-built_in">empty</span>())<br>     &#123;<br>         Edge min = minq.<span class="hljs-built_in">top</span>(); <span class="hljs-comment">// 选出最小的边</span><br>         minq.<span class="hljs-built_in">pop</span>();<br>         <span class="hljs-keyword">if</span> (X[min._dsti]) <span class="hljs-comment">// 如果选出的边都在X集合，或者都在Y集合就成环了</span><br>         &#123;<br>             <span class="hljs-comment">// 都为true，说明就成环了，起点一定是在X集合中的</span><br>             <span class="hljs-comment">// 成环了</span><br>             <span class="hljs-keyword">continue</span>;<br>         &#125;<br>         mintree.<span class="hljs-built_in">AddEdge</span>(_vertex[min._srci], _vertex[min._dsti], min._w);<br>         <span class="hljs-comment">// X.insert(min._dsti); // X集合添加一个元素</span><br>         <span class="hljs-comment">// Y.erase(min._dsti);  // Y集合减少这个元素</span><br>         X[min._dsti] = <span class="hljs-literal">true</span>;<br>         Y[min._dsti] = <span class="hljs-literal">false</span>;<br>         size++;<br>         total += min._w;<br>         <span class="hljs-keyword">if</span> (size == n - <span class="hljs-number">1</span>)<br>         &#123;<br>             <span class="hljs-keyword">break</span>;<br>         &#125;<br>         <span class="hljs-comment">// 把新添加进来的所有边都过一遍，</span><br>         <span class="hljs-keyword">for</span> (<span class="hljs-type">size_t</span> i = <span class="hljs-number">0</span>; i &lt; n; i++)<br>         &#123;<br>             <span class="hljs-keyword">if</span> (_matrix[min._dsti][i] != MAX_W &amp;&amp; Y[i]) <span class="hljs-comment">// 新添加到队列里面，要保证添加的点并不已经在集合中了</span><br>             &#123;<br>                 <span class="hljs-comment">// 目标点要在Y集合</span><br>                 <span class="hljs-comment">//  合法的边</span><br>                 minq.<span class="hljs-built_in">push</span>(<span class="hljs-built_in">Edge</span>(min._dsti, i, _matrix[min._dsti][i]));<br>             &#125;<br>         &#125;<br>     &#125;<br>     <span class="hljs-keyword">if</span> (size == n - <span class="hljs-number">1</span>)<br>     &#123;<br>         <span class="hljs-comment">// 成功选出了n-1条边</span><br>         <span class="hljs-comment">//</span><br>         <span class="hljs-keyword">return</span> total;<br>     &#125;<br>     <span class="hljs-keyword">else</span><br>         <span class="hljs-comment">// 可能出现走完没有选出的情况</span><br>         <span class="hljs-keyword">return</span> <span class="hljs-built_in">W</span>();<br> &#125;<br></code></pre></td></tr></table></figure>
+
+<h1 id="最短路径"><a href="#最短路径" class="headerlink" title="最短路径"></a>最短路径</h1><blockquote>
+<p>在带权有相图G中的某个顶点出发，找到通往另一个顶点的最短路径，最短也就是路径的权值总和最短</p>
+</blockquote>
+<h2 id="Djkstra"><a href="#Djkstra" class="headerlink" title="Djkstra"></a>Djkstra</h2><p>单源最短路径:一个源顶点到每个顶点之间的最短路径</p>
+<blockquote>
+<p>如源顶点为S，图中的顶点有A，B，C，D<br>计算S-D,S-B,S-A,S-C这些路径的最短路径</p>
+</blockquote>
+<blockquote>
+<p>使用一个dist数组来记录最小路径，ppath来记录自己的父亲是谁<br>从一个已经确定最小路径进行查找他延伸出去的边，进行更性这些顶点的路径最小值</p>
+</blockquote>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-comment">// 打印最短路径的算法</span><br> <span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">Dijkstra</span><span class="hljs-params">(<span class="hljs-type">const</span> V &amp;src, vector&lt;W&gt; &amp;dist, vector&lt;<span class="hljs-type">int</span>&gt; &amp;pPath)</span></span><br><span class="hljs-function"> </span>&#123;<br>     <span class="hljs-type">size_t</span> srci = <span class="hljs-built_in">GetVertexIndex</span>(src);<br>     <span class="hljs-type">size_t</span> n = _vertex.<span class="hljs-built_in">size</span>();<br>     dist.<span class="hljs-built_in">resize</span>(n, MAX_W); <span class="hljs-comment">// 一开始这个距离就初始化给一个最大值</span><br>     pPath.<span class="hljs-built_in">resize</span>(n, <span class="hljs-number">-1</span>);   <span class="hljs-comment">// 父路径</span><br><br>     <span class="hljs-comment">// 自己到自己的距离就设置为0即可</span><br>     dist[srci] = <span class="hljs-number">0</span>;<br>     <span class="hljs-comment">// 自己的父亲路径就是自己</span><br>     pPath[srci] = srci;<br>     <span class="hljs-function">vector&lt;<span class="hljs-type">bool</span>&gt; <span class="hljs-title">s</span><span class="hljs-params">(n, <span class="hljs-literal">false</span>)</span></span>; <span class="hljs-comment">// 已经确定最短路径的顶点集合</span><br><br>     <span class="hljs-comment">// 如果所有的点都被更新一遍了，就结束了,需要更新n次</span><br>     <span class="hljs-keyword">for</span> (<span class="hljs-type">int</span> j = <span class="hljs-number">0</span>; j &lt; n; j++)<br>     &#123;<br>         <span class="hljs-comment">// 去选最短路径的顶点来进行更新</span><br>         <span class="hljs-type">int</span> u = <span class="hljs-number">0</span>;<br>         W min = MAX_W; <span class="hljs-comment">// 最小的权值</span><br><br>         <span class="hljs-keyword">for</span> (<span class="hljs-type">size_t</span> i = <span class="hljs-number">0</span>; i &lt; n; i++)<br>         &#123;<br>             <span class="hljs-keyword">if</span> (s[i] == <span class="hljs-literal">false</span> &amp;&amp; dist[i] &lt; min) <span class="hljs-comment">// dist[i]已经被操作了，已经小于min了，但是他还不是已经确定的了的点</span><br>             &#123;<br>                 u = i;         <span class="hljs-comment">// u保存哪一个需要接下来进行被操作</span><br>                 min = dist[i]; <span class="hljs-comment">// 保存此时的最小值</span><br>             &#125;<br>         &#125;<br>         s[u] = <span class="hljs-literal">true</span>;<br>         <span class="hljs-comment">// 进行松弛操作</span><br>         <span class="hljs-comment">// 更新u链接的顶点v，就可以更新</span><br>         <span class="hljs-keyword">for</span> (<span class="hljs-type">size_t</span> v = <span class="hljs-number">0</span>; v &lt; n; v++)<br>         &#123;<br>             <span class="hljs-comment">//保证v这个点没有更新过</span><br>             <br>             <span class="hljs-keyword">if</span> (s[v]==<span class="hljs-literal">false</span>&amp;&amp;_matrix[u][v] != MAX_W &amp;&amp; dist[u] + _matrix[u][v] &lt; dist[v]) <span class="hljs-comment">// 记录u链接除去的所有边</span><br>             &#123;<br>                 <span class="hljs-comment">// 如果此时链接出去的点小于原来记录 的值，那么我们就需要进行更新</span><br>                 dist[v] = dist[u] + _matrix[u][v]; <span class="hljs-comment">// 更新路径中的值</span><br>                 pPath[v] = u;                      <span class="hljs-comment">// 记录我们的父亲为u</span><br>             &#125;<br>         &#125;<br>     &#125;<br> &#125;<br></code></pre></td></tr></table></figure>
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84/" class="category-chain-item">数据结构</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/%E5%9B%BE%E8%AE%BA/">#图论</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>图</div>
+      <div>http://example.com/2023/01/07/图/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zevin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2023年1月7日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/12/17/xv6%20makefile%E8%AF%A6%E8%A7%A3/" title="xv6 makefile详解">
+                        <span class="hidden-mobile">xv6 makefile详解</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","appKey":"javf3F1xk56WiY222ZrCxGt1","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

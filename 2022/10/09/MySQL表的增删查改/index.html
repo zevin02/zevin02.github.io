@@ -1,0 +1,1039 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zevin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="文章目录 CREATE Retrieve Update Delete  截断表   插入查询的数据 聚合函数 group by  CURD：create() retrieve updata delete CREATE增加数据insert 123456create table if not exists s(   -&gt; id int primary key auto_increment,">
+<meta property="og:type" content="article">
+<meta property="og:title" content="MySQL表的增删查改">
+<meta property="og:url" content="http://example.com/2022/10/09/MySQL%E8%A1%A8%E7%9A%84%E5%A2%9E%E5%88%A0%E6%9F%A5%E6%94%B9/index.html">
+<meta property="og:site_name" content="Zevin-Blog">
+<meta property="og:description" content="文章目录 CREATE Retrieve Update Delete  截断表   插入查询的数据 聚合函数 group by  CURD：create() retrieve updata delete CREATE增加数据insert 123456create table if not exists s(   -&gt; id int primary key auto_increment,">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/801626a0c7a141a2992a18e5aab7c6be.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/e96f519c0b814a399469f0926707a65b.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/368295a2d54842dca9c4b7ac2af1c106.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/4fb9d98a8856459d9a85caff8dd92f27.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/e2f1affee9b745399f0c54db0ac396f5.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/63588e5cf4794694b726aa4521a8582f.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/51c0ccc527624ca68be0e6055a2d6a7b.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/baf16d05aba941f4b9e63f6b5fe4dde5.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/10985fb215be4306856af1ff497c2e4c.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/0627887e845c4e9789c1993aad042fd2.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/6ed7231620a540b6a9d996fd54f93e8e.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/98b00f3dc04243dda152c5114c085457.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/6eda20e597034ae0b58575d342bc9a3f.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/f0cd4b88ff774efa9283ecf3b68cc395.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/233bbc1949224eebb15003a7f061fbd6.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/a32ac29541ee46af972783a6a20ba007.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/97ba1a333534467799d5567480712290.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/5724a93fa558411e90f02c16b421040c.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/525ab6a13faa4841a3bb97eaf55bd49a.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/894dd0a1306d4237a3bca11397add0ca.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/144b14487a564b91bc51cc4d4fb0f6a1.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/3aba321f6cc647f8bb98615ff5886fb6.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/76764e2828464cd29217be81fa795d6f.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/dd0a6aa02798432881862221b4834d8f.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/35f31952e00d40cf86d3ee324b6b2418.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/5e918992cd7544128cd2ffe60751c4d5.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/d59fd9236f7b4b85892d2565f15b6eb8.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/e1f6a6269948413a85fde582bae88913.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/02e8b6eb47bb439786a906631e3b5ce3.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/0aa61a439b1745cc996d7119f9aa979a.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/d157f13fd327406da443ef08da65ed7c.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/9ed2f71449ff4ccfbc6e62ba32b6de43.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/c16874c4797a4b3bbeec966cd4da6fcc.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/74cd975f14454d7a962ea81041bbe8ac.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/fb5b12525aa44b5ab1308d1943e0f543.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/8ea6e1ccdb154dba9cd58e3eeac854f1.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/7ecf586ea3cc463da849647c44bb6b07.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/995c58ac0ef7445498b52e150cbc1b40.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/bb33e1142eaa493a92e441f3f31a714b.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/000e920a315b4dcba52b8232e6b6edab.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/ae34405edac945158c3bb814e86c60ef.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/2b55223e22404d90badff71ba75c8d29.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/5e4f5fa4889146f5b5785f21751040e3.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/b57aaacc7801453ea7ba290746130e94.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/4817080ee397493d82c6724062e8f865.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/3bd88409937a478ea17ae761032c06fd.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/01a51939146c4b2c919917f06c848d0c.png">
+<meta property="article:published_time" content="2022-10-09T09:25:14.000Z">
+<meta property="article:modified_time" content="2023-01-20T12:55:15.358Z">
+<meta property="article:author" content="Zevin">
+<meta property="article:tag" content="mysql 数据库 sql">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/801626a0c7a141a2992a18e5aab7c6be.png">
+  
+  
+  
+  <title>MySQL表的增删查改 - Zevin-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","app_key":"javf3F1xk56WiY222ZrCxGt1","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zevin-Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="MySQL表的增删查改"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-10-09 17:25" pubdate>
+          2022年10月9日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.1k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          51 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">MySQL表的增删查改</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+
+<h3 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h3><ul>
+<li><a href="#CREATE_2">CREATE</a></li>
+<li><a href="#Retrieve_69">Retrieve</a></li>
+<li><a href="#Update_293">Update</a></li>
+<li><a href="#Delete_323">Delete</a></li>
+<li><ul>
+<li><a href="#_336">截断表</a></li>
+</ul>
+</li>
+<li><a href="#_348">插入查询的数据</a></li>
+<li><a href="#_372">聚合函数</a></li>
+<li><a href="#group_by_410">group by</a></li>
+</ul>
+<p>CURD：create() retrieve updata delete</p>
+<h1 id="CREATE"><a href="#CREATE" class="headerlink" title="CREATE"></a>CREATE</h1><p>增加数据<br>insert</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> if <span class="hljs-keyword">not</span> <span class="hljs-keyword">exists</span> s(<br>   <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> id <span class="hljs-type">int</span> <span class="hljs-keyword">primary</span> key auto_increment,<br>   <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> sn <span class="hljs-type">int</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">null</span> <span class="hljs-keyword">unique</span> comment<span class="hljs-string">&#x27;学生的学号&#x27;</span>,<br>   <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> name <span class="hljs-type">varchar</span>(<span class="hljs-number">20</span>) <span class="hljs-keyword">unique</span> ,<br>   <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> qq <span class="hljs-type">int</span> <span class="hljs-keyword">not</span> <span class="hljs-keyword">null</span> <span class="hljs-keyword">unique</span><br>   <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> );<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/801626a0c7a141a2992a18e5aab7c6be.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>正常插入</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> s(id,sn,name,qq) <span class="hljs-keyword">values</span> (<span class="hljs-number">1</span>,<span class="hljs-number">21</span>,<span class="hljs-string">&#x27;as&#x27;</span>,<span class="hljs-number">22</span>);<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>单行全列插入,可以省略前面的key,建议不要省略</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> s <span class="hljs-keyword">values</span> (<span class="hljs-number">2</span>,<span class="hljs-number">222</span>,<span class="hljs-string">&#x27;as2&#x27;</span>,<span class="hljs-number">212</span>);<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>插入局部列</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> s(id,sn,name) <span class="hljs-keyword">values</span> (<span class="hljs-number">222</span>,<span class="hljs-number">2222</span>,<span class="hljs-string">&#x27;asss&#x27;</span>);<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/e96f519c0b814a399469f0926707a65b.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<ul>
+<li>插入多行数据</li>
+</ul>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> s(id,sn,name,qq) <span class="hljs-keyword">values</span> (<span class="hljs-number">22234</span>,<span class="hljs-number">224322</span>,<span class="hljs-string">&#x27;as53ss&#x27;</span>,<span class="hljs-number">1231</span>),(<span class="hljs-number">8</span>,<span class="hljs-number">76</span>,<span class="hljs-string">&#x27;65&#x27;</span>,<span class="hljs-number">31312</span>);<br></code></pre></td></tr></table></figure>
+
+<p>插入的数据用，隔开</p>
+<p><img src="https://img-blog.csdnimg.cn/368295a2d54842dca9c4b7ac2af1c106.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<ul>
+<li>插入的数据和主键出现冲突</li>
+</ul>
+<p>  出现冲突，就帮助我们修改</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> s (id,sn,name,qq) <span class="hljs-keyword">values</span> (<span class="hljs-number">1</span>,<span class="hljs-number">21</span>,<span class="hljs-string">&#x27;asdasd&#x27;</span>,<span class="hljs-number">127</span>) <span class="hljs-keyword">on</span> duplicate key <span class="hljs-keyword">update</span> sn<span class="hljs-operator">=</span><span class="hljs-number">1</span>,id<span class="hljs-operator">=</span><span class="hljs-number">9</span>;<br></code></pre></td></tr></table></figure>
+
+<p>这个会把冲突那个数据修改，</p>
+<p>0 row affected;表中有冲突数据，但是冲突数据和update值一样<br>1 row affected :表中没有冲突数据，数据插入<br>2 row affected :表中有冲突数据，不求额数据被更新</p>
+<p>不存在插入，存在修改即可，替换之前的那些数据</p>
+<ul>
+<li>replace 替换</li>
+</ul>
+<p>  和刚才的insert替换一样的<br>  没有冲突直接插入<br>  有冲突替换再插入</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql">replace <span class="hljs-keyword">into</span> l(id) <span class="hljs-keyword">value</span>(<span class="hljs-number">4</span>);<br></code></pre></td></tr></table></figure>
+
+<p>创造和之前的表一样的结构<br>like</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs pgsql"><span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> duplicate_tb_bak <span class="hljs-keyword">like</span> duplicate_tb;<br><br></code></pre></td></tr></table></figure>
+
+<h1 id="Retrieve"><a href="#Retrieve" class="headerlink" title="Retrieve"></a>Retrieve</h1><p>查询<br>select</p>
+<p>创建表</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs sql">[db1]<span class="hljs-operator">&gt;</span> <span class="hljs-keyword">create</span> <span class="hljs-keyword">table</span> exam_result(<br>    <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> id <span class="hljs-type">int</span> unsigned <span class="hljs-keyword">primary</span> key auto_increment,<br>    <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> name <span class="hljs-type">varchar</span>(<span class="hljs-number">20</span>) <span class="hljs-keyword">not</span> <span class="hljs-keyword">null</span>,<br>    <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> chinese <span class="hljs-type">float</span> <span class="hljs-keyword">default</span> <span class="hljs-number">0.0</span>,<br>    <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> math <span class="hljs-type">float</span> <span class="hljs-keyword">default</span> <span class="hljs-number">0.0</span>,<br>    <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> english <span class="hljs-type">float</span> <span class="hljs-keyword">default</span> <span class="hljs-number">0.9</span><br>    <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> );<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/4fb9d98a8856459d9a85caff8dd92f27.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>插入数据</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs sql">[db1]<span class="hljs-operator">&gt;</span> <span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> exam_result (name,chinese,math,english) <span class="hljs-keyword">values</span><br>    <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> (<span class="hljs-string">&#x27;tsz&#x27;</span>,<span class="hljs-number">67</span>,<span class="hljs-number">98</span>,<span class="hljs-number">56</span>),<br>    <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> (<span class="hljs-string">&#x27;swk&#x27;</span>,<span class="hljs-number">87</span>,<span class="hljs-number">78</span>,<span class="hljs-number">77</span>),<br>    <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> (<span class="hljs-string">&#x27;cmd&#x27;</span>,<span class="hljs-number">88</span>,<span class="hljs-number">98</span>,<span class="hljs-number">99</span>),<br>    <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> (<span class="hljs-string">&#x27;lxd&#x27;</span>,<span class="hljs-number">82</span>,<span class="hljs-number">84</span>,<span class="hljs-number">67</span>),<br>    <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> (<span class="hljs-string">&#x27;sq&#x27;</span>,<span class="hljs-number">70</span>,<span class="hljs-number">73</span>,<span class="hljs-number">78</span>),<br>    <span class="hljs-operator">-</span><span class="hljs-operator">&gt;</span> (<span class="hljs-string">&#x27;sgm&#x27;</span>,<span class="hljs-number">75</span>,<span class="hljs-number">65</span>,<span class="hljs-number">30</span>);<br></code></pre></td></tr></table></figure>
+
+<ul>
+<li>全列查询</li>
+</ul>
+<p>  通常情况下，不建议使用* 进行全列查询</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">from</span> exam_result;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/e2f1affee9b745399f0c54db0ac396f5.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>select 后面跟上要查询的列,指定列</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql;">select id,name from exam_result;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/63588e5cf4794694b726aa4521a8582f.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> english,id,name <span class="hljs-keyword">from</span> exam_result;<br></code></pre></td></tr></table></figure>
+
+<p>也可以包含一个不存在的字段，只能是一个可被计算的表达式<br><img src="https://img-blog.csdnimg.cn/51c0ccc527624ca68be0e6055a2d6a7b.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>把所有人的id和英语成绩查出来，把英语成绩+10分 ,没有影响原始数据</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> english<span class="hljs-operator">+</span><span class="hljs-number">10</span> ,id <span class="hljs-keyword">from</span> exam_result;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/baf16d05aba941f4b9e63f6b5fe4dde5.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>我想知道所有人的总分</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> english<span class="hljs-operator">+</span>chinese<span class="hljs-operator">+</span>math <span class="hljs-keyword">from</span> exam_result;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/10985fb215be4306856af1ff497c2e4c.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>select 后面的数据+as “ “,将其进行重命名</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> english<span class="hljs-operator">+</span>chinese<span class="hljs-operator">+</span>math <span class="hljs-keyword">as</span> 总分 <span class="hljs-keyword">from</span> exam_result;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/0627887e845c4e9789c1993aad042fd2.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> id 唯一值,name 昵称,english<span class="hljs-operator">+</span>chinese 分数 <span class="hljs-keyword">from</span> exam_result;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/6ed7231620a540b6a9d996fd54f93e8e.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<ul>
+<li>去重</li>
+</ul>
+<p>  <img src="https://img-blog.csdnimg.cn/98b00f3dc04243dda152c5114c085457.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span>  <span class="hljs-keyword">distinct</span> math <span class="hljs-keyword">from</span> exam_result;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/6eda20e597034ae0b58575d342bc9a3f.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>把所有成绩从高到底进行排序 按总分排序</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> id,name,chinese<span class="hljs-operator">+</span>english<span class="hljs-operator">+</span>math 总分 <span class="hljs-keyword">from</span> exam_result <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> 总分;<br></code></pre></td></tr></table></figure>
+
+<p>默认是升序排列asc(ascending)<br><img src="https://img-blog.csdnimg.cn/f0cd4b88ff774efa9283ecf3b68cc395.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>降序的话desc (descending)</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> id,name,chinese<span class="hljs-operator">+</span>english<span class="hljs-operator">+</span>math 总分 <span class="hljs-keyword">from</span> exam_result <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> 总分 <span class="hljs-keyword">desc</span>;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/233bbc1949224eebb15003a7f061fbd6.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<ul>
+<li>where条件</li>
+</ul>
+<p>  给查询设置条件<br>  比较运算符</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> id, name, math  <span class="hljs-keyword">from</span> exam_result <span class="hljs-keyword">where</span> math<span class="hljs-operator">&gt;=</span><span class="hljs-number">80</span>;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/a32ac29541ee46af972783a6a20ba007.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>查询&lt;80分的</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> id, name, math  <span class="hljs-keyword">from</span> exam_result <span class="hljs-keyword">where</span> math<span class="hljs-operator">&lt;=</span><span class="hljs-number">80</span>;<br></code></pre></td></tr></table></figure>
+
+<p>查询&#x3D;98分的</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> id, name, math  <span class="hljs-keyword">from</span> exam_result <span class="hljs-keyword">where</span> math<span class="hljs-operator">=</span><span class="hljs-number">98</span>;<br></code></pre></td></tr></table></figure>
+
+<p>查询字符串</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> id, name, math  <span class="hljs-keyword">from</span> exam_result <span class="hljs-keyword">where</span> name<span class="hljs-operator">=</span><span class="hljs-string">&#x27;tsz&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/97ba1a333534467799d5567480712290.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>查询NULL ,空字段<br>&lt;&#x3D;&gt;NULL或者IS</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">from</span> test <span class="hljs-keyword">where</span> t2 <span class="hljs-keyword">IS</span> <span class="hljs-keyword">NULL</span>;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/5724a93fa558411e90f02c16b421040c.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>查询非空字段</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">from</span> test <span class="hljs-keyword">where</span> t2 <span class="hljs-keyword">IS</span> <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">NULL</span>;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/525ab6a13faa4841a3bb97eaf55bd49a.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>查询区间</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> id,chinese,math <span class="hljs-keyword">from</span> exam_result <span class="hljs-keyword">where</span> chinese <span class="hljs-keyword">between</span> <span class="hljs-number">80</span> <span class="hljs-keyword">and</span> <span class="hljs-number">95</span>;<br></code></pre></td></tr></table></figure>
+
+<p>[80,95]包含这两个数的</p>
+<p><img src="https://img-blog.csdnimg.cn/894dd0a1306d4237a3bca11397add0ca.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>逻辑运算符</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> id,chinese,math <span class="hljs-keyword">from</span> exam_result <span class="hljs-keyword">where</span> chinese <span class="hljs-operator">&gt;=</span><span class="hljs-number">70</span> <span class="hljs-keyword">and</span> chinese <span class="hljs-operator">&lt;=</span><span class="hljs-number">98</span>;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> id,chinese,math <span class="hljs-keyword">from</span> exam_result <span class="hljs-keyword">where</span> chinese <span class="hljs-operator">=</span><span class="hljs-number">70</span> <span class="hljs-keyword">or</span> chinese <span class="hljs-operator">=</span><span class="hljs-number">98</span>;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/144b14487a564b91bc51cc4d4fb0f6a1.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>IN(),把里面满足条件的都挑选出来</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> id,name,math <span class="hljs-keyword">from</span> exam_result <span class="hljs-keyword">where</span> math <span class="hljs-keyword">IN</span>(<span class="hljs-number">58</span>,<span class="hljs-number">78</span>,<span class="hljs-number">98</span>);<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/3aba321f6cc647f8bb98615ff5886fb6.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>查询包含一个字符存在的<br>LIKE:模糊匹配，%表示任意多个自读，_表示任意一个字符,后面只能跟一个字符</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> name <span class="hljs-keyword">from</span> exam_result <span class="hljs-keyword">where</span> name <span class="hljs-keyword">LIKE</span> <span class="hljs-string">&#x27;s%&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/76764e2828464cd29217be81fa795d6f.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> name <span class="hljs-keyword">from</span> exam_result <span class="hljs-keyword">where</span> name <span class="hljs-keyword">LIKE</span> <span class="hljs-string">&#x27;s_&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/dd0a6aa02798432881862221b4834d8f.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>查询语文成绩大于英语成绩</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> name ,english ,chinese <span class="hljs-keyword">from</span> exam_result <span class="hljs-keyword">where</span> chinese<span class="hljs-operator">&gt;</span>english;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/35f31952e00d40cf86d3ee324b6b2418.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>查询总分&lt;200<br>用别名查询可以<br><img src="https://img-blog.csdnimg.cn/5e918992cd7544128cd2ffe60751c4d5.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>只能加和<br><img src="https://img-blog.csdnimg.cn/d59fd9236f7b4b85892d2565f15b6eb8.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<ol>
+<li>按照条件赛选数据</li>
+<li>按照要求计算数据<br>select一般都是where先执行早于前面的，起别名都是最后操作的,先执行筛选条件的操作</li>
+</ol>
+<p>where 子句中不能使用where别名,也不能起一个别名</p>
+<p>语文成绩大于80并且不姓’s’</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> name,chinese,math,english <span class="hljs-keyword">from</span> exam_result <span class="hljs-keyword">where</span> chinese<span class="hljs-operator">&gt;</span><span class="hljs-number">80</span> <span class="hljs-keyword">and</span> name  <span class="hljs-keyword">NOT</span> <span class="hljs-keyword">LIKE</span> <span class="hljs-string">&#x27;s%&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<p>孙某同学，否则要求总成绩&gt;200并且语文成绩&lt;数学成绩并且英语成绩&gt;80</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-operator">&gt;</span><span class="hljs-keyword">select</span> id,name, chinese,math,english, english<span class="hljs-operator">+</span>math<span class="hljs-operator">+</span>chinese 总分 <span class="hljs-keyword">from</span> exam_result<br><span class="hljs-operator">&gt;</span><span class="hljs-keyword">where</span> (name <span class="hljs-keyword">like</span> <span class="hljs-string">&#x27;s_&#x27;</span>) <span class="hljs-keyword">or</span> <br><span class="hljs-operator">&gt;</span>(english<span class="hljs-operator">+</span>math<span class="hljs-operator">+</span>chinese<span class="hljs-operator">&gt;</span><span class="hljs-number">200</span> <span class="hljs-keyword">and</span> chinese<span class="hljs-operator">&lt;</span>math <span class="hljs-keyword">and</span> english<span class="hljs-operator">&gt;</span><span class="hljs-number">80</span>)<br><span class="hljs-operator">&gt;</span><span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> 总分 <span class="hljs-keyword">desc</span>; <br></code></pre></td></tr></table></figure>
+
+<p>null不进行任何的表达式计算<br><img src="https://img-blog.csdnimg.cn/e1f6a6269948413a85fde582bae88913.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/02e8b6eb47bb439786a906631e3b5ce3.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>NULL在排序的时候被视作比所有只都小</p>
+<p>查询同学成绩，按数学降序，英语升序，语文升序<br>多个条件排序 ，优先按照前面的排序，相同按后面的排序，再相同再按后面的排序</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">from</span> exam_result <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> math <span class="hljs-keyword">desc</span> ,english <span class="hljs-keyword">asc</span>, chinese <span class="hljs-keyword">asc</span>;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/0aa61a439b1745cc996d7119f9aa979a.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>总分大于200，降序排序</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> name ,english<span class="hljs-operator">+</span>math<span class="hljs-operator">+</span>chinese 总分 <span class="hljs-keyword">from</span> exam_result <span class="hljs-keyword">where</span> english <span class="hljs-operator">+</span>math<span class="hljs-operator">+</span>chinese <span class="hljs-operator">&gt;</span><span class="hljs-number">200</span> <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> 总分 <span class="hljs-keyword">desc</span>; <br></code></pre></td></tr></table></figure>
+
+<p>order by 是最后执行的，筛选数据是最先执行的</p>
+<p>查询姓s的同学或者姓c的同学，结果按照数学成绩排序</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> name,math <span class="hljs-keyword">from</span> exam_result <span class="hljs-keyword">where</span> name <span class="hljs-keyword">like</span> <span class="hljs-string">&#x27;s%&#x27;</span> <span class="hljs-keyword">or</span> name <span class="hljs-keyword">like</span> <span class="hljs-string">&#x27;c%&#x27;</span> <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> math <span class="hljs-keyword">desc</span>;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/d157f13fd327406da443ef08da65ed7c.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>找到总分前三名同学,所有操作都执行了<br><strong>limit 3</strong>，赛选3个，放最后</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> name,math<span class="hljs-operator">+</span>chinese<span class="hljs-operator">+</span>english 总分 <span class="hljs-keyword">from</span> exam_result <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> 总分 <span class="hljs-keyword">desc</span> limit <span class="hljs-number">3</span>;<br></code></pre></td></tr></table></figure>
+
+<p>使用limit进行分页limit 2,2从第2条记录往后选两条数据,截取数据库中的一部分</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">from</span> exam_result limit <span class="hljs-number">2</span>,<span class="hljs-number">2</span>;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/9ed2f71449ff4ccfbc6e62ba32b6de43.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>从第一行开始找4条记录<br><img src="https://img-blog.csdnimg.cn/c16874c4797a4b3bbeec966cd4da6fcc.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h1 id="Update"><a href="#Update" class="headerlink" title="Update"></a>Update</h1><p>更新<br><img src="https://img-blog.csdnimg.cn/74cd975f14454d7a962ea81041bbe8ac.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>将s同学的成绩改成80分</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">update</span> exam_result <span class="hljs-keyword">set</span> math<span class="hljs-operator">=</span><span class="hljs-number">80</span> <span class="hljs-keyword">where</span> name<span class="hljs-operator">=</span><span class="hljs-string">&#x27;swk&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/fb5b12525aa44b5ab1308d1943e0f543.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>将cmd的数学成绩改成60，语文改成70</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">update</span> exam_result <span class="hljs-keyword">set</span> math<span class="hljs-operator">=</span><span class="hljs-number">60</span> ,chinese<span class="hljs-operator">=</span><span class="hljs-number">70</span> <span class="hljs-keyword">where</span> name<span class="hljs-operator">=</span><span class="hljs-string">&#x27;cmd&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/8ea6e1ccdb154dba9cd58e3eeac854f1.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>将总成绩倒数前三的，加上30分</p>
+<p>先筛选数据</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> id,name ,chinese<span class="hljs-operator">+</span>english<span class="hljs-operator">+</span>math 总分 <span class="hljs-keyword">from</span> exam_result <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> 总分 <span class="hljs-keyword">asc</span> limit <span class="hljs-number">3</span>;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">update</span> exam_result <span class="hljs-keyword">set</span> math<span class="hljs-operator">=</span>math<span class="hljs-operator">+</span><span class="hljs-number">30</span> <span class="hljs-keyword">order</span> <span class="hljs-keyword">by</span> math<span class="hljs-operator">+</span>english<span class="hljs-operator">+</span>chinese <span class="hljs-keyword">asc</span> limit <span class="hljs-number">3</span>;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/7ecf586ea3cc463da849647c44bb6b07.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>把每个数据的语文*2</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">update</span> exam_result <span class="hljs-keyword">set</span> chinese<span class="hljs-operator">=</span>chinese<span class="hljs-operator">*</span><span class="hljs-number">2</span>;<br></code></pre></td></tr></table></figure>
+
+<h1 id="Delete"><a href="#Delete" class="headerlink" title="Delete"></a>Delete</h1><p>删除姓s同学的数据</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">delete</span> <span class="hljs-keyword">from</span> exam_result <span class="hljs-keyword">where</span> name <span class="hljs-keyword">like</span> <span class="hljs-string">&#x27;s%&#x27;</span>;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/995c58ac0ef7445498b52e150cbc1b40.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>删除整张表的数据，不是删除表(慎重)</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">delete</span> <span class="hljs-keyword">from</span> exam_result;<br></code></pre></td></tr></table></figure>
+
+<p>但是再插入数据之后，自增字段还会继续<br><img src="https://img-blog.csdnimg.cn/bb33e1142eaa493a92e441f3f31a714b.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h2 id="截断表"><a href="#截断表" class="headerlink" title="截断表"></a>截断表</h2><p>截断表：清空表，和delete差别就是会把auto_increment进行清零<br><img src="https://img-blog.csdnimg.cn/000e920a315b4dcba52b8232e6b6edab.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>区别还有<br>日志：MySQL的日志，需要承担很大的功能要求</p>
+<ol>
+<li>bin log:上下翻动的时候，都能记得住，我们所有的sql操作，mysql服务器就能给我们记录下来，该log可以用来多主机同步，在增量上备份</li>
+<li>redo log:承担MySQL数据持久化，和mysql的crash_safe功能，突然崩溃的时候，避免数据丢失，保持安全（）</li>
+<li>undo log:在事务中承担回滚的日志，数据操作回复的功能</li>
+</ol>
+<p>delete会更新日志的，truncate不会更新</p>
+<h1 id="插入查询的数据"><a href="#插入查询的数据" class="headerlink" title="插入查询的数据"></a>插入查询的数据</h1><p>insert 和select可以结合使用<br>新</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> duplicate_tb <span class="hljs-keyword">values</span> (<span class="hljs-number">100</span>,<span class="hljs-string">&#x27;aaa&#x27;</span>),(<span class="hljs-number">200</span>,<span class="hljs-string">&#x27;bbb&#x27;</span>),(<span class="hljs-number">200</span>,<span class="hljs-string">&#x27;bbb&#x27;</span>),(<span class="hljs-number">300</span>,<span class="hljs-string">&#x27;ccc&#x27;</span>);<br></code></pre></td></tr></table></figure>
+
+<p>新键一个备份的表，把它变成duplicate表</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">create</span> duplicate_tb_bak <span class="hljs-keyword">like</span> duplicate_tb;<br><br></code></pre></td></tr></table></figure>
+
+<p>把不重复的数据都插到备份的表里面</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">insert</span> <span class="hljs-keyword">into</span> duplicate_tb_bak <span class="hljs-keyword">select</span> <span class="hljs-keyword">distinct</span> <span class="hljs-operator">*</span> <span class="hljs-keyword">from</span> duplicate_tb;<br></code></pre></td></tr></table></figure>
+
+<p>但是我们用一个<strong>rename</strong>,把该表进行修改即可</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql">rename <span class="hljs-keyword">table</span> duplicate_tb <span class="hljs-keyword">to</span> old_duplicate;<br></code></pre></td></tr></table></figure>
+
+<h1 id="聚合函数"><a href="#聚合函数" class="headerlink" title="聚合函数"></a>聚合函数</h1><p>按行来记录在一起<br>将同类别，进行聚合处理<br>count:计算数据个数<br>sum：计算数据和<br>avg：计算数据<br>max<br>min</p>
+<p>计算exam_result 里面有多少数据<br>count(*)</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> <span class="hljs-built_in">count</span>(<span class="hljs-operator">*</span>) 人数 <span class="hljs-keyword">from</span> exam_result;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/ae34405edac945158c3bb814e86c60ef.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>计算有几个人有id</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> <span class="hljs-built_in">count</span>(id) <span class="hljs-keyword">from</span> exam_result;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/2b55223e22404d90badff71ba75c8d29.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>统计id<strong>不相重复</strong>的有多少人</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> <span class="hljs-built_in">count</span>(<span class="hljs-keyword">distinct</span> id) <span class="hljs-keyword">from</span> exam_result;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/5e4f5fa4889146f5b5785f21751040e3.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>统计班级的数学总分</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> <span class="hljs-built_in">sum</span>(math) <span class="hljs-keyword">from</span> exam_result;<br></code></pre></td></tr></table></figure>
+
+<p>统计数学成绩不及格的人总分</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> <span class="hljs-built_in">sum</span>(math) <span class="hljs-keyword">from</span> exam_result <span class="hljs-keyword">where</span> math<span class="hljs-operator">&lt;</span><span class="hljs-number">30</span>;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/b57aaacc7801453ea7ba290746130e94.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>统计数学成绩的平均数</p>
+<h1 id="group-by"><a href="#group-by" class="headerlink" title="group by"></a>group by</h1><p>按列来进行数据统计<strong>分类</strong><br>先分组，再对select进行数据的赛选统计</p>
+<p>显示每个部门的平均工资<br>按部门对员工进行分组,分组不是目的，还要对每一组进行聚合求值</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> deptno, <span class="hljs-built_in">avg</span>(sal),<span class="hljs-built_in">max</span>(sal) <span class="hljs-keyword">from</span> emp <span class="hljs-keyword">group</span> <span class="hljs-keyword">by</span> deptno;<br></code></pre></td></tr></table></figure>
+
+<p>先执行from emp，后按部门分组，再进行计算</p>
+<p><img src="https://img-blog.csdnimg.cn/4817080ee397493d82c6724062e8f865.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> deptno,<span class="hljs-built_in">avg</span>(sal) 平均工资 ,<span class="hljs-built_in">min</span>(sal) 最低工资 <span class="hljs-keyword">from</span> emp <span class="hljs-keyword">group</span> <span class="hljs-keyword">by</span> deptno,job;<br></code></pre></td></tr></table></figure>
+
+<p>同一部门，同义工作的进行分组<br><img src="https://img-blog.csdnimg.cn/3bd88409937a478ea17ae761032c06fd.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>显示平均工资小于2000的部门和它的平均工资</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> deptno ,ename,<span class="hljs-built_in">avg</span>(sal) <span class="hljs-keyword">from</span> emp <span class="hljs-keyword">where</span> sal<span class="hljs-operator">&lt;</span><span class="hljs-number">2000</span> <span class="hljs-keyword">group</span> <span class="hljs-keyword">by</span> deptno;<br></code></pre></td></tr></table></figure>
+
+<p>having经常和group by进行赛选，相当于where<br>先分完组，再对数据进行赛选</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> deptno ,ename,<span class="hljs-built_in">avg</span>(sal) <span class="hljs-keyword">from</span> emp <span class="hljs-keyword">group</span> <span class="hljs-keyword">by</span> deptno <span class="hljs-keyword">having</span> <span class="hljs-built_in">avg</span>(sal)<span class="hljs-operator">&lt;</span><span class="hljs-number">2000</span>;<br></code></pre></td></tr></table></figure>
+
+<p>having要先分组，才能有效果,分组之后才能有效果</p>
+<p>where和having</p>
+<blockquote>
+<p>根本原因在于，两者的执行次序是不一样的<br>where是过滤表的数据的<br>having是过滤分组的数据<br>两者不冲突</p>
+</blockquote>
+<p>除了10号部门，平均工资小于2000部门和它的工资</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs sql"><span class="hljs-keyword">select</span> deptno ,ename,<span class="hljs-built_in">avg</span>(sal) <span class="hljs-keyword">from</span> emp <span class="hljs-keyword">where</span> deptno <span class="hljs-operator">!=</span><span class="hljs-number">10</span> <span class="hljs-keyword">group</span> <span class="hljs-keyword">by</span> deptno <span class="hljs-keyword">having</span> <span class="hljs-built_in">avg</span>(sal)<span class="hljs-operator">&lt;</span><span class="hljs-number">2000</span>;<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/01a51939146c4b2c919917f06c848d0c.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/MySQL/" class="category-chain-item">MySQL</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/mysql-%E6%95%B0%E6%8D%AE%E5%BA%93-sql/">#mysql 数据库 sql</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>MySQL表的增删查改</div>
+      <div>http://example.com/2022/10/09/MySQL表的增删查改/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zevin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年10月9日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/10/11/MySQL%E5%87%BD%E6%95%B0/" title="MySQL函数">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">MySQL函数</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/10/05/MySQL%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B/" title="MySQL数据类型">
+                        <span class="hidden-mobile">MySQL数据类型</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","appKey":"javf3F1xk56WiY222ZrCxGt1","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

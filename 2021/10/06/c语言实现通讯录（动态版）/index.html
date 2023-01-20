@@ -1,0 +1,769 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zevin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="上回我们已经介绍了静态版的通讯录，但这种版本会使内存浪费，不够灵活 因此我们此次将对其进行优化  .动态增长的版本1-&gt;初始化后能存放3个人的信息2-&gt;当我们空间存放满的时候，我们增加两个信息3.3+2+2….每次都扩容2   contact.h 12345678910111213141516171819202122232425262728293031323334353637383">
+<meta property="og:type" content="article">
+<meta property="og:title" content="c语言实现通讯录（动态版）">
+<meta property="og:url" content="http://example.com/2021/10/06/c%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0%E9%80%9A%E8%AE%AF%E5%BD%95%EF%BC%88%E5%8A%A8%E6%80%81%E7%89%88%EF%BC%89/index.html">
+<meta property="og:site_name" content="Zevin-Blog">
+<meta property="og:description" content="上回我们已经介绍了静态版的通讯录，但这种版本会使内存浪费，不够灵活 因此我们此次将对其进行优化  .动态增长的版本1-&gt;初始化后能存放3个人的信息2-&gt;当我们空间存放满的时候，我们增加两个信息3.3+2+2….每次都扩容2   contact.h 12345678910111213141516171819202122232425262728293031323334353637383">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2021-10-06T07:17:12.000Z">
+<meta property="article:modified_time" content="2023-01-20T12:55:15.358Z">
+<meta property="article:author" content="Zevin">
+<meta property="article:tag" content="flask">
+<meta name="twitter:card" content="summary_large_image">
+  
+  
+  
+  <title>c语言实现通讯录（动态版） - Zevin-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","app_key":"javf3F1xk56WiY222ZrCxGt1","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zevin-Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="c语言实现通讯录（动态版）"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2021-10-06 15:17" pubdate>
+          2021年10月6日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          6.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          55 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">c语言实现通讯录（动态版）</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+
+<p>上回我们已经介绍了静态版的通讯录，但这种版本会使内存浪费，不够灵活</p>
+<p>因此我们此次将对其进行优化</p>
+<blockquote>
+<p>.动态增长的版本<br>1-&gt;初始化后能存放3个人的信息<br>2-&gt;当我们空间存放满的时候，我们增加两个信息<br>3.3+2+2….每次都扩容2</p>
+</blockquote>
+<p> contact.h</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br></pre></td><td class="code"><pre><code class="hljs cpp"><span class="hljs-meta">#<span class="hljs-keyword">define</span> _CRT_SECURE_NO_WARNINGS 1</span><br><span class="hljs-comment">//结构体在contact和test里面都要用，所以放在这里定义</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> max_name 20</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> max_sex 10</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> max_tele 12</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> max_addr 30</span><br><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> default 3</span><br><span class="hljs-meta">#<span class="hljs-keyword">define</span> insz 2</span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;string.h&gt;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&lt;stdio.h&gt;</span></span><br><br><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">peoinfo</span><span class="hljs-comment">//一个人的信息</span><br>&#123;<br>	<span class="hljs-type">char</span> name[max_name];<span class="hljs-comment">//[]里面的改麻烦，所以在上面定义</span><br>	<span class="hljs-type">char</span> sex[max_sex];<br>	<span class="hljs-type">int</span> age;<br>	<span class="hljs-type">char</span> tele[max_tele];<br>	<span class="hljs-type">char</span> addr[max_addr];<br><br>&#125;peoinfo;<span class="hljs-comment">//重新起个名字就叫peoinfo</span><br><br><br><span class="hljs-comment">//动态版本</span><br><span class="hljs-comment">//起初3个，放满3个要增容，同时还要添加容量capacity</span><br><span class="hljs-keyword">typedef</span> <span class="hljs-keyword">struct</span> <span class="hljs-title class_">contact</span><span class="hljs-comment">//再重新定义一下，多个人的信息</span><br>&#123;<br>	peoinfo *data;<span class="hljs-comment">//指向动态内存申请的空间，原来存放联系人的信息</span><br>	<span class="hljs-type">int</span> sz;<span class="hljs-comment">//记录当前通讯录中有多少人的信息，即有效信息的个数</span><br>	<span class="hljs-type">int</span> capacity;<span class="hljs-comment">//记录当前通讯录最大的容量</span><br>&#125;contact;<br><span class="hljs-comment">//初始化通讯录</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">initcontact</span><span class="hljs-params">(contact* pc)</span></span>;<br><span class="hljs-comment">//增加联系人的信息</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">addcontact</span><span class="hljs-params">(contact* pc)</span></span>;<br><span class="hljs-comment">//打印显示联系人的信息</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">printcontact</span><span class="hljs-params">(<span class="hljs-type">const</span> contact* pc)</span></span>;<br><span class="hljs-comment">//删除联系人的信息</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">delcontact</span><span class="hljs-params">(contact*pc)</span></span>;<br><span class="hljs-comment">//查找</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">searchcontact</span><span class="hljs-params">(contact*pc)</span></span>;<br><span class="hljs-comment">//修改</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">modifycontact</span><span class="hljs-params">(contact*pc)</span></span>;<br><span class="hljs-comment">//销毁</span><br><span class="hljs-function"><span class="hljs-type">void</span> <span class="hljs-title">destroycontact</span><span class="hljs-params">(contact* pc)</span></span>;<br></code></pre></td></tr></table></figure>
+
+<p>其中最主要的，增加容量，</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><code class="hljs awk"><span class="hljs-regexp">//</span>动态版本<br><span class="hljs-regexp">//</span>起初<span class="hljs-number">3</span>个，放满<span class="hljs-number">3</span>个要增容，同时还要添加容量capacity<br>typedef struct contact<span class="hljs-regexp">//</span>再重新定义一下，多个人的信息<br>&#123;<br>	peoinfo *data;<span class="hljs-regexp">//</span>指向动态内存申请的空间，原来存放联系人的信息<br>	int sz;<span class="hljs-regexp">//</span>记录当前通讯录中有多少人的信息，即有效信息的个数<br>	int capacity;<span class="hljs-regexp">//</span>记录当前通讯录最大的容量<br>&#125;contact;<br></code></pre></td></tr></table></figure>
+
+<p>主函数 test.c</p>
+<figure class="highlight awk"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br></pre></td><td class="code"><pre><code class="hljs awk">void menu()<br>&#123;<br>	printf(<span class="hljs-string">&quot;******************************\n&quot;</span>);<br>	printf(<span class="hljs-string">&quot;***1,add     2,dele***********\n&quot;</span>);<br>	printf(<span class="hljs-string">&quot;***3,search  4,modify*********\n&quot;</span>);<br>	printf(<span class="hljs-string">&quot;***5,sort    6,print**********\n&quot;</span>);<br>	printf(<span class="hljs-string">&quot;************0,exit************\n&quot;</span>);<br>&#125;<br>enum option<span class="hljs-regexp">//</span>使用枚举让case中更加显而易见<br>&#123;<br>	<span class="hljs-keyword">exit</span>,<br>	add,<br>	dele,<br>	search,<br>	modify,<br>	sort,<br>	print<br>&#125;;<br>int main()<br>&#123;<br>	<span class="hljs-regexp">//</span>使用增删查改，多样化实现，可以使用菜单<br>	int input;<br>	<span class="hljs-regexp">//</span>创建通讯录<br>	<span class="hljs-regexp">//</span>peoinfo data[max];<span class="hljs-regexp">//</span>每次使用peoinfo都要加struct比较麻烦<br>	<span class="hljs-regexp">//i</span>nt sz = <span class="hljs-number">0</span>;可以将两者结合，使用一个结构体变量<br>	contact con;<br>	<span class="hljs-regexp">//</span>初始化通讯录的函数<br>	<span class="hljs-regexp">//</span> 给data申请一块连续的空间，在堆空间上<br>	<span class="hljs-regexp">//</span>sz=<span class="hljs-number">0</span>，capacity初始化为当前最大容量<br>	initcontact(&amp;con);<span class="hljs-regexp">//</span>会改变应该要传递地址<br><br>	<span class="hljs-keyword">do</span><br>	&#123;<br>		menu();<br>		printf(<span class="hljs-string">&quot;请选择&quot;</span>);<br>		scanf(<span class="hljs-string">&quot;%d&quot;</span>, &amp;input);<br>			switch (input)<br>			&#123;<br>			case add:<br>				<span class="hljs-regexp">//</span>增加人的信息，总得知道当前通讯录有几个信息，要知道通讯录中当前总共有几个元素<br>				addcontact(&amp;con);<span class="hljs-regexp">//</span>会改变con用传地址<br>				<span class="hljs-keyword">break</span>;<br>			case dele:<br>				delcontact(&amp;con);<span class="hljs-regexp">//</span>也会改变通讯录，因此传地址<br>				<span class="hljs-keyword">break</span>;<br>			case search:<br>				searchcontact(&amp;con);<br>				<span class="hljs-keyword">break</span>;<br>			case modify:<br>				modifycontact(&amp;con);<br>				<span class="hljs-keyword">break</span>;<br>			case sort:<br>				<span class="hljs-keyword">break</span>;<br>			case print:<br>				printcontact(&amp;con);<span class="hljs-regexp">//</span>把通讯录里面相关信息打印出来不会改变,但是传地址效率更高<br>				<span class="hljs-keyword">break</span>;<br>			case <span class="hljs-keyword">exit</span>:<br>				destroycontact(&amp;con);<br>				printf(<span class="hljs-string">&quot;退出通讯录&quot;</span>);<span class="hljs-regexp">//</span>离开时要释放空间，销毁通讯录<br>				<span class="hljs-keyword">break</span>;<br>				default;<br>				printf(<span class="hljs-string">&quot;选择错误&quot;</span>);<br>				<span class="hljs-keyword">break</span>;<br>			&#125;<br>	&#125; <span class="hljs-keyword">while</span> (input);<br>	return <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>在初始化阶段，进行动态更改，其中只有addcontact，exit，initcontact需要修改，变成动态版本</p>
+</blockquote>
+<p>contact.c</p>
+<blockquote>
+<p>对data进行初始化，将变量均初始化为0，也可以calloc进行</p>
+</blockquote>
+<figure class="highlight haskell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs haskell"><span class="hljs-title">void</span> initcontact(contact* pc)<br>&#123;<br>	//pc-&gt;sz = <span class="hljs-number">0</span>;<br>	memset()内存设置，把<span class="hljs-class"><span class="hljs-keyword">data</span>数组中每一个字节初始化为0</span><br>	//memset(pc-&gt;<span class="hljs-class"><span class="hljs-keyword">data</span>, 0, sizeof(<span class="hljs-title">pc</span>-&gt;<span class="hljs-title">data</span>));//<span class="hljs-keyword">data</span>数组名计算的是整个数组的大小</span><br>	pc -&gt; <span class="hljs-class"><span class="hljs-keyword">data</span> = (<span class="hljs-title">peoinfo</span>*)malloc(<span class="hljs-title">default</span> * <span class="hljs-title">sizeof</span>(<span class="hljs-title">peoinfo</span>));//也可用calloc直接初始化为0</span><br>	<span class="hljs-keyword">if</span> (pc-&gt;<span class="hljs-class"><span class="hljs-keyword">data</span> == <span class="hljs-type">NULL</span>)</span><br>	&#123;<br>		printf(<span class="hljs-string">&quot;错误&quot;</span>);<br>	&#125;<br>	pc-&gt;sz = <span class="hljs-number">0</span>;<br>	pc-&gt;capacity = <span class="hljs-keyword">default</span>;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<blockquote>
+<p>增加时要考虑此时的sz是否达到了规定容量，达到就要对其进行增容，进行动态增长</p>
+</blockquote>
+<figure class="highlight xl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><code class="hljs xl">void addcontact(contact* pc)<br>&#123;<br>	<span class="hljs-comment">//考虑增容</span><br>	<span class="hljs-function"><span class="hljs-title">if</span> (pc-&gt;</span><span class="hljs-function"><span class="hljs-title">sz</span> == pc-&gt;</span>capacity)<br>	&#123;<br>		<span class="hljs-function"><span class="hljs-title">peoinfo</span>* ptr=(peoinfo*)realloc(pc-&gt;</span><span class="hljs-function"><span class="hljs-title">data</span>, (pc-&gt;</span>capacity + insz) * sizeof(peoinfo));<span class="hljs-comment">//增加两个元素新的大小</span><br>		<span class="hljs-keyword">if</span> (ptr != NULL)<br>		&#123;<br>			<span class="hljs-function"><span class="hljs-title">pc</span>-&gt;</span><span class="hljs-keyword">data</span> = ptr;<br>			<span class="hljs-function"><span class="hljs-title">pc</span>-&gt;</span>capacity += insz;<br>			printf(<span class="hljs-string">&quot;增容成功\n&quot;</span>);<br>		&#125;<br>		<span class="hljs-keyword">else</span><br>		&#123;<br>			printf(<span class="hljs-string">&quot;增加失败\n&quot;</span>);<br>			return;<br>		&#125;<br>	&#125;<br>	<span class="hljs-comment">//增加一个人的信息</span><br>	<span class="hljs-comment">//把新的元素放到数组下表为sz的位置上去，只是一个元素</span><br>	printf(<span class="hljs-string">&quot;请输入一个人的名字&quot;</span>);<br>	<span class="hljs-function"><span class="hljs-title">scanf</span>(&quot;%s&quot;, pc-&gt;</span><span class="hljs-function"><span class="hljs-title">data</span>[pc-&gt;</span>sz].<span class="hljs-keyword">name</span>);<br>	printf(<span class="hljs-string">&quot;请输入年龄&quot;</span>);<br>	<span class="hljs-function"><span class="hljs-title">scanf</span>(&quot;%d&quot;, &amp;(pc-&gt;</span><span class="hljs-function"><span class="hljs-title">data</span>[pc-&gt;</span>sz].age));<br>	printf(<span class="hljs-string">&quot;请输入性别&quot;</span>);<br>	<span class="hljs-function"><span class="hljs-title">scanf</span>(&quot;%s&quot;, pc-&gt;</span><span class="hljs-function"><span class="hljs-title">data</span>[pc-&gt;</span>sz].sex);<br>	printf(<span class="hljs-string">&quot;请输入电话&quot;</span>);<br>	<span class="hljs-function"><span class="hljs-title">scanf</span>(&quot;%s&quot;, pc-&gt;</span><span class="hljs-function"><span class="hljs-title">data</span>[pc-&gt;</span>sz].tele);<br>	printf(<span class="hljs-string">&quot;请输入地址&quot;</span>);<br>	<span class="hljs-function"><span class="hljs-title">scanf</span>(&quot;%s&quot;, pc-&gt;</span><span class="hljs-function"><span class="hljs-title">data</span>[pc-&gt;</span>sz].addr);<br>	<span class="hljs-function"><span class="hljs-title">pc</span>-&gt;</span>sz++;<br>	printf(<span class="hljs-string">&quot;添加成功&quot;</span>);<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>其余都与静态一致</p>
+<figure class="highlight xl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br></pre></td><td class="code"><pre><code class="hljs xl">void printcontact(const contact* pc)<br>&#123;<br>	<br>	<span class="hljs-comment">//有sz个元素</span><br>	int i = <span class="hljs-number">0</span>;<br>	<span class="hljs-comment">//打印标题，再打应数据</span><br>	printf(<span class="hljs-string">&quot;%-20s %-5s %-5s %-12s %-20s\n&quot;</span>, <span class="hljs-string">&quot;名字&quot;</span>,<span class="hljs-string">&quot;年龄&quot;</span>,<span class="hljs-string">&quot;性别&quot;</span>,<span class="hljs-string">&quot;电话&quot;</span>,<span class="hljs-string">&quot;地址&quot;</span>);<span class="hljs-comment">//左对齐，打印字</span><br>	<span class="hljs-function"><span class="hljs-title">for</span> (i = 0; i &lt; pc-&gt;</span>sz; i++)<br>	&#123;<br>		<span class="hljs-function"><span class="hljs-title">printf</span>(&quot;%-20s %-5d %-5s %-12s %-20s\n&quot;, pc-&gt;</span><span class="hljs-function"><span class="hljs-title">data</span>[i].<span class="hljs-keyword">name</span>, pc-&gt;</span><span class="hljs-function"><span class="hljs-title">data</span>[i].age, pc-&gt;</span><span class="hljs-function"><span class="hljs-title">data</span>[i].sex, pc-&gt;</span><span class="hljs-function"><span class="hljs-title">data</span>[i].tele, pc-&gt;</span><span class="hljs-keyword">data</span>[i].addr);<br>	&#125;<br>&#125;<br><br>static int findbyname(contact*pc, char <span class="hljs-keyword">name</span>[])<span class="hljs-comment">//不想给别人看到，用来修饰函数，其他源文件用不到</span><br>&#123;<br>	<span class="hljs-comment">//遍历数组</span><br>	int i = <span class="hljs-number">0</span>;<br>	<span class="hljs-function"><span class="hljs-title">for</span> (i = 0; i &lt; pc-&gt;</span>sz; i++)<br>	&#123;<br>		<span class="hljs-function"><span class="hljs-title">if</span>(strcmp(pc-&gt;</span><span class="hljs-keyword">data</span>[i].<span class="hljs-keyword">name</span>,<span class="hljs-keyword">name</span>)==<span class="hljs-number">0</span>)<span class="hljs-comment">//说明两个名字相等，即找到了</span><br>		return i;<br>	&#125;<br>	return -<span class="hljs-number">1</span>;<span class="hljs-comment">//找不到的情况</span><br>&#125;<br><br>void delcontact(contact*pc)<br>&#123;<br>	char <span class="hljs-keyword">name</span>[max_name];<br>	<span class="hljs-comment">//通讯录为空不能删除</span><br>	<span class="hljs-function"><span class="hljs-title">if</span> (pc-&gt;</span>sz == <span class="hljs-number">0</span>)<br>	&#123;<br>		printf(<span class="hljs-string">&quot;通讯录为空，无需删除\n&quot;</span>);<br>		return;<span class="hljs-comment">//直接返回</span><br>	&#125;<br>	printf(<span class="hljs-string">&quot;请输入要删除人的名字&quot;</span>);<br>	scanf(<span class="hljs-string">&quot;%s&quot;</span>, <span class="hljs-keyword">name</span>);<br>	<span class="hljs-comment">//删除的第一步是查找要删除的人，因此要把查找的功能独立的拎出来写</span><br>int pos=findbyname(pc, <span class="hljs-keyword">name</span>);<span class="hljs-comment">//通过名字查找,sz对应的数大于0，因此当pos=-1时，就没找到</span><br><br>	<span class="hljs-comment">//告诉有或没有</span><br><span class="hljs-keyword">if</span> (pos == -<span class="hljs-number">1</span>)<br>&#123;<br>	printf(<span class="hljs-string">&quot;要删除的人不存在&quot;</span>);<br>	return;<span class="hljs-comment">//不能继续往下走</span><br>&#125;<br><span class="hljs-comment">//存在即删除123456</span><br>	<span class="hljs-comment">//若要把3的位置删掉，只要把后面的每个元素都往前挪一个位置即可，3便不见了成12456，把下表为i+1的元素赋给i，后面变依次i++；</span><br>int i;<br><span class="hljs-function"><span class="hljs-title">for</span> (i = pos; i &lt; pc-&gt;</span>sz-<span class="hljs-number">1</span>; i++)<br>&#123;<br>	<span class="hljs-function"><span class="hljs-title">pc</span>-&gt;</span><span class="hljs-function"><span class="hljs-title">data</span>[i] = pc-&gt;</span><span class="hljs-keyword">data</span>[i + <span class="hljs-number">1</span>];<span class="hljs-comment">//把i的位置变成i+1，但到sz时，后面是被一个空白所覆盖，因此没有必要，sz-1即可</span><br>&#125;<br><span class="hljs-function"><span class="hljs-title">pc</span>-&gt;</span>sz--;<span class="hljs-comment">//删除前几个元素，也剪掉也没有了</span><br>printf(<span class="hljs-string">&quot;删除成功&quot;</span>);<br><br>&#125;<br><span class="hljs-comment">//查找</span><br>void searchcontact(contact*pc)<br>&#123;<br>	char <span class="hljs-keyword">name</span>[max_name];<br>	printf(<span class="hljs-string">&quot;请输入要查找人的名字&quot;</span>);<br>	scanf(<span class="hljs-string">&quot;%s&quot;</span>, <span class="hljs-keyword">name</span>);<br>	int pos = findbyname(pc, <span class="hljs-keyword">name</span>);<span class="hljs-comment">//通过名字查找,sz对应的数大于0，因此当pos=-1时，就没找到</span><br><br>	<span class="hljs-comment">//告诉有或没有</span><br>	<span class="hljs-keyword">if</span> (pos == -<span class="hljs-number">1</span>)<br>	&#123;<br>		printf(<span class="hljs-string">&quot;要查找的人不存在&quot;</span>);<br>		return;<br>	&#125;<br>	<span class="hljs-keyword">else</span><br>	&#123;<br>		<span class="hljs-function"><span class="hljs-title">printf</span>(&quot;%-20s %-5d %-5s %-12s %-20s\n&quot;, pc-&gt;</span><span class="hljs-function"><span class="hljs-title">data</span>[pos].<span class="hljs-keyword">name</span>, pc-&gt;</span><span class="hljs-function"><span class="hljs-title">data</span>[pos].age, pc-&gt;</span><span class="hljs-function"><span class="hljs-title">data</span>[pos].sex, pc-&gt;</span><span class="hljs-function"><span class="hljs-title">data</span>[pos].tele, pc-&gt;</span><span class="hljs-keyword">data</span>[pos].addr);<br>	&#125;<br><br>&#125;<br><br>void modifycontact(contact*pc)<br>&#123;<br>	<span class="hljs-comment">//首先是查找</span><br>	char <span class="hljs-keyword">name</span>[max_name];<br>	printf(<span class="hljs-string">&quot;请输入要修改人的名字&quot;</span>);<br>	scanf(<span class="hljs-string">&quot;%s&quot;</span>, <span class="hljs-keyword">name</span>);<br>	int pos = findbyname(pc, <span class="hljs-keyword">name</span>);<span class="hljs-comment">//通过名字查找,sz对应的数大于0，因此当pos=-1时，就没找到</span><br><br>	<span class="hljs-comment">//告诉有或没有</span><br>	<span class="hljs-keyword">if</span> (pos == -<span class="hljs-number">1</span>)<br>	&#123;<br>		printf(<span class="hljs-string">&quot;要修改的人不存在&quot;</span>); <br>		return;<br>	&#125;<br>	<span class="hljs-keyword">else</span><br>	&#123;<br>		printf(<span class="hljs-string">&quot;请输入一个人的名字&quot;</span>);<br>		<span class="hljs-function"><span class="hljs-title">scanf</span>(&quot;%s&quot;, pc-&gt;</span><span class="hljs-keyword">data</span>[pos].<span class="hljs-keyword">name</span>);<br>		printf(<span class="hljs-string">&quot;请输入年龄&quot;</span>);<br>		<span class="hljs-function"><span class="hljs-title">scanf</span>(&quot;%d&quot;, &amp;(pc-&gt;</span><span class="hljs-keyword">data</span>[pos].age));<br>		printf(<span class="hljs-string">&quot;请输入性别&quot;</span>);<br>		<span class="hljs-function"><span class="hljs-title">scanf</span>(&quot;%s&quot;, pc-&gt;</span><span class="hljs-keyword">data</span>[pos].sex);<br>		printf(<span class="hljs-string">&quot;请输入电话&quot;</span>);<br>		<span class="hljs-function"><span class="hljs-title">scanf</span>(&quot;%s&quot;, pc-&gt;</span><span class="hljs-keyword">data</span>[pos].tele);<br>		printf(<span class="hljs-string">&quot;请输入地址&quot;</span>);<br>		<span class="hljs-function"><span class="hljs-title">scanf</span>(&quot;%s&quot;, pc-&gt;</span><span class="hljs-keyword">data</span>[pos].addr);<br>		<br>		printf(<span class="hljs-string">&quot;修改成功&quot;</span>);<br>	&#125;<br><br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>其中在退出时要对重新进行销毁</p>
+<figure class="highlight xl"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><code class="hljs xl">void destroycontact(contact* pc)<br>&#123;<br>	<span class="hljs-function"><span class="hljs-title">free</span>(pc-&gt;</span><span class="hljs-keyword">data</span>);<br>	<span class="hljs-function"><span class="hljs-title">pc</span>-&gt;</span><span class="hljs-keyword">data</span> = NULL;<br>	<span class="hljs-function"><span class="hljs-title">pc</span>-&gt;</span>sz = <span class="hljs-number">0</span>;<br>	<span class="hljs-function"><span class="hljs-title">pc</span>-&gt;</span>capacity = <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<p>如果想了解动态内存，可查看本人的<a target="_blank" rel="noopener" href="https://blog.csdn.net/m0_61567378/article/details/120595150" title="c语言中动态内存管理（1）_m0_61567378的博客-CSDN博客">c语言中动态内存管理（1）_m0_61567378的博客-CSDN博客</a></p>
+<p>静态版通讯录</p>
+<p><a target="_blank" rel="noopener" href="https://blog.csdn.net/m0_61567378/article/details/120592969" title="c语言实现通讯录（静态）_m0_61567378的博客-CSDN博客">c语言实现通讯录（静态）_m0_61567378的博客-CSDN博客</a></p>
+<p>本人会持续对动态内存进行更新</p>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/c/" class="category-chain-item">c</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/flask/">#flask</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>c语言实现通讯录（动态版）</div>
+      <div>http://example.com/2021/10/06/c语言实现通讯录（动态版）/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zevin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2021年10月6日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2021/10/08/c%E8%AF%AD%E8%A8%80%E5%AE%9E%E7%8E%B0%E5%8A%A8%E6%80%81%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D2/" title="c语言实现动态内存分配2">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">c语言实现动态内存分配2</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2021/10/03/c%E8%AF%AD%E8%A8%80%E4%B8%AD%E5%8A%A8%E6%80%81%E5%86%85%E5%AD%98%E7%AE%A1%E7%90%86%EF%BC%881%EF%BC%89/" title="c语言中动态内存管理（1）">
+                        <span class="hidden-mobile">c语言中动态内存管理（1）</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","appKey":"javf3F1xk56WiY222ZrCxGt1","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>

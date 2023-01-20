@@ -1,0 +1,858 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-default-color-scheme=auto>
+
+
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="apple-touch-icon" sizes="76x76" href="/img/fluid.png">
+  <link rel="icon" href="/img/fluid.png">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, shrink-to-fit=no">
+  <meta http-equiv="x-ua-compatible" content="ie=edge">
+  
+  <meta name="theme-color" content="#2f4154">
+  <meta name="author" content="Zevin">
+  <meta name="keywords" content="">
+  
+    <meta name="description" content="文章目录 时间  makefile更新的机制   静态库和动态库  查看可执行程序依赖库   如何制作库  打包成一个库 使用自己的库  形成动态库      时间Access：文件最近被访问的时间，Modify： 最近一次修改文件内容的时间Change:最近一次修改文件属性的时间 Change time修改文件内容的时候，有可能也会修改文件的属性比如： 可能会更改文件的大小属性我们会发现操作">
+<meta property="og:type" content="article">
+<meta property="og:title" content="动态库和静态库">
+<meta property="og:url" content="http://example.com/2022/04/21/%E5%8A%A8%E6%80%81%E5%BA%93%E5%92%8C%E9%9D%99%E6%80%81%E5%BA%93/index.html">
+<meta property="og:site_name" content="Zevin-Blog">
+<meta property="og:description" content="文章目录 时间  makefile更新的机制   静态库和动态库  查看可执行程序依赖库   如何制作库  打包成一个库 使用自己的库  形成动态库      时间Access：文件最近被访问的时间，Modify： 最近一次修改文件内容的时间Change:最近一次修改文件属性的时间 Change time修改文件内容的时候，有可能也会修改文件的属性比如： 可能会更改文件的大小属性我们会发现操作">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/eb3b8ef9a3d347a195da120c83036a85.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAWmV2aW4uLg==,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/434f923ddc2b4d2e9f3840800f82a4cb.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAWmV2aW4uLg==,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/438f04709f2342fe965a237722351501.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAWmV2aW4uLg==,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/b5ca66e7fa7948058bb1bef1751631e6.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAWmV2aW4uLg==,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/b093f985cf8243f6ad3db676ee02c9eb.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/af9383933b484ce684a903cc7e105946.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/f9defcb9fb5c428eb84cd35083db1dee.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/9d1d716e9a48413fa0ebd71053b0966e.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/fb50bfc25d484bad9390fd0e51787a85.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAWmV2aW4uLg==,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/12b0659ee4624aa08b3482a74d4adbc2.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/4aacc7177ef14e5881f293f18845c06c.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/9d16613ad8854d8cb78cc52d27a2e5e6.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAWmV2aW4uLg==,size_17,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/86afbdcb671b45678b87179b200bc676.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/a8025134a69b4ee7bddf15caef9cc525.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/d1e53d5525494de9bd47a8604fe0672d.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAWmV2aW4uLg==,size_20,color_FFFFFF,t_70,g_se,x_16">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/b625bbcd22b34644b9af0a3a746542b0.png">
+<meta property="og:image" content="https://img-blog.csdnimg.cn/49c2a159e5f54059bfed4b2b20c79d8b.png">
+<meta property="article:published_time" content="2022-04-21T07:20:21.000Z">
+<meta property="article:modified_time" content="2023-01-20T12:55:15.354Z">
+<meta property="article:author" content="Zevin">
+<meta property="article:tag" content="linux c语言">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:image" content="https://img-blog.csdnimg.cn/eb3b8ef9a3d347a195da120c83036a85.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAWmV2aW4uLg==,size_20,color_FFFFFF,t_70,g_se,x_16">
+  
+  
+  
+  <title>动态库和静态库 - Zevin-Blog</title>
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/twitter-bootstrap/4.6.1/css/bootstrap.min.css" />
+
+
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/github-markdown-css/4.0.0/github-markdown.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/hint.css/2.7.0/hint.min.css" />
+
+  <link  rel="stylesheet" href="https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.css" />
+
+
+
+<!-- 主题依赖的图标库，不要自行修改 -->
+<!-- Do not modify the link that theme dependent icons -->
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1749284_hj8rtnfg7um.css">
+
+
+
+<link rel="stylesheet" href="//at.alicdn.com/t/font_1736178_lbnruvf0jn.css">
+
+
+<link  rel="stylesheet" href="/css/main.css" />
+
+
+  <link id="highlight-css" rel="stylesheet" href="/css/highlight.css" />
+  
+    <link id="highlight-css-dark" rel="stylesheet" href="/css/highlight-dark.css" />
+  
+
+
+
+
+  <script id="fluid-configs">
+    var Fluid = window.Fluid || {};
+    Fluid.ctx = Object.assign({}, Fluid.ctx)
+    var CONFIG = {"hostname":"example.com","root":"/","version":"1.9.4","typing":{"enable":true,"typeSpeed":70,"cursorChar":"_","loop":false,"scope":[]},"anchorjs":{"enable":true,"element":"h1,h2,h3,h4,h5,h6","placement":"left","visible":"hover","icon":""},"progressbar":{"enable":true,"height_px":3,"color":"#29d","options":{"showSpinner":false,"trickleSpeed":100}},"code_language":{"enable":true,"default":"TEXT"},"copy_btn":true,"image_caption":{"enable":true},"image_zoom":{"enable":true,"img_url_replace":["",""]},"toc":{"enable":true,"placement":"right","headingSelector":"h1,h2,h3,h4,h5,h6","collapseDepth":0},"lazyload":{"enable":true,"loading_img":"/img/loading.gif","onlypost":false,"offset_factor":2},"web_analytics":{"enable":true,"follow_dnt":true,"baidu":null,"google":null,"gtag":null,"tencent":{"sid":null,"cid":null},"woyaola":null,"cnzz":null,"leancloud":{"app_id":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","app_key":"javf3F1xk56WiY222ZrCxGt1","server_url":null,"path":"window.location.pathname","ignore_local":false}},"search_path":"/local-search.xml"};
+
+    if (CONFIG.web_analytics.follow_dnt) {
+      var dntVal = navigator.doNotTrack || window.doNotTrack || navigator.msDoNotTrack;
+      Fluid.ctx.dnt = dntVal && (dntVal.startsWith('1') || dntVal.startsWith('yes') || dntVal.startsWith('on'));
+    }
+  </script>
+  <script  src="/js/utils.js" ></script>
+  <script  src="/js/color-schema.js" ></script>
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+  
+
+
+
+  
+<meta name="generator" content="Hexo 6.3.0"></head>
+
+
+<body>
+  
+
+  <header>
+    
+
+<div class="header-inner" style="height: 70vh;">
+  <nav id="navbar" class="navbar fixed-top  navbar-expand-lg navbar-dark scrolling-navbar">
+  <div class="container">
+    <a class="navbar-brand" href="/">
+      <strong>Zevin-Blog</strong>
+    </a>
+
+    <button id="navbar-toggler-btn" class="navbar-toggler" type="button" data-toggle="collapse"
+            data-target="#navbarSupportedContent"
+            aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+      <div class="animated-icon"><span></span><span></span><span></span></div>
+    </button>
+
+    <!-- Collapsible content -->
+    <div class="collapse navbar-collapse" id="navbarSupportedContent">
+      <ul class="navbar-nav ml-auto text-center">
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/">
+                <i class="iconfont icon-home-fill"></i>
+                <span>首页</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/archives/">
+                <i class="iconfont icon-archive-fill"></i>
+                <span>归档</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/categories/">
+                <i class="iconfont icon-category-fill"></i>
+                <span>分类</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/tags/">
+                <i class="iconfont icon-tags-fill"></i>
+                <span>标签</span>
+              </a>
+            </li>
+          
+        
+          
+          
+          
+          
+            <li class="nav-item">
+              <a class="nav-link" href="/about/">
+                <i class="iconfont icon-user-fill"></i>
+                <span>关于</span>
+              </a>
+            </li>
+          
+        
+        
+          <li class="nav-item" id="search-btn">
+            <a class="nav-link" target="_self" href="javascript:;" data-toggle="modal" data-target="#modalSearch" aria-label="Search">
+              <i class="iconfont icon-search"></i>
+            </a>
+          </li>
+          
+        
+        
+          <li class="nav-item" id="color-toggle-btn">
+            <a class="nav-link" target="_self" href="javascript:;" aria-label="Color Toggle">
+              <i class="iconfont icon-dark" id="color-toggle-icon"></i>
+            </a>
+          </li>
+        
+      </ul>
+    </div>
+  </div>
+</nav>
+
+  
+
+<div id="banner" class="banner" parallax=true
+     style="background: url('/img/default.png') no-repeat center center; background-size: cover;">
+  <div class="full-bg-img">
+    <div class="mask flex-center" style="background-color: rgba(0, 0, 0, 0.3)">
+      <div class="banner-text text-center fade-in-up">
+        <div class="h2">
+          
+            <span id="subtitle" data-typed-text="动态库和静态库"></span>
+          
+        </div>
+
+        
+          
+  <div class="mt-3">
+    
+    
+      <span class="post-meta">
+        <i class="iconfont icon-date-fill" aria-hidden="true"></i>
+        <time datetime="2022-04-21 15:20" pubdate>
+          2022年4月21日 下午
+        </time>
+      </span>
+    
+  </div>
+
+  <div class="mt-1">
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-chart"></i>
+        
+          2.6k 字
+        
+      </span>
+    
+
+    
+      <span class="post-meta mr-2">
+        <i class="iconfont icon-clock-fill"></i>
+        
+        
+        
+          22 分钟
+        
+      </span>
+    
+
+    
+    
+      
+        <span id="leancloud-page-views-container" class="post-meta" style="display: none">
+          <i class="iconfont icon-eye" aria-hidden="true"></i>
+          <span id="leancloud-page-views"></span> 次
+        </span>
+        
+      
+    
+  </div>
+
+
+        
+      </div>
+
+      
+    </div>
+  </div>
+</div>
+
+</div>
+
+  </header>
+
+  <main>
+    
+      
+
+<div class="container-fluid nopadding-x">
+  <div class="row nomargin-x">
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+
+    </div>
+
+    <div class="col-lg-8 nopadding-x-md">
+      <div class="container nopadding-x-md" id="board-ctn">
+        <div id="board">
+          <article class="post-content mx-auto">
+            <!-- SEO header -->
+            <h1 style="display: none">动态库和静态库</h1>
+            
+            
+              <div class="markdown-body">
+                
+                <span id="more"></span>
+
+<h3 id="文章目录"><a href="#文章目录" class="headerlink" title="文章目录"></a>文章目录</h3><ul>
+<li><a href="#_1">时间</a></li>
+<li><ul>
+<li><a href="#makefile_14">makefile更新的机制</a></li>
+</ul>
+</li>
+<li><a href="#_26">静态库和动态库</a></li>
+<li><ul>
+<li><a href="#_27">查看可执行程序依赖库</a></li>
+</ul>
+</li>
+<li><a href="#_51">如何制作库</a></li>
+<li><ul>
+<li><a href="#_99">打包成一个库</a></li>
+<li><a href="#_130">使用自己的库</a></li>
+<li><ul>
+<li><a href="#_163">形成动态库</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h1 id="时间"><a href="#时间" class="headerlink" title="时间"></a>时间</h1><p>Access：文件最近被访问的时间，<br>Modify： 最近一次修改<strong>文件内容</strong>的时间<br>Change:最近一次修改<strong>文件属性</strong>的时间</p>
+<p>Change time<br><img src="https://img-blog.csdnimg.cn/eb3b8ef9a3d347a195da120c83036a85.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAWmV2aW4uLg==,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>修改文件内容的时候，有可能也会修改文件的属性<br>比如： 可能会更改文件的大小属性<br><img src="https://img-blog.csdnimg.cn/434f923ddc2b4d2e9f3840800f82a4cb.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAWmV2aW4uLg==,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>我们会发现操作下来， 文件时间貌似没有变化：<br>在较新的Linux内核中，Accsee中不会被立即刷新更新，而是有一定的时间间隔进行刷新</p>
+<h2 id="makefile更新的机制"><a href="#makefile更新的机制" class="headerlink" title="makefile更新的机制"></a>makefile更新的机制</h2><blockquote>
+<p>makefile and gcc 会根据时间问题，来判定源文件和可执行文件次序谁更新，为就以谁为主<br>如gcc test.c -o test<br>如果test的modify时间比test.c的modify时间新，说明就已经更新了，反之，如果test.c的时间比test的时间新，说明makefile需要更新</p>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/438f04709f2342fe965a237722351501.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAWmV2aW4uLg==,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br><img src="https://img-blog.csdnimg.cn/b5ca66e7fa7948058bb1bef1751631e6.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAWmV2aW4uLg==,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>对于这种伪目标的，他总是被执行，因为他不关心时间<br><img src="https://img-blog.csdnimg.cn/b093f985cf8243f6ad3db676ee02c9eb.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>touch会更新文件的时间，我们重新make也可以<br><img src="https://img-blog.csdnimg.cn/af9383933b484ce684a903cc7e105946.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<h1 id="静态库和动态库"><a href="#静态库和动态库" class="headerlink" title="静态库和动态库"></a>静态库和动态库</h1><h2 id="查看可执行程序依赖库"><a href="#查看可执行程序依赖库" class="headerlink" title="查看可执行程序依赖库"></a>查看可执行程序依赖库</h2><p>ldd 【可执行文件】<br><img src="https://img-blog.csdnimg.cn/f9defcb9fb5c428eb84cd35083db1dee.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>第二个是c标准库,我们查看了一下，发现是软链接，<br>我们发现这个文件也是有inode<br><img src="https://img-blog.csdnimg.cn/9d1d716e9a48413fa0ebd71053b0966e.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<blockquote>
+<p>linux当中，一般库分为两种： 动态库和静态库（库也是一个文件）<br>在Linux中，如果是库文件：库文件一般是以.so作为后缀的，如果是静态库，一般是以.a为后缀的</p>
+</blockquote>
+<blockquote>
+<ol>
+<li>库文件的命名：<br>::libXXX.so- or libYYY.a-</li>
+<li>库的真正名字<br>去掉包含lib前缀，去掉包含a-,so-的后缀<br>如&#x2F;lib64&#x2F;libc.so.1真实名字就是c<br>&#x2F;lib64&#x2F;libc-2.17.so真实名字就是c-2.17</li>
+</ol>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/fb50bfc25d484bad9390fd0e51787a85.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAWmV2aW4uLg==,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>c++标准库</p>
+<p>也可以使用file查看连接库的情况<br><img src="https://img-blog.csdnimg.cn/12b0659ee4624aa08b3482a74d4adbc2.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>动态库只有一个，删除的话，其他文件都无法使用了</p>
+<h1 id="如何制作库"><a href="#如何制作库" class="headerlink" title="如何制作库"></a>如何制作库</h1><p>库本身就是一个二进制文件，<br>一套完整的库：</p>
+<ol>
+<li>库文件本身</li>
+<li>头文件.h（文本，会说明库中暴露出来的方法的基本使用！）<br>我们在C&#x2F;C++ 中，为什么在写代码的时候，有时候.h里面放上声明，在.c里面放上定义，为什么要这么设计</li>
+</ol>
+<blockquote>
+<p>因为我们要制作库！</p>
+<ol>
+<li>方便使用 2. 私密，比较安全，用库对头文件进行封装保护，</li>
+</ol>
+</blockquote>
+<ul>
+<li><img src="https://img-blog.csdnimg.cn/4aacc7177ef14e5881f293f18845c06c.png" srcset="/img/loading.gif" lazyload><br>我们在other目录下面写一个add.cpp add.h这两个，一个声明，一个定义</li>
+<li>如果我们想要使用的话,要加上这个库的路径<br><img src="https://img-blog.csdnimg.cn/9d16613ad8854d8cb78cc52d27a2e5e6.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAWmV2aW4uLg==,size_17,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></li>
+<li>编译的时候<br><img src="https://img-blog.csdnimg.cn/86afbdcb671b45678b87179b200bc676.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>添加上特定的路径中的定义，才能使用</li>
+</ul>
+<p>如果没有库，我们想要编译要怎么编译呢</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><code class="hljs c">mytest:%.o<br>     gcc -o $@ $^<br>%.o:%.c<br>     gcc -c $&lt;  <br></code></pre></td></tr></table></figure>
+
+<p>,o是我们汇编之后生成的<br>所以%.o 依赖所有的%.c<br>$&lt;就是把上面的所有东西展开，一个一个的进行编译</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-number">1</span> obj=mytest.o add.o sub.o<br><span class="hljs-number">2</span> <br><span class="hljs-number">3</span> mytest:$(obj)<br><span class="hljs-number">4</span>     gcc -o $@ $^<br><span class="hljs-number">5</span> %.o:%.c<br><span class="hljs-number">6</span>     gcc -c $&lt;<br><span class="hljs-number">7</span> <br><span class="hljs-number">8</span> %.o:./other/%.c<br><span class="hljs-number">9</span>     gcc -c $&lt;    <br> <br></code></pre></td></tr></table></figure>
+
+<p>先形成3个.o文件，最后在链接形成可执行</p>
+<p>如果我们想把自己的代码给别人用</p>
+<ol>
+<li>提供源代码+头文件</li>
+<li>只提供.o文件也可以链接，所以库的思想：就是把所有的.o打包就是库了</li>
+</ol>
+<h2 id="打包成一个库"><a href="#打包成一个库" class="headerlink" title="打包成一个库"></a>打包成一个库</h2><blockquote>
+<ol>
+<li>所有的源代码要先被编译成为.0文件（可重定向文件）</li>
+<li>制作动静态库的本质就是将所有.0打包好，使用ar 或者gcc来打包</li>
+<li>交付： inlcude + .a or .so文件</li>
+</ol>
+</blockquote>
+<p>ar (类比tar)<br>-rc（replace and creat）</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs c">libmymath.a:sub.o add.o<br>		ar -rc $@ $^  <span class="hljs-comment">//把所有的.o文件都打包成一个静态库</span><br>%.o:%.c<br>		gcc -c $&lt;   <span class="hljs-comment">//把所有的.c都展开成.o文件</span><br><br></code></pre></td></tr></table></figure>
+
+<p>查看静态库中的内容<br><img src="https://img-blog.csdnimg.cn/a8025134a69b4ee7bddf15caef9cc525.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<p>我们可以查看c标准静态库中的内容都是.o<img src="https://img-blog.csdnimg.cn/d1e53d5525494de9bd47a8604fe0672d.png?x-oss-process=image/watermark,type_d3F5LXplbmhlaQ,shadow_50,text_Q1NETiBAWmV2aW4uLg==,size_20,color_FFFFFF,t_70,g_se,x_16" srcset="/img/loading.gif" lazyload><br>这样我们就把我们自己的源文件都隐藏起来<br>别人想要用我们的库，就还需要一些头文件，因为二进制根本看不懂<br>所以我们可以发布一个output</p>
+<figure class="highlight makefile"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><code class="hljs makefile"><span class="hljs-section">PHONY:output</span><br><span class="hljs-section">output:</span><br>		mkdir output <br>		cp -rf *.h output <br>		cp libmymath.a output<br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/b625bbcd22b34644b9af0a3a746542b0.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>头文件和库文件都在</p>
+<h2 id="使用自己的库"><a href="#使用自己的库" class="headerlink" title="使用自己的库"></a>使用自己的库</h2><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><code class="hljs c"><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&quot;add.h&quot;</span></span><br><span class="hljs-meta">#<span class="hljs-keyword">include</span><span class="hljs-string">&quot;sub.h&quot;</span></span><br><br><span class="hljs-type">int</span> <span class="hljs-title function_">main</span><span class="hljs-params">()</span><br>&#123;<br>    <span class="hljs-type">int</span> x=<span class="hljs-number">10</span>;<br>    <span class="hljs-type">int</span> y=<span class="hljs-number">2</span>;<br>    <span class="hljs-type">int</span> y1=add(x,y);<br>    <span class="hljs-built_in">printf</span>(<span class="hljs-string">&quot;y1=%d&quot;</span> ,y1);<br>    <span class="hljs-keyword">return</span> <span class="hljs-number">0</span>;<br>&#125;<br></code></pre></td></tr></table></figure>
+
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">$ gcc demo.c -I./output -L./output -lmymath<br></code></pre></td></tr></table></figure>
+
+<p>这样编译才可以<br>-I 指明，我们要使用知名头文件搜索路径<br>-L 指明：我们要指明库文件的搜索路径<br>-l 指明：我们要链接那一个库</p>
+<blockquote>
+<p>我们之前写的代码，也用了库，为什么就没有指明选项呢？？<br>之前的库，在系统的默认路径下，&#x2F;lib64，&#x2F;user&#x2F;lib,&#x2F;user&#x2F;include等<br>编译器是能够识别这些路径的，</p>
+</blockquote>
+<blockquote>
+<p>换一句话说我们如果想不添加这些选项，我是不是可以把对应的库和头文件，拷贝到默认的路径之下<br>没有问题的，这也就是一般软件的安装过程</p>
+</blockquote>
+<p>我们给别人交付的其实就是一个库文件+ 一套头文件</p>
+<h3 id="形成动态库"><a href="#形成动态库" class="headerlink" title="形成动态库"></a>形成动态库</h3><figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><code class="hljs c">libmymath.so:add.o sub.o<br>	gcc -shared -o $@ $^ <br>%.o:%.c<br>	gcc -fPIC -c $&lt;<br><br>.PHONY:clean<br>clean:<br>	rm -f libmymath.so<br>.PHONY:lib <br>lib:<br>	mkdir lib<br>	cp *.h lib<br>	cp libmymath.so lib<br><br></code></pre></td></tr></table></figure>
+
+<p><img src="https://img-blog.csdnimg.cn/49c2a159e5f54059bfed4b2b20c79d8b.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"><br>编译使用的方法和静态库一样的<br>我们在加载的时候，还要进一步高树系统，我们的库在哪里，因为动态库我们编译的时候需要，不编译的时候就不需要，不像静态库是一次性直接拷贝进去，在编译的时候就不需要去考虑库在哪里</p>
+<p>编译</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><code class="hljs c">$ gcc x.c  -o x -I./lib -L./lib -lmymath <br></code></pre></td></tr></table></figure>
+
+<p>导入环境变量</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><code class="hljs c">export LD_LIBRARY_PATH=/home/xvzewen/githubgovern/Linuxstudy/link/friend/lib<br><br></code></pre></td></tr></table></figure>
+
+<p>执行<br>.&#x2F;x<br>为什么我们之前写所有的代码都没有报错呢？？</p>
+<blockquote>
+<p>默认情况下我们都是动态的，因为我们一定有动态库！，因为我们linux很多都是用c语言写的</p>
+</blockquote>
+
+                
+              </div>
+            
+            <hr/>
+            <div>
+              <div class="post-metas my-3">
+  
+    <div class="post-meta mr-3 d-flex align-items-center">
+      <i class="iconfont icon-category"></i>
+      
+
+<span class="category-chains">
+  
+  
+    
+      <span class="category-chain">
+        
+  <a href="/categories/Linux/" class="category-chain-item">Linux</a>
+  
+  
+
+      </span>
+    
+  
+</span>
+
+    </div>
+  
+  
+    <div class="post-meta">
+      <i class="iconfont icon-tags"></i>
+      
+        <a href="/tags/linux-c%E8%AF%AD%E8%A8%80/">#linux c语言</a>
+      
+    </div>
+  
+</div>
+
+
+              
+  
+
+  <div class="license-box my-3">
+    <div class="license-title">
+      <div>动态库和静态库</div>
+      <div>http://example.com/2022/04/21/动态库和静态库/</div>
+    </div>
+    <div class="license-meta">
+      
+        <div class="license-meta-item">
+          <div>作者</div>
+          <div>Zevin</div>
+        </div>
+      
+      
+        <div class="license-meta-item license-meta-date">
+          <div>发布于</div>
+          <div>2022年4月21日</div>
+        </div>
+      
+      
+      
+        <div class="license-meta-item">
+          <div>许可协议</div>
+          <div>
+            
+              
+              
+                <a target="_blank" href="https://creativecommons.org/licenses/by/4.0/">
+                  <span class="hint--top hint--rounded" aria-label="BY - 署名">
+                    <i class="iconfont icon-by"></i>
+                  </span>
+                </a>
+              
+            
+          </div>
+        </div>
+      
+    </div>
+    <div class="license-icon iconfont"></div>
+  </div>
+
+
+
+              
+                <div class="post-prevnext my-3">
+                  <article class="post-prev col-6">
+                    
+                    
+                      <a href="/2022/04/25/%E8%BF%9B%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1---%E5%8C%BF%E5%90%8D%E7%AE%A1%E9%81%93/" title="进程间通信---匿名管道">
+                        <i class="iconfont icon-arrowleft"></i>
+                        <span class="hidden-mobile">进程间通信---匿名管道</span>
+                        <span class="visible-mobile">上一篇</span>
+                      </a>
+                    
+                  </article>
+                  <article class="post-next col-6">
+                    
+                    
+                      <a href="/2022/04/19/%E6%96%87%E4%BB%B6%E7%B3%BB%E7%BB%9F%E4%B8%8Einode/" title="文件系统与inode">
+                        <span class="hidden-mobile">文件系统与inode</span>
+                        <span class="visible-mobile">下一篇</span>
+                        <i class="iconfont icon-arrowright"></i>
+                      </a>
+                    
+                  </article>
+                </div>
+              
+            </div>
+
+            
+  
+  
+    <article id="comments" lazyload>
+      
+  <div id="valine"></div>
+  <script type="text/javascript">
+    Fluid.utils.loadComments('#valine', function() {
+      Fluid.utils.createScript('https://lib.baomitu.com/valine/1.5.1/Valine.min.js', function() {
+        var options = Object.assign(
+          {"appId":"J5mXOtklGZsDOkFSrJgHwOzF-MdYXbMMI","appKey":"javf3F1xk56WiY222ZrCxGt1","path":"window.location.pathname","placeholder":null,"avatar":"retro","meta":["nick","mail","link"],"requiredFields":[],"pageSize":10,"lang":"zh-CN","highlight":false,"recordIP":false,"serverURLs":"","emojiCDN":null,"emojiMaps":null,"enableQQ":false},
+          {
+            el: "#valine",
+            path: window.location.pathname
+          }
+        )
+        new Valine(options);
+        Fluid.utils.waitElementVisible('#valine .vcontent', () => {
+          var imgSelector = '#valine .vcontent img:not(.vemoji)';
+          Fluid.plugins.imageCaption(imgSelector);
+          Fluid.plugins.fancyBox(imgSelector);
+        })
+      });
+    });
+  </script>
+  <noscript>Please enable JavaScript to view the comments</noscript>
+
+
+    </article>
+  
+
+
+          </article>
+        </div>
+      </div>
+    </div>
+
+    <div class="side-col d-none d-lg-block col-lg-2">
+      
+  <aside class="sidebar" style="margin-left: -1rem">
+    <div id="toc">
+  <p class="toc-header">
+    <i class="iconfont icon-list"></i>
+    <span>目录</span>
+  </p>
+  <div class="toc-body" id="toc-body"></div>
+</div>
+
+
+
+  </aside>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+  
+
+
+
+
+
+
+
+    
+
+    
+      <a id="scroll-top-button" aria-label="TOP" href="#" role="button">
+        <i class="iconfont icon-arrowup" aria-hidden="true"></i>
+      </a>
+    
+
+    
+      <div class="modal fade" id="modalSearch" tabindex="-1" role="dialog" aria-labelledby="ModalLabel"
+     aria-hidden="true">
+  <div class="modal-dialog modal-dialog-scrollable modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <h4 class="modal-title w-100 font-weight-bold">搜索</h4>
+        <button type="button" id="local-search-close" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body mx-3">
+        <div class="md-form mb-5">
+          <input type="text" id="local-search-input" class="form-control validate">
+          <label data-error="x" data-success="v" for="local-search-input">关键词</label>
+        </div>
+        <div class="list-group" id="local-search-result"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+  </main>
+
+  <footer>
+    <div class="footer-inner">
+  
+    <div class="footer-content">
+       <a href="https://hexo.io" target="_blank" rel="nofollow noopener"><span>Hexo</span></a> <i class="iconfont icon-love"></i> <a href="https://github.com/fluid-dev/hexo-theme-fluid" target="_blank" rel="nofollow noopener"><span>Fluid</span></a> 
+    </div>
+  
+  
+    <div class="statistics">
+  
+  
+
+  
+    
+      <span id="leancloud-site-pv-container" style="display: none">
+        总访问量 
+        <span id="leancloud-site-pv"></span>
+         次
+      </span>
+    
+    
+      <span id="leancloud-site-uv-container" style="display: none">
+        总访客数 
+        <span id="leancloud-site-uv"></span>
+         人
+      </span>
+    
+    
+
+  
+</div>
+
+  
+  
+  
+</div>
+
+  </footer>
+
+  <!-- Scripts -->
+  
+  <script  src="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.js" ></script>
+  <link  rel="stylesheet" href="https://lib.baomitu.com/nprogress/0.2.0/nprogress.min.css" />
+
+  <script>
+    NProgress.configure({"showSpinner":false,"trickleSpeed":100})
+    NProgress.start()
+    window.addEventListener('load', function() {
+      NProgress.done();
+    })
+  </script>
+
+
+<script  src="https://lib.baomitu.com/jquery/3.6.0/jquery.min.js" ></script>
+<script  src="https://lib.baomitu.com/twitter-bootstrap/4.6.1/js/bootstrap.min.js" ></script>
+<script  src="/js/events.js" ></script>
+<script  src="/js/plugins.js" ></script>
+
+
+  <script  src="https://lib.baomitu.com/typed.js/2.0.12/typed.min.js" ></script>
+  <script>
+    (function (window, document) {
+      var typing = Fluid.plugins.typing;
+      var subtitle = document.getElementById('subtitle');
+      if (!subtitle || !typing) {
+        return;
+      }
+      var text = subtitle.getAttribute('data-typed-text');
+      
+        typing(text);
+      
+    })(window, document);
+  </script>
+
+
+
+
+  
+    <script  src="/js/img-lazyload.js" ></script>
+  
+
+
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/tocbot/4.18.2/tocbot.min.js', function() {
+    var toc = jQuery('#toc');
+    if (toc.length === 0 || !window.tocbot) { return; }
+    var boardCtn = jQuery('#board-ctn');
+    var boardTop = boardCtn.offset().top;
+
+    window.tocbot.init(Object.assign({
+      tocSelector     : '#toc-body',
+      contentSelector : '.markdown-body',
+      linkClass       : 'tocbot-link',
+      activeLinkClass : 'tocbot-active-link',
+      listClass       : 'tocbot-list',
+      isCollapsedClass: 'tocbot-is-collapsed',
+      collapsibleClass: 'tocbot-is-collapsible',
+      scrollSmooth    : true,
+      includeTitleTags: true,
+      headingsOffset  : -boardTop,
+    }, CONFIG.toc));
+    if (toc.find('.toc-list-item').length > 0) {
+      toc.css('visibility', 'visible');
+    }
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('tocbot' in window) {
+        tocbot.refresh();
+        var toc = jQuery('#toc');
+        if (toc.length === 0 || !tocbot) {
+          return;
+        }
+        if (toc.find('.toc-list-item').length > 0) {
+          toc.css('visibility', 'visible');
+        }
+      }
+    });
+  });
+</script>
+
+
+  <script src=https://lib.baomitu.com/clipboard.js/2.0.11/clipboard.min.js></script>
+
+  <script>Fluid.plugins.codeWidget();</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/anchor-js/4.3.1/anchor.min.js', function() {
+    window.anchors.options = {
+      placement: CONFIG.anchorjs.placement,
+      visible  : CONFIG.anchorjs.visible
+    };
+    if (CONFIG.anchorjs.icon) {
+      window.anchors.options.icon = CONFIG.anchorjs.icon;
+    }
+    var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+    var res = [];
+    for (var item of el) {
+      res.push('.markdown-body > ' + item.trim());
+    }
+    if (CONFIG.anchorjs.placement === 'left') {
+      window.anchors.options.class = 'anchorjs-link-left';
+    }
+    window.anchors.add(res.join(', '));
+
+    Fluid.events.registerRefreshCallback(function() {
+      if ('anchors' in window) {
+        anchors.removeAll();
+        var el = (CONFIG.anchorjs.element || 'h1,h2,h3,h4,h5,h6').split(',');
+        var res = [];
+        for (var item of el) {
+          res.push('.markdown-body > ' + item.trim());
+        }
+        if (CONFIG.anchorjs.placement === 'left') {
+          anchors.options.class = 'anchorjs-link-left';
+        }
+        anchors.add(res.join(', '));
+      }
+    });
+  });
+</script>
+
+
+  
+<script>
+  Fluid.utils.createScript('https://lib.baomitu.com/fancybox/3.5.7/jquery.fancybox.min.js', function() {
+    Fluid.plugins.fancyBox();
+  });
+</script>
+
+
+  <script>Fluid.plugins.imageCaption();</script>
+
+  <script defer src="/js/leancloud.js" ></script>
+
+  <script  src="/js/local-search.js" ></script>
+
+
+
+
+
+<!-- 主题的启动项，将它保持在最底部 -->
+<!-- the boot of the theme, keep it at the bottom -->
+<script  src="/js/boot.js" ></script>
+
+
+  
+
+  <noscript>
+    <div class="noscript-warning">博客在允许 JavaScript 运行的环境下浏览效果更佳</div>
+  </noscript>
+</body>
+</html>
