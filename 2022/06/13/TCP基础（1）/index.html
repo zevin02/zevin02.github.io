@@ -16,18 +16,18 @@
   <meta name="author" content="Zevin">
   <meta name="keywords" content="">
   
-    <meta name="description" content="文章目录 TCP和UDP 为什么要有TCP&#x2F;IP 协议 TCP（传输控制协议）  TCP 报文格式 确认应答机制 缓冲区    TCP和UDP协议发生在传输层传输层主要处理：端到端的连接 TCP和UDP UDP 是一个人面向无连接的，可类比成写信，UDP发送写信到邮箱之后，对方不能够立即就可以收到，先后发送的信件也不一定是按照顺序接收，甚至里面信的内容有可能也不会完整而TCP可以类比">
+    <meta name="description" content="文章目录 TCP和UDP 为什么要有TCP&#x2F;IP 协议 TCP（传输控制协议）  TCP 报文格式 确认应答机制 缓冲区    TCP和UDP协议发生在传输层传输层主要处理：端到端的连接 TCP和UDP UDP  是一个人面向 无连接的，可类比成写信，UDP发送写信到邮箱之后，对方不能够立即就可以收到，先后发送的信件也不一定是按照顺序接收，甚至里面信的内容有可能也不会完整   TCP">
 <meta property="og:type" content="article">
 <meta property="og:title" content="TCP基础（1）">
 <meta property="og:url" content="http://example.com/2022/06/13/TCP%E5%9F%BA%E7%A1%80%EF%BC%881%EF%BC%89/index.html">
 <meta property="og:site_name" content="Zlespark">
-<meta property="og:description" content="文章目录 TCP和UDP 为什么要有TCP&#x2F;IP 协议 TCP（传输控制协议）  TCP 报文格式 确认应答机制 缓冲区    TCP和UDP协议发生在传输层传输层主要处理：端到端的连接 TCP和UDP UDP 是一个人面向无连接的，可类比成写信，UDP发送写信到邮箱之后，对方不能够立即就可以收到，先后发送的信件也不一定是按照顺序接收，甚至里面信的内容有可能也不会完整而TCP可以类比">
+<meta property="og:description" content="文章目录 TCP和UDP 为什么要有TCP&#x2F;IP 协议 TCP（传输控制协议）  TCP 报文格式 确认应答机制 缓冲区    TCP和UDP协议发生在传输层传输层主要处理：端到端的连接 TCP和UDP UDP  是一个人面向 无连接的，可类比成写信，UDP发送写信到邮箱之后，对方不能够立即就可以收到，先后发送的信件也不一定是按照顺序接收，甚至里面信的内容有可能也不会完整   TCP">
 <meta property="og:locale" content="zh_CN">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/0d2a148db5474570b52a83571741c9b3.png">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/ab25d026d86b443a8a2377e27256d137.png">
 <meta property="og:image" content="https://img-blog.csdnimg.cn/9a0f354014c74a0e9dc6c2e026f248b5.png">
 <meta property="article:published_time" content="2022-06-13T13:33:26.000Z">
-<meta property="article:modified_time" content="2023-01-20T12:55:15.358Z">
+<meta property="article:modified_time" content="2023-01-25T16:18:10.891Z">
 <meta property="article:author" content="Zevin">
 <meta property="article:tag" content="udp tcp&#x2F;ip 网络协议">
 <meta name="twitter:card" content="summary_large_image">
@@ -246,7 +246,7 @@
       <span class="post-meta mr-2">
         <i class="iconfont icon-chart"></i>
         
-          3.1k 字
+          3.2k 字
         
       </span>
     
@@ -323,7 +323,10 @@
 </ul>
 <p>TCP和UDP协议发生在传输层<br>传输层主要处理：端到端的连接</p>
 <h1 id="TCP和UDP"><a href="#TCP和UDP" class="headerlink" title="TCP和UDP"></a>TCP和UDP</h1><blockquote>
-<p>UDP 是一个人面向无连接的，可类比成写信，UDP发送写信到邮箱之后，对方不能够立即就可以收到，先后发送的信件也不一定是按照顺序接收，甚至里面信的内容有可能也不会完整<br>而TCP可以类比成电话，我们拨打电话到对方接通，互相通话，结束后挂断，这些都能够完成，并且能够确认对方是否能够接收到数据，</p>
+<p><code>UDP </code> 是一个人面向 <code>无连接</code>的，可类比成写信，UDP发送写信到邮箱之后，对方不能够立即就可以收到，先后发送的信件也不一定是按照顺序接收，甚至里面信的内容有可能也不会完整</p>
+</blockquote>
+<blockquote>
+<p><code>TCP</code>可以类比成电话，我们拨打电话到对方接通，互相通话，结束后挂断，这些都能够完成，并且<strong>能够确认对方是否能够接收到数据</strong>，</p>
 </blockquote>
 <h1 id="为什么要有TCP-x2F-IP-协议"><a href="#为什么要有TCP-x2F-IP-协议" class="headerlink" title="为什么要有TCP&#x2F;IP 协议"></a>为什么要有TCP&#x2F;IP 协议</h1><p>数据的IO操作，硬件的数据到另外一个硬件上面也是需要有协议的，在冯诺依曼体系中，也是设计一个硬件和一个硬件之间都是相互独立的，硬件之间的通信也都是需要协议（因为有“线”）<br>总线就是用来解决通信的问题</p>
 <p>一个单处理器系统中的总线有三种</p>
@@ -342,26 +345,87 @@
 <li>因此一旦传输距离变长的话，就需要一些协议来保证数据可以可靠的到达</li>
 </ul>
 </blockquote>
-<h1 id="TCP（传输控制协议）"><a href="#TCP（传输控制协议）" class="headerlink" title="TCP（传输控制协议）"></a>TCP（传输控制协议）</h1><p>TCP在两个端点（应用程序之间提供了可靠的，面向连接的，双向字节流通信信道）<br>TCP端点：表示TCP连接一端的内核所维护的信息（通常会进一步对这个术语进行缩写），“一个TCP端点”或者“客户端TCP”来表示“客户端应用程序所维护的TCP端点”</p>
-<p><strong>TCP 实现有效的载荷和首部分离是通过</strong>4位首部<strong>实现的</strong><br>TCP实现交付给上层工作是由16位目的端口号**</p>
-<p>假设首部长度为6，说明选项有4字节，这样就可以完整的读取报头数据，然后数据的读取可以根据数据的协议做处理，</p>
-<h2 id="TCP-报文格式"><a href="#TCP-报文格式" class="headerlink" title="TCP 报文格式"></a>TCP 报文格式</h2><p>1行就是4个字节<br>TCP 标准长度20个字节<br>4位首部长度[0000,1111]<br><img src="https://img-blog.csdnimg.cn/0d2a148db5474570b52a83571741c9b3.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
-<p>序列号 : 序列号: 序列号:<br>TCP 连接中发送的每一个字节都是按照顺序编号<br>在建立连接的时候，设置整个要传送的字节流的其实序号为计算机生成的随机数<br>序列号则是本报文段发送的第一个字节的序号，<br><img src="https://img-blog.csdnimg.cn/ab25d026d86b443a8a2377e27256d137.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
-<p>确认号 确认号 确认号<br>是对历史确认报文的序号+1，是期望收到对方下一个报文段的序列号，而且确认号为N，表示前N-1为止的数据 都已经正确收到了</p>
-<p>首部长度 首部长度 首部长度<br>里面记录的是报头长度<br>基本单位是4字节，如果首部长度是1，那么实际长度就是1 * 4&#x3D;4，表示TCP 头部有多少个32为bit（有多少个4字节），因为是4位所以TCP头部最大长度是（1111）15*4&#x3D;60<br>最小是固定20个字节,我们一般都是长度都是20，所以20&#x2F;4&#x3D;5，填充的是0101</p>
+<h1 id="TCP（传输控制协议）"><a href="#TCP（传输控制协议）" class="headerlink" title="TCP（传输控制协议）"></a>TCP（传输控制协议）</h1><p>TCP在两个 <code>端点</code>（应用程序之间提供了 <code>可靠</code>的，面向 <code>连接的</code>，双向 <code>字节流</code>通信信道）</p>
+<blockquote>
+<p>TCP端点：表示TCP连接一端的内核所维护的信息（通常会进一步对这个术语进行缩写），“一个TCP端点”或者“客户端TCP”来表示“客户端应用程序所维护的TCP端点”</p>
+</blockquote>
+<p><strong>TCP解包</strong></p>
+<blockquote>
+<p>TCP进行解包，</p>
+<ol>
+<li>先读取TCP报头固定的20个字节，获得4位 <code>Data offset</code></li>
+<li>根据4位 <code>offset</code>计算出TCP整个报头的长度</li>
+<li>剩余的数据就是有效载荷</li>
+</ol>
+</blockquote>
+<p><strong>TCP分用</strong></p>
+<blockquote>
+<p>TCP实现交付给上层工作是由 <code>16位目的端口</code></p>
+</blockquote>
+<h2 id="TCP-报文格式"><a href="#TCP-报文格式" class="headerlink" title="TCP 报文格式"></a>TCP 报文格式</h2><blockquote>
+<ul>
+<li>1行就是4个字节</li>
+<li>TCP 标准长度 <code>20个字节</code></li>
+<li>4位首部长度[0000,1111]</li>
+</ul>
+</blockquote>
+<p><img src="https://img-blog.csdnimg.cn/0d2a148db5474570b52a83571741c9b3.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<ul>
+<li><p>32位序列号</p>
+<blockquote>
+<ul>
+<li>TCP 连接中发送的每一个字节都是按照顺序进行编号，保证能够按序到达</li>
+<li>在TCP 建立连接的时候，为了保证可靠性和隐蔽性，第一个序列号是随机生成的，第一个序列号代表的就是SYN的编号，SYN和FIN各自都是有一个字节的，分别代表了发送的开始与结束</li>
+<li>此后发送的数据，依次按照从syn的序号开始进行排序编号</li>
+</ul>
+</blockquote>
+</li>
+</ul>
+<p><img src="https://img-blog.csdnimg.cn/ab25d026d86b443a8a2377e27256d137.png" srcset="/img/loading.gif" lazyload alt="在这里插入图片描述"></p>
+<ul>
+<li><p>32位确认序号</p>
+<ul>
+<li>和32位序列号进行对应</li>
+<li>为历史上已经接收到的数据的序号+1&#x3D;期望收到对方下一个报文段的序列号&#x3D;已经读取的字节个数</li>
+<li>确认号为N，表示序号为N-1之前的数据 都已经正确收到了</li>
+</ul>
+</li>
+<li><p>首部长度<br>里面记录的是报头长度<br>基本单位是4字节，如果首部长度是1，那么实际长度就是1 * 4&#x3D;4，表示TCP 头部有多少个32为bit（有多少个4字节），因为是4位所以TCP头部最大长度是（1111）15*4&#x3D;60<br>最小是固定20个字节,我们一般都是长度都是20，所以20&#x2F;4&#x3D;5，填充的是0101</p>
+</li>
+</ul>
 <blockquote>
 <p>所以当我们读取到一个完成的TCP报文，提取到前20个字节（标准长度），从里面分析到报文长度，确认报文是20个字节，剩余的就是有效载荷，提取，</p>
 </blockquote>
-<p>窗口大小 窗口大小 窗口大小<br>表示自己接收缓冲区剩余的空间大小，要求对方发送数据的时候要考虑到这一点，这个值通常是变化的（16位）</p>
-<p>校验和 校验和 校验和<br>校验的范围包括首部和数据<br>发送端填充CRC 校验，接收端校验不通过，则认为数据有问题</p>
-<p>紧急指针 紧急指针 紧急指针<br>指出了紧急数据的末尾在报文段中的位置,和URG搭配使用，<br>因为TCP都是按序到达的，每一个报文，什么时候被上层读到都是确定的，<br>如果想让一个数据尽快的被上层读取，可以设置URG：表明该报文<strong>携带</strong>了紧急数据，需要优先读取<br>16位紧急指针就会指向对应的地址<br><strong>tcp的紧急指针只能传输1个字节</strong></p>
-<p>六位标志位 六位标志位 六位标志位</p>
+<ul>
+<li>窗口大小</li>
+</ul>
+<blockquote>
+<p>表示自己接收缓冲区剩余的空间大小，要求对方发送数据的时候要考虑到这一点，这个值通常是变化的（16位）</p>
+</blockquote>
+<ul>
+<li><p>校验和<br>校验的范围包括首部和数据<br>发送端填充CRC 校验，接收端校验不通过，则认为数据有问题</p>
+</li>
+<li><p>紧急指针<br>指出了紧急数据的末尾在报文段中的位置,和URG搭配使用，<br>因为TCP都是按序到达的，每一个报文，什么时候被上层读到都是确定的，<br>如果想让一个数据尽快的被上层读取，可以设置URG：表明该报文<strong>携带</strong>了紧急数据，需要优先读取<br>16位紧急指针就会指向对应的地址<br><strong>tcp的紧急指针只能传输1个字节</strong></p>
+</li>
+<li><p>六位标志位</p>
+<ul>
+<li>URG(urgent):为1代表了紧急指针有效,和16位紧急指针搭配使用</li>
+<li>ACK:为1代表有效，连接建立后所有的报文ACK都是1，<strong>确认报文</strong>，几乎所有的TCP报文都会设置ACK</li>
+<li>PSH(push)：<strong>告知对方尽快的将数据向上交付</strong>，避免缓冲区被打满了，发送方无法发送</li>
+<li>RST(reset)：表明出现了严重差错，必须释放连接,重新建立xin d lianjie </li>
+<li>SYN：为1代表了这是一个连接请求，<strong>链接请求报文</strong></li>
+<li>FIN：通知对方，本端要关闭了，我们称携带FIN 表示的为结束报文段，<strong>断开连接报文</strong></li>
+</ul>
+</li>
+</ul>
 <blockquote>
 <p>server首先要面对的是，有大量的TCP报文，如何区分报文的类别<br>例如送外卖，普通外卖，美团，饿了吗怎么区分，不同的人有不同的策略</p>
+<p>这些<strong>标志位可以用来区分不同种类的TCP报文</strong></p>
 </blockquote>
-<p>这些标志位可以用来区分不同种类的TCP报文<br>每个标志位都是一个bit，要么是0，要么是1</p>
-<p>URG(urgent):为1代表了紧急指针有效,和16位紧急指针搭配使用<br>ACK:为1代表有效，连接建立后所有的报文ACK都是1，<strong>确认报文</strong>，几乎所有的TCP报文都会设置ACK<br>PSH(push)：<strong>告知对方尽快的将数据向上交付</strong>，避免缓冲区被打满了，发送方无法发送<br>RST(reset)：表明出现了严重差错，必须释放连接重新建立，<strong>重置异常连接</strong><br>SYN：为1代表了这是一个连接请求，<strong>链接请求报文</strong><br>FIN：通知对方，本端要关闭了，我们称携带FIN 表示的为结束报文段，<strong>断开连接报文</strong></p>
-<p>选项 选项 选项<br>选项的首部-标长<br>60-20&#x3D;40,选项的最大长度</p>
+<p>每个标志位都是一个bit，要么是0，要么是1</p>
+<ul>
+<li>选项<br>选项&#x3D;首部长度-标长（20)<br>60-20&#x3D;40,选项的最大长度</li>
+</ul>
 <h2 id="确认应答机制"><a href="#确认应答机制" class="headerlink" title="确认应答机制"></a>确认应答机制</h2><p>tcp并不是百分之百可靠的！因为总会遇到一条消息没有被应答,但是只要一条消息有应答，我们就能确认该消息被对方100%收到了,世界上不存在100%可靠的，因为不能确认它丢了还是被应答了</p>
 <p>TCP可靠性的核心机制：确认应答机制，按序到达</p>
 <ol>
@@ -375,7 +439,7 @@
 </li>
 </ol>
 <p>通过确认应答机制能够保证我的<strong>历史数据</strong>被收到了</p>
-<h2 id="缓冲区"><a href="#缓冲区" class="headerlink" title="缓冲区"></a>缓冲区</h2><p>TCP协议，是自带发送和接收缓冲区的！<br>（TCP malloc2段内存空间）</p>
+<h2 id="缓冲区"><a href="#缓冲区" class="headerlink" title="缓冲区"></a>缓冲区</h2><p>TCP协议，是自带发送和接收缓冲区的！（TCP malloc2段内存空间）</p>
 <ul>
 <li>write&#x2F;send:与其叫做发送接口，不如理解成拷贝函数，send是把数据拷贝到TCP的发送缓冲区里面，接下来TCP 就把发送缓冲区里面的数据，直接发送给对方的接收缓冲区里面</li>
 <li>read&#x2F;recv:与其叫做接收窗口，不如叫做拷贝函数，recv是把数据从TCP 的接收缓冲区里面拷贝到本地,有的时候会阻塞住，是因为缓冲区里面没数据，不是网络里面没数据</li>
@@ -396,7 +460,6 @@
 <li>后面服务器也要发起关闭，也要有两次挥手（半关闭是导致4次挥手的原因）</li>
 <li>半关闭并非是关套接字，而是关里面的写缓冲区，读缓冲区还没有关闭，</li>
 <li>数据会被分成段，如果一个段在到达时是存在错误的，这个段就会被丢弃，确认信息也不会发送，发送者在发送每一个段的时候，都会开启一个定时器，如果定时器超时之前没有收到确认，就会重传这个段，</li>
-<li></li>
 </ol>
 
                 
